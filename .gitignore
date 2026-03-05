@@ -1,0 +1,22 @@
+# Build folders
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio workspace
+.vs/
+
+# NuGet packages
+*.nupkg
+packages/
+
+# Logs
+*.log
+
+# Environment settings
+appsettings.Development.json
