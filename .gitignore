@@ -20,3 +20,6 @@ packages/
 
 # Environment settings
 appsettings.Development.json
+
+# Test
+TestProject/
