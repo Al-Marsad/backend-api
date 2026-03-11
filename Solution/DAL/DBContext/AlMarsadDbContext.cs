@@ -12,6 +12,8 @@ namespace DAL.DBContext
     {
         public DbSet<AppUser> Users { get; set; }
         public DbSet<FieldResearcherInfo> FieldResearcherInfos { get; set; }
+        public DbSet<InitialIncidentReport> InitialIncidentReports { get; set; }
+        public DbSet<City> Cities { get; set; } 
         public AlMarsadDbContext(DbContextOptions<AlMarsadDbContext> options)
         : base(options) { }
 
@@ -27,6 +29,12 @@ namespace DAL.DBContext
             .HasOne(r => r.CitizenReporter)
             .WithMany(u => u.InitialIncidentReports)
             .HasForeignKey(r => r.CitizenReporterId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<FieldResearcherInfo>()
+            .HasOne(f => f.City)
+            .WithMany(c => c.FieldResearchers)
+            .HasForeignKey(f => f.CityId)
             .OnDelete(DeleteBehavior.Restrict);
 
 

@@ -19,5 +19,9 @@ namespace DAL.Entities
         public string UserId { get; set; }
 
         public virtual AppUser User { get; set; }
+
+        [ForeignKey(nameof(City))]
+        public int CityId { get; set; }
+        public virtual City City { get; set; }
     }
 }
