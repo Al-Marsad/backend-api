@@ -34,5 +34,7 @@ namespace DAL.Entities
         public DateTime? RefreshTokenExpirationTime { get; set; }
 
         public virtual FieldResearcherInfo? ResearcherInfo { get; set; }
+
+        public virtual List<InitialIncidentReport>? InitialIncidentReports { get; set; } 
     }
 }
