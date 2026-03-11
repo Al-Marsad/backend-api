@@ -16,6 +16,8 @@ namespace DAL.DBContext
         public DbSet<City> Cities { get; set; } 
 
         public DbSet<Evidence> Evidences { get; set; }
+
+        public DbSet<Location> Locations { get; set; }
         public AlMarsadDbContext(DbContextOptions<AlMarsadDbContext> options)
         : base(options) { }
 
@@ -37,6 +39,12 @@ namespace DAL.DBContext
             .HasOne(f => f.City)
             .WithMany(c => c.FieldResearchers)
             .HasForeignKey(f => f.CityId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Location>()
+            .HasOne(l => l.City)
+            .WithMany(c => c.Locations)
+            .HasForeignKey(l => l.CityId)
             .OnDelete(DeleteBehavior.Restrict);
 
 
