@@ -14,6 +14,8 @@ namespace DAL.DBContext
         public DbSet<FieldResearcherInfo> FieldResearcherInfos { get; set; }
         public DbSet<InitialIncidentReport> InitialIncidentReports { get; set; }
         public DbSet<City> Cities { get; set; } 
+
+        public DbSet<Evidence> Evidences { get; set; }
         public AlMarsadDbContext(DbContextOptions<AlMarsadDbContext> options)
         : base(options) { }
 
