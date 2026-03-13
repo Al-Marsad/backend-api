@@ -18,6 +18,7 @@ namespace DAL.DBContext
         public DbSet<Evidence> Evidences { get; set; }
 
         public DbSet<Location> Locations { get; set; }
+        public DbSet<Incident> Incidents { get; set; }
         public AlMarsadDbContext(DbContextOptions<AlMarsadDbContext> options)
         : base(options) { }
 
@@ -47,6 +48,35 @@ namespace DAL.DBContext
             .HasForeignKey(l => l.CityId)
             .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<AppUser>()
+            .HasIndex(U => U.NormalizedEmail).IsUnique();
+
+            builder.Entity<AppUser>()
+            .HasIndex(U => U.PhoneNumber).IsUnique();
+            
+            builder.Entity<AppUser>()
+            .Property(U => U.PhoneNumber).IsRequired();
+
+            builder.Entity<City>()
+            .HasIndex(c => c.Name).IsUnique();
+
+            builder.Entity<Incident>()
+                       .HasOne(i => i.InitialIncidentReport)
+                       .WithMany(i => i.Incidents)
+                       .HasForeignKey(i => i.InitialIncidentReportId)
+                       .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Incident>()
+                       .HasOne(i => i.FieldResearcher)
+                       .WithMany(f => f.Incidents)
+                       .HasForeignKey(i => i.FieldResearcherId)
+                       .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Incident>()
+                       .HasOne(i => i.Location)
+                       .WithMany(l => l.Incidents)
+                       .HasForeignKey(i => i.LocationId)
+                       .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(builder);
         }

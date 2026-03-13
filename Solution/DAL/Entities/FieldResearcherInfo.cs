@@ -23,5 +23,8 @@ namespace DAL.Entities
         [ForeignKey(nameof(City))]
         public int CityId { get; set; }
         public virtual City City { get; set; }
+
+        public virtual List<Incident> Incidents { get; set; }  
+
     }
 }

@@ -21,6 +21,8 @@ namespace DAL.Entities
         [ForeignKey(nameof(CitizenReporter))]
         public string CitizenReporterId { get; set; }
 
-        public AppUser CitizenReporter { get; set; }
+        public virtual AppUser CitizenReporter { get; set; }
+
+        public virtual List<Incident> Incidents { get; set; }
     }
 }
