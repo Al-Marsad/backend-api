@@ -26,5 +26,7 @@ namespace DAL.Entities
 
         public virtual List<Incident> Incidents { get; set; }  
 
+        public virtual List<FinalIncidentReport> FinalIncidentReports { get; set; }
+
     }
 }
