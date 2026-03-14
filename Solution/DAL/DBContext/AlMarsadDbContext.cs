@@ -3,6 +3,7 @@ using DAL.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using static System.Collections.Specialized.BitVector32;
 
 
@@ -17,6 +18,10 @@ namespace DAL.DBContext
         public DbSet<Evidence> Evidences { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Incident> Incidents { get; set; }
+        public DbSet<FinalIncidentReport> FinalIncidentReports { get; set; }
+        public DbSet<LegalReview> LegalReviews { get; set; }
+
+
         public AlMarsadDbContext(DbContextOptions<AlMarsadDbContext> options)
         : base(options) { }
 
@@ -86,6 +91,18 @@ namespace DAL.DBContext
             .HasOne(f => f.Incident)
             .WithOne(i => i.FinalIncidentReport)
             .HasForeignKey<FinalIncidentReport>(f => f.IncidentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<LegalReview>()
+            .HasOne(l => l.FinalIncidentReport)
+            .WithOne(f => f.LegalReview)
+            .HasForeignKey<LegalReview>(l => l.FinalIncidentReportId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<LegalReview>()
+            .HasOne(l => l.AppUser)
+            .WithMany(u => u.LegalReviews)
+            .HasForeignKey(l => l.AppUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(builder);

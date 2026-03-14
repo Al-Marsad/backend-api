@@ -36,5 +36,7 @@ namespace DAL.Entities
         public virtual FieldResearcherInfo? ResearcherInfo { get; set; }
 
         public virtual List<InitialIncidentReport>? InitialIncidentReports { get; set; } 
+
+        public virtual List<LegalReview>? LegalReviews { get; set; }
     }
 }
