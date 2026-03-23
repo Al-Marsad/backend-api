@@ -33,5 +33,7 @@ namespace DAL.Entities
 
         public virtual FinalIncidentReport? FinalIncidentReport { get; set; }
 
+        public virtual NewsItem? NewsItem { get; set; }
+
     }
 }

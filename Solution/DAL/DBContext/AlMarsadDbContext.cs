@@ -20,7 +20,7 @@ namespace DAL.DBContext
         public DbSet<Incident> Incidents { get; set; }
         public DbSet<FinalIncidentReport> FinalIncidentReports { get; set; }
         public DbSet<LegalReview> LegalReviews { get; set; }
-
+        public DbSet<NewsItem> News { get; set; }
 
         public AlMarsadDbContext(DbContextOptions<AlMarsadDbContext> options)
         : base(options) { }
@@ -103,6 +103,18 @@ namespace DAL.DBContext
             .HasOne(l => l.AppUser)
             .WithMany(u => u.LegalReviews)
             .HasForeignKey(l => l.AppUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<NewsItem>()
+            .HasOne(n => n.WrittenBy)
+            .WithMany(u => u.News)
+            .HasForeignKey(n => n.WrittenById)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<NewsItem>()
+            .HasOne(n => n.Incident)
+            .WithOne(i => i.NewsItem)
+            .HasForeignKey<NewsItem>(n => n.IncidentId)
             .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(builder);

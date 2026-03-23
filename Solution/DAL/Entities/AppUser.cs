@@ -38,5 +38,6 @@ namespace DAL.Entities
         public virtual List<InitialIncidentReport>? InitialIncidentReports { get; set; } 
 
         public virtual List<LegalReview>? LegalReviews { get; set; }
+        public virtual List<NewsItem>? News { get; set; }
     }
 }
