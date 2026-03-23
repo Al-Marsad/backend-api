@@ -21,6 +21,7 @@ namespace DAL.DBContext
         public DbSet<FinalIncidentReport> FinalIncidentReports { get; set; }
         public DbSet<LegalReview> LegalReviews { get; set; }
         public DbSet<NewsItem> News { get; set; }
+        public DbSet<Victim> Victims { get; set; }
 
         public AlMarsadDbContext(DbContextOptions<AlMarsadDbContext> options)
         : base(options) { }
@@ -116,6 +117,12 @@ namespace DAL.DBContext
             .WithOne(i => i.NewsItem)
             .HasForeignKey<NewsItem>(n => n.IncidentId)
             .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Victim>()
+            .HasIndex(v => v.NationalId).IsUnique();
+
+            builder.Entity<Victim>()
+            .HasIndex(v => v.PhoneNumber).IsUnique();
 
             base.OnModelCreating(builder);
         }
