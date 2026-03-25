@@ -24,6 +24,8 @@ namespace DAL.DBContext
         public DbSet<Victim> Victims { get; set; }
         public DbSet<PersonalVictimTestimonie> PersonalVictimTestimonies { get; set; }
 
+        public DbSet<Residence> Residences { get; set; }
+
 
         public AlMarsadDbContext(DbContextOptions<AlMarsadDbContext> options)
         : base(options) { }
@@ -136,6 +138,24 @@ namespace DAL.DBContext
             .HasOne(t => t.Victim)
             .WithMany(i => i.PersonalVictimTestimonies)
             .HasForeignKey(t => t.VictimId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Residence>()
+            .HasOne(r => r.Incident)
+            .WithOne(i => i.Residence)
+            .HasForeignKey<Residence>(r => r.IncidentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Evidence>()
+            .HasOne(e => e.Residence)
+            .WithMany(r => r.OwnershipDocuments)
+            .HasForeignKey(e => e.ResidenceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Evidence>()
+            .HasOne(e => e.Incident)
+            .WithMany(i => i.Evidences)
+            .HasForeignKey(e => e.IncidentId)
             .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(builder);

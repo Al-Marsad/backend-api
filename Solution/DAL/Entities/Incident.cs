@@ -36,6 +36,9 @@ namespace DAL.Entities
 
         public virtual NewsItem? NewsItem { get; set; }
 
+        public virtual Residence? Residence { get; set; }
+
+        public virtual List<Evidence> Evidences { get; set; }
         public virtual List<PersonalVictimTestimonie> PersonalVictimTestimonies { get; set; }
     }
 }
