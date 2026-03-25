@@ -14,10 +14,12 @@ namespace DAL.Entities
         
         [MaxLength(200)]
         public string Title { get; set; }
+
+        [MaxLength(10000)]
         public string Body { get; set; }
         public DateTime? PublishDate { get; set; }
 
-        [MaxLength(500)]
+        [MaxLength(1000)]
         public string Summary { get; set; }
         public bool IsPublished { get; set; }
 

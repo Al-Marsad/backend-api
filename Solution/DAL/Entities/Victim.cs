@@ -38,6 +38,7 @@ namespace DAL.Entities
         [Phone]
         [MaxLength(20)]
         public string PhoneNumber { get; set; }
+        public virtual List<PersonalVictimTestimonie> PersonalVictimTestimonies { get; set; }
     }
 }
     

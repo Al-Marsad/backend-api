@@ -15,7 +15,7 @@ namespace DAL.Entities
         public InitialIncidentReportStatus Status { get; set; } = InitialIncidentReportStatus.New;
 
         [Required]
-        [MaxLength(1000)]
+        [MaxLength(2000)]
         public string InitialDescription { get; set; }
 
         [ForeignKey(nameof(CitizenReporter))]

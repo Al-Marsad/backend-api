@@ -15,6 +15,7 @@ namespace DAL.Entities
         [Required]
         public string DetailedDescriptionStr { get; set; }
         public int? WitnessCount { get; set; }
+        
         public string? WitnessDetailsStr { get; set; }
 
         [ForeignKey(nameof(InitialIncidentReport))]
@@ -35,5 +36,6 @@ namespace DAL.Entities
 
         public virtual NewsItem? NewsItem { get; set; }
 
+        public virtual List<PersonalVictimTestimonie> PersonalVictimTestimonies { get; set; }
     }
 }
