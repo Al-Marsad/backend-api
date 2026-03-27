@@ -1,6 +1,4 @@
 
-<<<<<<< Updated upstream
-=======
 using BL.Extensions;
 using DAL.DBContext;
 using DAL.Entities;
@@ -9,7 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PL.Middlewares;
 
->>>>>>> Stashed changes
 namespace PL
 {
     public class Program
@@ -19,8 +16,16 @@ namespace PL
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
             builder.Services.AddControllers();
+
+            // Add DAL Services
+            builder.Services.AddDataAccess(builder.Configuration);
+
+            // Add BL Services
+            builder.Services.AddBusinessLogic();
+
+
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
