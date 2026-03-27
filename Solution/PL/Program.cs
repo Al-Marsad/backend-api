@@ -5,6 +5,7 @@ using DAL.Entities;
 using DAL.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using PL.Middlewares;
 
 namespace PL
 {
@@ -29,7 +30,20 @@ namespace PL
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            // Create A Policy For Let Any Request
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
+
             var app = builder.Build();
+
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -38,10 +52,15 @@ namespace PL
                 app.UseSwaggerUI();
             }
 
+            app.UseStaticFiles();
+
+            app.UseMiddleware<GlobalExceptionMiddleware>();
+
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            app.UseCors("AllowAll");
 
+            app.UseAuthorization();
 
             app.MapControllers();
 

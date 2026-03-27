@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
+using DAL.Enums;
 using Microsoft.AspNetCore.Identity;
 
 namespace DAL.Entities
@@ -23,7 +24,7 @@ namespace DAL.Entities
         public string LastName { get; set; }
 
         [Required]
-        public bool AccountStatus { get; set; }
+        public AccountStatus AccountStatus { get; set; } = AccountStatus.Active;    
         
         [Required]
         public DateTime Birthdate { get; set; }

@@ -1,5 +1,7 @@
 ﻿using DAL.DBContext;
 using DAL.Entities;
+using DAL.Repositories;
+using DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -34,6 +36,9 @@ namespace DAL.Extensions
             })
             .AddEntityFrameworkStores<AlMarsadDbContext>()
             .AddDefaultTokenProviders();
+
+            // Add Application Repositories
+            services.AddScoped<IInitialIncidentReportRepository, InitialIncidentReportRepository>();
 
 
             return services;

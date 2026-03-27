@@ -1,5 +1,6 @@
 ﻿using DAL.DBContext;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PL.Controllers
@@ -11,7 +12,6 @@ namespace PL.Controllers
         [HttpGet]
         public async Task<IActionResult> AddAsync()
         {
-
             return Ok();
         }
     }
