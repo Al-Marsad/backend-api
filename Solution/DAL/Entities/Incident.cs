@@ -11,12 +11,16 @@ namespace DAL.Entities
 
         [Required]
         public DateTime DateOfOccurrence { get; set; }
-        
+
         [Required]
-        public string DetailedDescriptionStr { get; set; }
-        public int? WitnessCount { get; set; }
+        [Column(TypeName = "jsonb")]
+        public Dictionary<string, object> DetailedDescription { get; set; } = new();
         
-        public string? WitnessDetailsStr { get; set; }
+        public int WitnessCount { get; set; }
+
+        [Column(TypeName = "jsonb")]
+        public Dictionary<string, object> WitnessDetails { get; set; } = new();
+
 
         [ForeignKey(nameof(InitialIncidentReport))]
         public int? InitialIncidentReportId { get; set; }
@@ -38,7 +42,7 @@ namespace DAL.Entities
 
         public virtual Residence? Residence { get; set; }
 
-        public virtual List<Evidence> Evidences { get; set; }
-        public virtual List<PersonalVictimTestimonie> PersonalVictimTestimonies { get; set; }
+        public virtual List<Evidence> Evidences { get; set; } = new();
+        public virtual List<PersonalVictimTestimonie> PersonalVictimTestimonies { get; set; } = new();
     }
 }

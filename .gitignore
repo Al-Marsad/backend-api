@@ -19,7 +19,7 @@ packages/
 *.log
 
 # Environment settings
-appsettings.Development.json
+appsettings*.json
 
 # Test
 TestProject/

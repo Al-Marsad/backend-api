@@ -10,7 +10,6 @@ namespace DAL.Entities
         public DateTime CreationDate { get; set; }
         public FinalIncidentReportStatus? Status { get; set; }
         
-        [MaxLength(2048)]
         public string? Url { get; set; }
         public bool DocumentationConsent { get; set; }
         public bool PublicationConsent { get; set; }

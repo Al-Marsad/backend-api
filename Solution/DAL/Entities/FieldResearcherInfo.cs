@@ -24,9 +24,9 @@ namespace DAL.Entities
         public int CityId { get; set; }
         public virtual City City { get; set; }
 
-        public virtual List<Incident> Incidents { get; set; }
+        public virtual List<Incident> Incidents { get; set; } = new();
 
-        public virtual List<FinalIncidentReport> FinalIncidentReports { get; set; }
+        public virtual List<FinalIncidentReport> FinalIncidentReports { get; set; } = new();
 
     }
 }

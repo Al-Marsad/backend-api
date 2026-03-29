@@ -1,4 +1,5 @@
-﻿using PL.Helper;
+﻿using DAL.Exceptions;
+using PL.Helper;
 
 namespace PL.Middlewares
 {
@@ -28,15 +29,19 @@ namespace PL.Middlewares
 
         private static Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
+            int statusCode = 500;
+
+            if (ex is BusinessException bizEx)
+            {
+                statusCode = bizEx.StatusCode;
+            }
+
             var response = new GeneralResponse
             {
-                Success = false,
+                StatusCode = statusCode,
                 Message = ex.Message,
-                Data = null,
-                Errors = null
+                Data = null            
             };
-
-            int statusCode = 500;
 
             context.Response.StatusCode = statusCode;
             context.Response.ContentType = "application/json";

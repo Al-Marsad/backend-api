@@ -17,14 +17,12 @@ namespace DAL.Entities
         public EvidenceType Type { get; set; }
         
         
-        [MaxLength(2048)]  
         [Required]
         public string Url { get; set; }
 
         [Required]
         public DateTime CaptureDate { get; set; }
 
-        [MaxLength(500)]
         public string? Description { get; set; }
 
         [ForeignKey(nameof(Incident))]

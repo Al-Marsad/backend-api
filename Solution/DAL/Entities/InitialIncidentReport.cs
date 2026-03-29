@@ -23,6 +23,6 @@ namespace DAL.Entities
 
         public virtual AppUser CitizenReporter { get; set; }
 
-        public virtual List<Incident> Incidents { get; set; }
+        public virtual List<Incident> Incidents { get; set; } = new();
     }
 }

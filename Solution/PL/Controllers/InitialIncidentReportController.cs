@@ -1,6 +1,7 @@
 ﻿using BL.DTO.InitialIncidentReport;
 using BL.Services.Interfaces;
 using DAL.Entities;
+using DAL.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PL.Helper;
@@ -28,10 +29,9 @@ namespace PL.Controllers
 
             return Ok(new GeneralResponse()
             {
-                Success = true,
+                StatusCode = 200,
                 Message = "Initial Report Added Successfully",
-                Data = data,
-                Errors = null
+                Data = data            
             });
         }
     }

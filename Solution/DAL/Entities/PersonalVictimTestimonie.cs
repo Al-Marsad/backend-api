@@ -10,10 +10,8 @@ namespace DAL.Entities
 
         public string PersonalNarrative { get; set; }
 
-        [MaxLength(3000)]
         public string? HardestMoment { get; set; }
         
-        [MaxLength(3000)]
         public string? InternationalDemand { get; set; }
 
         [ForeignKey(nameof(Incident))]
