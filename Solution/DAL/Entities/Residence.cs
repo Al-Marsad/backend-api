@@ -19,7 +19,7 @@ namespace DAL.Entities
         [ForeignKey(nameof(Incident))]
         public int IncidentId { get; set; }
         public virtual Incident Incident { get; set; }
-        public virtual List<Evidence> OwnershipDocuments { get; set; }
+        public virtual List<Evidence> OwnershipDocuments { get; set; } = new();
 
     }
 }

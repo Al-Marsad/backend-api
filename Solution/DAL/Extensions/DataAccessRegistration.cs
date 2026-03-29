@@ -17,7 +17,7 @@ namespace DAL.Extensions
         {
             // Add DbContext Options
             services.AddDbContext<AlMarsadDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")).UseSnakeCaseNamingConvention());
 
             // Add Identity Service 
             services.AddIdentity<AppUser, IdentityRole>(options =>

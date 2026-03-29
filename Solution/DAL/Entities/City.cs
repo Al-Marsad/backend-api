@@ -9,10 +9,9 @@ namespace DAL.Entities
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(50)]
         public string Name { get; set; }
-        public virtual List<FieldResearcherInfo> FieldResearchers { get; set; }
+        public virtual List<FieldResearcherInfo> FieldResearchers { get; set; } = new();
 
-        public virtual List<Location> Locations { get; set; }
+        public virtual List<Location> Locations { get; set; } = new();
     }
 }
