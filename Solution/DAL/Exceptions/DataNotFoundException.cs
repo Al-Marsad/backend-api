@@ -9,6 +9,6 @@ namespace DAL.Exceptions
     public class DataNotFoundException : BusinessException
     {
         public DataNotFoundException(string message)
-        : base(message, 404) { }
+        : base(message, 404, "NOT_FOUND") { }
     }
 }

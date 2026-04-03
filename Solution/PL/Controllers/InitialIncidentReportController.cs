@@ -27,9 +27,9 @@ namespace PL.Controllers
 
             var data = await this._initialReportService.AddAsync(reportDto);
 
-            return Ok(new GeneralResponse()
+            return StatusCode(201, new
             {
-                StatusCode = 200,
+                Success = true,
                 Message = "Initial Report Added Successfully",
                 Data = data            
             });

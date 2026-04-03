@@ -4,6 +4,7 @@ using DAL.DBContext;
 using DAL.Entities;
 using DAL.Extensions;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PL.Middlewares;
 
@@ -24,6 +25,35 @@ namespace PL
             // Add BL Services
             builder.Services.AddBusinessLogic();
 
+            // Customize Response Of Automatic Validation
+            builder.Services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var fields = context.ModelState
+                        .Where(e => e.Value.Errors.Count > 0)
+                        .ToDictionary(
+                            kvp => kvp.Key,
+                            kvp => kvp.Value.Errors.First().ErrorMessage
+                        );
+
+                    var result = new ObjectResult(new
+                    {
+                        Success = false,
+                        Error = new
+                        {
+                            Code = "VALIDATION_ERROR",
+                            Message = "Validation failed",
+                            Fields = fields
+                        }
+                    })
+                    {
+                        StatusCode = 422
+                    };
+
+                    return result;
+                };
+            });
 
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

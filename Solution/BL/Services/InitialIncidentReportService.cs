@@ -21,7 +21,7 @@ namespace BL.Services
             var reportEntity = _mapper.Map<InitialIncidentReport>(reportDto);
 
             if (reportEntity == null) { 
-                throw new ArgumentNullException(nameof(reportEntity), "Mapping DTO to Entity failed.");
+                throw new ArgumentNullException("There is something wrong in the sent fields");
             }
 
             await _initialReportService.AddAsync(reportEntity);
