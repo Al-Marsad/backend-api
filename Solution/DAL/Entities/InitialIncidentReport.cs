@@ -12,11 +12,20 @@ namespace DAL.Entities
         public DateTime CreationDate { get; set; } = DateTime.UtcNow;
 
         [Required]
-        public InitialIncidentReportStatus Status { get; set; } = InitialIncidentReportStatus.New;
+        public InitialIncidentReportStatus Status { get; set; } = InitialIncidentReportStatus.PENDING;
 
         [Required]
-        [MaxLength(2000)]
         public string InitialDescription { get; set; }
+
+        public double LocationLat { get; set; }
+        public double LocationLng { get; set; }
+        public string? LocationLabel { get; set; }
+
+        public string? WitnessName { get; set; }
+
+        [Phone]
+        public string? WitnessPhone { get; set; }
+        
 
         [ForeignKey(nameof(CitizenReporter))]
         public string CitizenReporterId { get; set; }

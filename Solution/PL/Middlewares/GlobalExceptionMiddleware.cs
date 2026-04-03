@@ -30,22 +30,27 @@ namespace PL.Middlewares
         private static Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
             int statusCode = 500;
+            string code = "INTERNAL_ERROR";
+
 
             if (ex is BusinessException bizEx)
             {
                 statusCode = bizEx.StatusCode;
+                code = bizEx.Code;
             }
 
-            var response = new GeneralResponse
+            var response = new
             {
-                StatusCode = statusCode,
-                Message = ex.Message,
-                Data = null            
+                Success = false,
+                Error = new
+                {
+                    Code = code,
+                    Message = ex.Message
+                }
             };
 
             context.Response.StatusCode = statusCode;
             context.Response.ContentType = "application/json";
-
 
             return context.Response.WriteAsJsonAsync(response);
         }

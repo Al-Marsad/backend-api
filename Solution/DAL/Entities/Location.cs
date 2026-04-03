@@ -13,11 +13,10 @@ namespace DAL.Entities
         
         public AreaClass? AreaClass { get; set; }
 
-        [Required]
-        public string Coordinates { get; set; }
-
-        [Required]
+        [Required]  
         public string Description { get; set; }
+        public double LocationLat { get; set; }
+        public double LocationLng { get; set; }
 
         [ForeignKey(nameof(City))]
         public int CityId { get; set; }

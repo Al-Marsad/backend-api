@@ -11,7 +11,7 @@ namespace BL.MappingProfiles
             // Initial Incident Report Profile
             CreateMap<AddInitialIncidentReportDTO, InitialIncidentReport>();
             CreateMap<InitialIncidentReport, ReturnInitialIncidentReportDTO>()
-                .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.Status.ToString()));
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
         }
     }
 }

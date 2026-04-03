@@ -9,11 +9,13 @@ namespace DAL.Exceptions
     public class BusinessException : Exception
     {
         public int StatusCode { get; }
+        public string Code { get; }
 
-        protected BusinessException(string message, int statusCode)
+        protected BusinessException(string message, int statusCode, string code)
             : base(message)
         {
             StatusCode = statusCode;
+            Code = code;
         }
     }
 }

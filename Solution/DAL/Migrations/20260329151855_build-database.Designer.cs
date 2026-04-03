@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AlMarsadDbContext))]
-    [Migration("20260328123712_build-database")]
+    [Migration("20260329151855_build-database")]
     partial class builddatabase
     {
         /// <inheritdoc />

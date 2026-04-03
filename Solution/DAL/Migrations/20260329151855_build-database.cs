@@ -13,6 +13,8 @@ namespace DAL.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("SET cluster setting cluster.preserve_downgrade_option = '23.1';", suppressTransaction: true);
+
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
