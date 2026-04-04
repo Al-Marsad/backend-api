@@ -21,7 +21,7 @@ namespace DAL.Entities
         public string FieldResearcherId { get; set; }
 
         public virtual Incident Incident { get; set; }  
-        public virtual FieldResearcherInfo FieldResearcher { get; set; }
+        public virtual AppUser FieldResearcher { get; set; }
 
         public virtual LegalReview? LegalReview { get; set; }    
     }

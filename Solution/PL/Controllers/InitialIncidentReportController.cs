@@ -21,7 +21,7 @@ namespace PL.Controllers
             this._userManager = userManager;
         }
         
-        [HttpPost("Send")]
+        [HttpPost]
         public async Task<IActionResult> SendReport(AddInitialIncidentReportDTO reportDto)
         {
 

@@ -34,7 +34,7 @@ namespace DAL.Entities
 
         public virtual Location Location { get; set; }
 
-        public virtual FieldResearcherInfo FieldResearcher { get; set; }    
+        public virtual AppUser FieldResearcher { get; set; }    
 
         public virtual FinalIncidentReport? FinalIncidentReport { get; set; }
 

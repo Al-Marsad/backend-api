@@ -12,7 +12,6 @@ namespace DAL.DBContext
     public class AlMarsadDbContext : IdentityDbContext<AppUser>
     {
         public DbSet<AppUser> Users { get; set; }
-        public DbSet<FieldResearcherInfo> FieldResearcherInfos { get; set; }
         public DbSet<InitialIncidentReport> InitialIncidentReports { get; set; }
         public DbSet<City> Cities { get; set; } 
         public DbSet<Evidence> Evidences { get; set; }
@@ -32,11 +31,6 @@ namespace DAL.DBContext
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<FieldResearcherInfo>()
-            .HasOne(f => f.User)
-            .WithOne(u => u.ResearcherInfo)
-            .HasForeignKey<FieldResearcherInfo>(f => f.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<InitialIncidentReport>()
             .HasOne(r => r.CitizenReporter)
@@ -44,9 +38,9 @@ namespace DAL.DBContext
             .HasForeignKey(r => r.CitizenReporterId)
             .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<FieldResearcherInfo>()
+            builder.Entity<AppUser>()
             .HasOne(f => f.City)
-            .WithMany(c => c.FieldResearchers)
+            .WithMany(c => c.Users)
             .HasForeignKey(f => f.CityId)
             .OnDelete(DeleteBehavior.Restrict);
 
@@ -66,7 +60,10 @@ namespace DAL.DBContext
             .Property(U => U.PhoneNumber).IsRequired();
 
             builder.Entity<City>()
-            .HasIndex(c => c.Name).IsUnique();
+            .HasIndex(c => c.ArabicName).IsUnique();
+
+            builder.Entity<City>()
+            .HasIndex(c => c.EnglishName).IsUnique();
 
             builder.Entity<Incident>()
             .HasOne(i => i.InitialIncidentReport)
@@ -105,9 +102,9 @@ namespace DAL.DBContext
             .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<LegalReview>()
-            .HasOne(l => l.AppUser)
+            .HasOne(l => l.LegalTeamMember)
             .WithMany(u => u.LegalReviews)
-            .HasForeignKey(l => l.AppUserId)
+            .HasForeignKey(l => l.LegalTeamMemberId)
             .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<NewsItem>()

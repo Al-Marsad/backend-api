@@ -17,9 +17,9 @@ namespace DAL.Entities
         public int FinalIncidentReportId { get; set; }
 
         [ForeignKey(nameof(AppUser))]
-        public string AppUserId { get; set; }
+        public string LegalTeamMemberId { get; set; }
         public virtual FinalIncidentReport FinalIncidentReport { get; set; }
-        public virtual AppUser AppUser { get; set; }
+        public virtual AppUser LegalTeamMember { get; set; }
 
     }
 }
