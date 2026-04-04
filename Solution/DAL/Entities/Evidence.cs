@@ -31,6 +31,6 @@ namespace DAL.Entities
         [ForeignKey(nameof(Residence))]
         public int? ResidenceId { get; set; }
         public virtual Incident Incident { get; set; }
-        public virtual Residence Residence { get; set; }
+        public virtual Residence? Residence { get; set; }
     }
 }

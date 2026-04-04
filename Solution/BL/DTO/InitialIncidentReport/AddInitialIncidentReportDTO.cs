@@ -9,14 +9,14 @@ namespace BL.DTO.InitialIncidentReport
 {
     public class AddInitialIncidentReportDTO
     {
-        [Required(ErrorMessage = "Initial Description is required")]
+        [Required(ErrorMessage = "InitialDescription is required")]
         public string? InitialDescription { get; set; }
 
-        [Required(ErrorMessage = "Latitude is required")]
+        [Required(ErrorMessage = "LocationLat is required")]
         [Range(-90, 90, ErrorMessage = "Latitude must be between -90 and 90")]
         public double? LocationLat { get; set; }
 
-        [Required(ErrorMessage = "Longitude is required")]
+        [Required(ErrorMessage = "LocationLng is required")]
         [Range(-180, 180, ErrorMessage = "Longitude must be between -180 and 180")]
         public double? LocationLng { get; set; }
 

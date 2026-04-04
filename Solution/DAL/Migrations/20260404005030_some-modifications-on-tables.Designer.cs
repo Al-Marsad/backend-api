@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DAL.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AlMarsadDbContext))]
-    partial class AlMarsadDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260404005030_some-modifications-on-tables")]
+    partial class somemodificationsontables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,7 +48,7 @@ namespace DAL.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("birthdate");
 
-                    b.Property<int>("CityId")
+                    b.Property<int?>("CityId")
                         .HasColumnType("integer")
                         .HasColumnName("city_id");
 
@@ -855,14 +858,10 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Entities.AppUser", b =>
                 {
-                    b.HasOne("DAL.Entities.City", "City")
+                    b.HasOne("DAL.Entities.City", null)
                         .WithMany("Users")
                         .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
                         .HasConstraintName("fk_asp_net_users_cities_city_id");
-
-                    b.Navigation("City");
                 });
 
             modelBuilder.Entity("DAL.Entities.Evidence", b =>

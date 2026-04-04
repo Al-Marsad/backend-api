@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using DAL.Enums;
 using Microsoft.AspNetCore.Identity;
 
@@ -25,15 +26,24 @@ namespace DAL.Entities
         [Required]
         public DateTime Birthdate { get; set; }
 
+        public bool? AvailabilityStatus { get; set; }
+
+
         public string? RefreshToken { get; set; }
         
         public DateTime? RefreshTokenExpirationTime { get; set; }
 
-        public virtual FieldResearcherInfo? ResearcherInfo { get; set; }
-
+        [ForeignKey(nameof(City))]
+        public int CityId { get; set; }
+        public virtual City City { get; set; }
         public virtual List<InitialIncidentReport>? InitialIncidentReports { get; set; } = new();
 
         public virtual List<LegalReview>? LegalReviews { get; set; } = new();
+
         public virtual List<NewsItem>? News { get; set; } = new();
+
+        public virtual List<Incident> Incidents { get; set; } = new();
+
+        public virtual List<FinalIncidentReport> FinalIncidentReports { get; set; } = new();
     }
 }
