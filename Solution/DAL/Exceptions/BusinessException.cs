@@ -10,12 +10,15 @@ namespace DAL.Exceptions
     {
         public int StatusCode { get; }
         public string Code { get; }
+        public object? Fields { get; set; }
 
-        protected BusinessException(string message, int statusCode, string code)
+
+        protected BusinessException(string message, int statusCode, string code, object? fields = null)
             : base(message)
         {
             StatusCode = statusCode;
             Code = code;
+            Fields = fields;
         }
     }
 }

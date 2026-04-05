@@ -18,6 +18,8 @@ namespace BL.Extensions
 
             // Register The Business Services
             services.AddScoped<IInitialIncidentReportService, InitialIncidentReportService>();
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IJwtService, JwtService>();
 
             return services;
         }

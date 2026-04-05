@@ -13,12 +13,10 @@ namespace PL.Controllers
     public class InitialIncidentReportController : ControllerBase
     {
         private readonly IInitialIncidentReportService _initialReportService;
-        private readonly UserManager<AppUser> _userManager;
 
-        public InitialIncidentReportController(IInitialIncidentReportService initialReportService, UserManager<AppUser> userManager) { 
+        public InitialIncidentReportController(IInitialIncidentReportService initialReportService) { 
         
             this._initialReportService = initialReportService;
-            this._userManager = userManager;
         }
         
         [HttpPost]
@@ -30,7 +28,7 @@ namespace PL.Controllers
             return StatusCode(201, new
             {
                 Success = true,
-                Message = "Initial Report Added Successfully",
+                Message = "Initial report added successfully",
                 Data = data            
             });
         }
