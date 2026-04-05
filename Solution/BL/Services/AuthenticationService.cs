@@ -19,11 +19,13 @@ namespace BL.Services
     public class AuthenticationService : IAuthenticationService
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
         private readonly IJwtService _jwtService;
         private readonly IMapper _mapper;
         private IConfiguration _config { get; }
 
-        public AuthenticationService(UserManager<AppUser> userManager,
+        public AuthenticationService(SignInManager<AppUser> signInManager,
+            UserManager<AppUser> userManager,
             IJwtService jwtService, IConfiguration config,
             IMapper mapper)
         {
@@ -31,6 +33,7 @@ namespace BL.Services
             _jwtService = jwtService;
             _config = config;
             _mapper = mapper;
+            _signInManager = signInManager;
         }
         public async Task<ReturnRegisteredUserDTO> Regsiter(AddUserDTO userDTO, string RoleName)
         {
@@ -84,5 +87,51 @@ namespace BL.Services
 
             return returnUser;
         }
+        public async Task<ReturnLoginUserDTO> Login(LoginUserDTO userDTO)
+        {
+            var user = await _userManager.FindByEmailAsync(userDTO.Email);
+            if (user == null)
+            {
+                throw new UnauthorizedException("There is no user with this email");
+
+            };
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user, userDTO.Password, lockoutOnFailure: true);
+
+            if (result.IsLockedOut)
+            {
+                var lockoutEnd = user.LockoutEnd;
+                throw new UnauthorizedException($"Account locked. Please try again after {lockoutEnd?.UtcDateTime:t} UTC.");
+            }
+
+            if (!result.Succeeded)
+            {
+                throw new UnauthorizedException("Password is incorrect");
+            }
+            
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var accessToken = _jwtService.GenerateAccessToken(user, roles);
+            var refreshToken = _jwtService.GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpirationTime = DateTime.UtcNow.AddDays(double.Parse(_config["Jwt:ExpiryInDays"] ?? "7"));
+
+            var result2 = await _userManager.UpdateAsync(user);
+
+            if (!result2.Succeeded)
+            {
+                throw new Exception();
+            };
+
+            var returnUser = _mapper.Map<AppUser, ReturnLoginUserDTO>(user);
+            returnUser.RefreshToken = refreshToken;
+            returnUser.AccessToken = accessToken;
+            returnUser.ExpiresIn = Convert.ToInt32(_config["Jwt:ExpiryInMinutes"] ?? "5");
+
+            return returnUser;
+        }
+
     }
 }

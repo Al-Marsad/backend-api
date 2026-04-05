@@ -82,6 +82,12 @@ namespace PL
 
                 options.Events = new JwtBearerEvents
                 {
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine("Token failed: " + context.Exception.Message);
+                        return Task.CompletedTask;
+                    }
+                    ,
                     OnChallenge = context =>
                     {
                         context.HandleResponse();
@@ -106,6 +112,7 @@ namespace PL
                 options.AddPolicy("MyDevPolicy", policy =>
                 {
                     policy.WithOrigins(audiences)
+                          .AllowCredentials()
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });

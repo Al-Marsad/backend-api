@@ -28,5 +28,26 @@ namespace PL.Controllers
                 Data = data
             });
         }
+
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login(LoginUserDTO userDTO)
+        {
+            var data = await _authService.Login(userDTO);
+
+            Response.Cookies.Append("RefreshToken", data.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = data.RefreshTokenExpirationTime
+            });
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Logged in successfully",
+                Data = data
+            });
+        }
     }
 }

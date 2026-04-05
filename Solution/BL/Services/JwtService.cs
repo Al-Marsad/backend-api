@@ -21,7 +21,7 @@ namespace BL.Services
         {
             var claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
@@ -34,9 +34,15 @@ namespace BL.Services
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:SecretKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            var audiences = _config.GetSection("Jwt:Audiences").Get<string[]>();
+            foreach (var aud in audiences)
+            {
+                claims.Add(new Claim(JwtRegisteredClaimNames.Aud, aud));
+            }
+
             var token = new JwtSecurityToken(
                 issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
+                audience: null,
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:ExpiryInMinutes"] ?? "5")),
                 signingCredentials: creds
