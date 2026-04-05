@@ -34,11 +34,16 @@ namespace PL
                 options.InvalidModelStateResponseFactory = context =>
                 {
                     var fields = context.ModelState
-                        .Where(e => e.Value.Errors.Count > 0)
-                        .ToDictionary(
-                            kvp => kvp.Key,
-                            kvp => kvp.Value.Errors.First().ErrorMessage
-                        );
+                    .Where(e => e.Value.Errors.Count > 0)
+                    .ToDictionary(
+                        kvp => kvp.Key.Replace("$.", ""),
+                        kvp => {
+                            var error = kvp.Value.Errors.First();
+                            if (!string.IsNullOrEmpty(error.ErrorMessage))
+                                return error.ErrorMessage;
+                            return "Invalid format or data type.";
+                        }
+                    );
 
                     var result = new ObjectResult(new
                     {
