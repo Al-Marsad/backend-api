@@ -133,5 +133,68 @@ namespace BL.Services
             return returnUser;
         }
 
+        public async Task<ReturnAccessTokenDTO> Refresh(string refreshToken)
+        {
+            var user = _userManager.Users.SingleOrDefault(u => u.RefreshToken == refreshToken);
+            
+            if (user == null)
+            {
+                throw new UnauthorizedException("There is no user with this refresh token");
+            }
+            
+            if(user.RefreshTokenExpirationTime <= DateTime.Now)
+            {
+                throw new UnauthorizedException("Refresh token is expired");
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var newAccessToken = _jwtService.GenerateAccessToken(user, roles);
+            var newRefreshToken = _jwtService.GenerateRefreshToken();
+            var newRefreshTokenExpirationTime = DateTime.UtcNow.AddDays(double.Parse(_config["Jwt:ExpiryInDays"] ?? "7"));
+
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpirationTime = newRefreshTokenExpirationTime;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                throw new Exception();
+            }
+
+            var returnData = new ReturnAccessTokenDTO()
+            {
+                AccessToken = newAccessToken,
+                ExpiresIn = Convert.ToInt32(_config["Jwt:ExpiryInMinutes"] ?? "5"),
+                RefreshToken = newRefreshToken,
+                RefreshTokenExpirationTime = newRefreshTokenExpirationTime
+            };
+
+            return returnData;
+        }
+
+        public async Task Logout(string refreshToken)
+        {
+            var user = _userManager.Users.SingleOrDefault(u => u.RefreshToken == refreshToken);
+
+            if (user == null)
+            {
+                throw new UnauthorizedException("There is no user with this refresh token");
+            }
+
+            if (user.RefreshTokenExpirationTime <= DateTime.Now)
+            {
+                throw new UnauthorizedException("Refresh token is expired");
+            }
+
+            user.RefreshToken = null;
+            user.RefreshTokenExpirationTime = null;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                throw new Exception();
+            }
+        }
     }
 }

@@ -6,7 +6,7 @@ namespace BL.Services.Interfaces
     {
         public Task<ReturnRegisteredUserDTO> Regsiter(AddUserDTO userDTO, string RoleName);
         public Task<ReturnLoginUserDTO> Login(LoginUserDTO obj);
-        //public Task<bool> Logout(int userId);
-        //public Task<ReturnAuthDTO> Refresh(string refreshToken);
+        public Task Logout(string refreshToken);
+        public Task<ReturnAccessTokenDTO> Refresh(string refreshToken);
     }
 }
