@@ -31,12 +31,13 @@ namespace PL.Middlewares
         {
             int statusCode = 500;
             string code = "INTERNAL_ERROR";
-
+            object? fields = null;
 
             if (ex is BusinessException bizEx)
             {
                 statusCode = bizEx.StatusCode;
                 code = bizEx.Code;
+                fields = bizEx.Fields;
             }
 
             var response = new
@@ -45,11 +46,13 @@ namespace PL.Middlewares
                 Error = new
                 {
                     Code = code,
-                    Message = ex.Message
+                    Message = ex.Message,
+                    Fields = fields
                 }
             };
 
-            context.Response.StatusCode = statusCode;
+
+                context.Response.StatusCode = statusCode;
             context.Response.ContentType = "application/json";
 
             return context.Response.WriteAsJsonAsync(response);

@@ -27,7 +27,6 @@ namespace BL.DTO.InitialIncidentReport
         [Phone]
         public string? WitnessPhone { get; set; }
 
-        [Required]
         public string? CitizenReporterId { get; set; }
     }
 }

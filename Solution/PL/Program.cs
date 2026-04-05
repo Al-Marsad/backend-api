@@ -1,11 +1,14 @@
 
+using System.Text;
 using BL.Extensions;
 using DAL.DBContext;
 using DAL.Entities;
 using DAL.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using PL.Middlewares;
 
 namespace PL
@@ -55,26 +58,75 @@ namespace PL
                 };
             });
 
+            // Spacify The Authentication Type To Jwt Authentication
+            var audiences = builder.Configuration.GetSection("JWT:Audiences").Get<string[]>()
+                 ?? Array.Empty<string>();
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    ValidAudiences = audiences,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))
+                };
+
+                options.Events = new JwtBearerEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        Console.WriteLine("Token failed: " + context.Exception.Message);
+                        return Task.CompletedTask;
+                    }
+                    ,
+                    OnChallenge = context =>
+                    {
+                        context.HandleResponse();
+                        context.Response.StatusCode = 401;
+                        context.Response.ContentType = "application/json";
+                        return context.Response.WriteAsync("{\"Success\": false, \"Error\": {\"Code\": \"UNAUTHORIZED\", \"Message\": \"JWT missing or expired\"}}");
+                    },
+                    OnForbidden = context =>
+                    {
+                        context.Response.StatusCode = 403;
+                        context.Response.ContentType = "application/json";
+                        return context.Response.WriteAsync("{\"Success\": false, \"Error\": {\"Code\": \"FORBIDDEN\", \"Message\": \"You do not have the required Role to access this resource.\"}}");
+                    }
+                };
+            });
+            builder.Services.AddAuthorization();
+
+
+            // Create A Policy
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("MyDevPolicy", policy =>
+                {
+                    policy.WithOrigins(audiences)
+                          .AllowCredentials()
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
+
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
-            // Create A Policy For Let Any Request
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("AllowAll", policy =>
-                {
-                    policy
-                        .AllowAnyOrigin()
-                        .AllowAnyMethod()
-                        .AllowAnyHeader();
-                });
-            });
-
+            
             var app = builder.Build();
 
-
+            app.UseMiddleware<GlobalExceptionMiddleware>();
+            
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -82,13 +134,15 @@ namespace PL
                 app.UseSwaggerUI();
             }
 
+            app.UseHttpsRedirection();
+            
             app.UseStaticFiles();
 
-            app.UseMiddleware<GlobalExceptionMiddleware>();
+            app.UseRouting();
 
-            app.UseHttpsRedirection();
+            app.UseCors("MyDevPolicy");
 
-            app.UseCors("AllowAll");
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
