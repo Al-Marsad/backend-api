@@ -126,6 +126,7 @@ namespace BL.Services
             };
 
             var returnUser = _mapper.Map<AppUser, ReturnLoginUserDTO>(user);
+            returnUser.Role = String.Join(",", roles);
             returnUser.RefreshToken = refreshToken;
             returnUser.AccessToken = accessToken;
             returnUser.ExpiresIn = Convert.ToInt32(_config["Jwt:ExpiryInMinutes"] ?? "5");
