@@ -2,18 +2,19 @@
 using BL.DTO.InitialIncidentReport;
 using BL.Services.Interfaces;
 using DAL.Entities;
+using DAL.Exceptions;
 using DAL.Repositories.Interfaces;
 
 namespace BL.Services
 {
     public class InitialIncidentReportService : IInitialIncidentReportService
     {
-        private readonly IInitialIncidentReportRepository _initialReportService;
+        private readonly IInitialIncidentReportRepository _initialReportRepo;
         private readonly IMapper _mapper;
-        public InitialIncidentReportService(IInitialIncidentReportRepository initialReportService,
+        public InitialIncidentReportService(IInitialIncidentReportRepository initialReportRepo,
             IMapper mapper)
         {
-            this._initialReportService = initialReportService;
+            this._initialReportRepo = initialReportRepo;
             this._mapper = mapper;
         }
         public async Task<ReturnInitialIncidentReportDTO> AddAsync(AddInitialIncidentReportDTO reportDto)
@@ -24,12 +25,30 @@ namespace BL.Services
                 throw new ArgumentNullException("There is something wrong in the sent fields");
             }
 
-            await _initialReportService.AddAsync(reportEntity);
+            await _initialReportRepo.AddAsync(reportEntity);
 
-            await _initialReportService.SaveAsync();
+            await _initialReportRepo.SaveAsync();
 
             return  _mapper.Map<ReturnInitialIncidentReportDTO>(reportEntity);
         }
+
+        public async Task<ReturnDetailedInitialIncidentReportDTO> GetByIdAsync(int id, string userId)
+        {
+            var report = await this._initialReportRepo.GetByIdAsync(id);
+
+            if (report == null)
+            {
+                throw new DataNotFoundException("There is no intial report with this id");
+            }
+
+            if(report.CitizenReporterId != userId)
+            {
+                throw new ForbiddenException("The report belongs to a different citizen");
+            }
+
+            return _mapper.Map<ReturnDetailedInitialIncidentReportDTO>(report);
+        }
+
 
     }
 }

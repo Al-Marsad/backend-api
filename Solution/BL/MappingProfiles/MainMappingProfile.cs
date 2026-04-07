@@ -13,6 +13,8 @@ namespace BL.MappingProfiles
             CreateMap<AddInitialIncidentReportDTO, InitialIncidentReport>();
             CreateMap<InitialIncidentReport, ReturnInitialIncidentReportDTO>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+            CreateMap<InitialIncidentReport, ReturnDetailedInitialIncidentReportDTO>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
 
             // User Profile
             CreateMap<AddUserDTO, AppUser>()
