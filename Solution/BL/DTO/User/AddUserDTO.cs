@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BL.Attributes.ValidationAttributes;
 using BL.Helper;
 
 namespace BL.DTO.User
@@ -30,6 +31,7 @@ namespace BL.DTO.User
         public string UserName { get; set; }
 
         [Required(ErrorMessage = "Birthdate is required")]
+        [MinimumAge(18)]
         public DateTime Birthdate { get; set; }
 
         [Required(ErrorMessage = "The city is required")]
