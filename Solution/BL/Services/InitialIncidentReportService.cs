@@ -5,6 +5,7 @@ using DAL.Entities;
 using DAL.Enums;
 using DAL.Exceptions;
 using DAL.Repositories.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BL.Services
 {
@@ -91,6 +92,9 @@ namespace BL.Services
 
             return returnReports;
         }
-
+        public List<StatusValuesDTO> GetStatusValues()
+        {
+            return _mapper.Map<List<StatusValuesDTO>>(Enum.GetValues<InitialIncidentReportStatus>().ToList());
+        }
     }
 }

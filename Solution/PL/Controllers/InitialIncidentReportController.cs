@@ -1,16 +1,15 @@
 ﻿using System.Security.Claims;
 using BL.DTO.InitialIncidentReport;
 using BL.Services.Interfaces;
-using DAL.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using PL.Helper;
 
 namespace PL.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = RolesSelector.Citizen)]
     public class InitialIncidentReportController : ControllerBase
     {
         private readonly IInitialIncidentReportService _initialReportService;
@@ -41,11 +40,11 @@ namespace PL.Controllers
             reportDto.CitizenReporterId = userId;
             var data = await this._initialReportService.AddAsync(reportDto);
 
-            return StatusCode(201, new
+            return CreatedAtAction(nameof(GetById), new { Id = data.Id }, new
             {
                 Success = true,
                 Message = "Initial report added successfully",
-                Data = data            
+                Data = data
             });
         }
 
@@ -121,6 +120,16 @@ namespace PL.Controllers
             });
         }
 
+        [HttpGet("Statuses")]
+        public IActionResult GetStatusValues()
+        {
+            var data = _initialReportService.GetStatusValues();
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
 
     }
 }
