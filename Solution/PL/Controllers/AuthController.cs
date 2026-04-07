@@ -1,10 +1,10 @@
 ﻿using BL.DTO.User;
-using BL.Services;
 using BL.Services.Interfaces;
 using DAL.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using PL.Helper;
+using BL.Helper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PL.Controllers
 {
@@ -22,6 +22,37 @@ namespace PL.Controllers
         public async Task<IActionResult> RegisterCitizen(AddUserDTO userDTO)
         {
             var data = await _authService.Regsiter(userDTO, RolesSelector.Citizen);
+
+            return StatusCode(201, new
+            {
+                Success = true,
+                Message = "Account created successfully",
+                Data = data
+            });
+        }
+
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpPost("Register")]
+        public async Task<IActionResult> Register(AddUserDTO userDTO)
+        {
+            if(userDTO.RoleName == null)
+            {
+                return UnprocessableEntity( new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "VALIDATION_ERROR",
+                        Message = "Validation failed",
+                        Fields = new
+                        {
+                            RoleName = "Role Name is required"
+                        }
+                    }
+                });
+            }
+
+            var data = await _authService.Regsiter(userDTO, userDTO.RoleName);
 
             return StatusCode(201, new
             {

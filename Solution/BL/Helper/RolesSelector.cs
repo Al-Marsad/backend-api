@@ -1,4 +1,4 @@
-﻿namespace PL.Helper
+﻿namespace BL.Helper
 {
     public static class RolesSelector
     {

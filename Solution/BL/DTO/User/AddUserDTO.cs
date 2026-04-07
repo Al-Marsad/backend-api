@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BL.Helper;
 
 namespace BL.DTO.User
 {
@@ -42,6 +43,10 @@ namespace BL.DTO.User
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$",
         ErrorMessage = "Password must be at least 8 characters and contain Uppercase, Lowercase, Number, and Special character.")]
         public string Password { get; set; }
+
+        [AllowedValues([RolesSelector.Admin, RolesSelector.LegalTeamMember, RolesSelector.FieldResearcher,
+        RolesSelector.Citizen, RolesSelector.Manager, null])]
+        public string? RoleName { get; set; }
 
     }
 }
