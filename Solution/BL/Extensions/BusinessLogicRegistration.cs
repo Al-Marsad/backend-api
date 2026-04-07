@@ -20,6 +20,7 @@ namespace BL.Extensions
             services.AddScoped<IInitialIncidentReportService, InitialIncidentReportService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IJwtService, JwtService>();
+            services.AddScoped<ICityService, CityService>();
 
             return services;
         }

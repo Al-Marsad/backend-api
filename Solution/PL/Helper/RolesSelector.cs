@@ -2,10 +2,10 @@
 {
     public static class RolesSelector
     {
-        public static string Citizen = "CITIZEN";
-        public static string Manager = "MANAGER";
-        public static string Admin = "ADMIN";
-        public static string LegalTeamMember = "LEGAL_TEAM_MEMBER";
-        public static string FieldResearcher = "FIELD_RESEARCHER";
+        public const string Citizen = "CITIZEN";
+        public const string Manager = "MANAGER";
+        public const string Admin = "ADMIN";
+        public const string LegalTeamMember = "LEGAL_TEAM_MEMBER";
+        public const string FieldResearcher = "FIELD_RESEARCHER";
     }
 }
