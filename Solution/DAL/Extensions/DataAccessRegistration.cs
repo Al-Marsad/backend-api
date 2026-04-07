@@ -39,6 +39,7 @@ namespace DAL.Extensions
 
             // Add Application Repositories
             services.AddScoped<IInitialIncidentReportRepository, InitialIncidentReportRepository>();
+            services.AddScoped<ICityRepository, CityRepository>();
 
 
             return services;

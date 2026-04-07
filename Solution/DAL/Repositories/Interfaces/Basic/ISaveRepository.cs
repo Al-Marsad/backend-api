@@ -1,5 +1,4 @@
-﻿
-namespace DAL.Repositories.Interfaces
+﻿namespace DAL.Repositories.Interfaces.Basic
 {
     public interface ISaveRepository
     {

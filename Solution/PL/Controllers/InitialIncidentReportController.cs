@@ -3,12 +3,13 @@ using BL.DTO.InitialIncidentReport;
 using BL.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using BL.Helper;
 
 namespace PL.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = RolesSelector.Citizen)]
     public class InitialIncidentReportController : ControllerBase
     {
         private readonly IInitialIncidentReportService _initialReportService;
@@ -39,12 +40,96 @@ namespace PL.Controllers
             reportDto.CitizenReporterId = userId;
             var data = await this._initialReportService.AddAsync(reportDto);
 
-            return StatusCode(201, new
+            return CreatedAtAction(nameof(GetById), new { Id = data.Id }, new
             {
                 Success = true,
                 Message = "Initial report added successfully",
-                Data = data            
+                Data = data
             });
         }
+
+        [HttpGet("{Id:int}")]
+        public async Task<IActionResult> GetById(int Id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _initialReportService.GetByIdAsync(Id, userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
+
+        [HttpGet("Mine")]
+        public async Task<IActionResult> GetByPage([FromQuery]GetByPageInitialIncidentReportDTO reportDto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = new List<ReturnDetailedInitialIncidentReportDTO>();
+
+            if (reportDto.Status == null)
+            {
+                data = await _initialReportService.GetByPageAsync(reportDto.Page, reportDto.PageSize, userId);
+            } else
+            {
+                data = await _initialReportService.GetByPageAsync(reportDto.Page, reportDto.PageSize, userId, reportDto.Status.Value);
+
+            }
+
+            return Ok(new
+            {
+                Success = true,
+                Data = new
+                {
+                    Items = data,
+                    Pagination = new
+                    {
+                        CurrentPage = reportDto.Page,
+                        PageSize = reportDto.PageSize,
+                        TotalItems = data.Count,
+                    }
+                }
+            });
+        }
+
+        [HttpGet("Statuses")]
+        public IActionResult GetStatusValues()
+        {
+            var data = _initialReportService.GetStatusValues();
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
+
     }
 }

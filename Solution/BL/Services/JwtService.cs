@@ -11,7 +11,7 @@ namespace BL.Services
 {
     public class JwtService : IJwtService
     {
-        public IConfiguration _config { get; }
+        private readonly IConfiguration _config;
 
         public JwtService(IConfiguration config)
         {
