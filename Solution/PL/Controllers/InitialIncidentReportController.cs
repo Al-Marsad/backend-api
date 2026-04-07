@@ -75,5 +75,52 @@ namespace PL.Controllers
                 Data = data
             });
         }
+
+        [HttpGet("Mine")]
+        public async Task<IActionResult> GetByPage([FromQuery]GetByPageInitialIncidentReportDTO reportDto)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = new List<ReturnDetailedInitialIncidentReportDTO>();
+
+            if (reportDto.Status == null)
+            {
+                data = await _initialReportService.GetByPageAsync(reportDto.Page, reportDto.PageSize, userId);
+            } else
+            {
+                data = await _initialReportService.GetByPageAsync(reportDto.Page, reportDto.PageSize, userId, reportDto.Status.Value);
+
+            }
+
+            return Ok(new
+            {
+                Success = true,
+                Data = new
+                {
+                    Items = data,
+                    Pagination = new
+                    {
+                        CurrentPage = reportDto.Page,
+                        PageSize = reportDto.PageSize,
+                        TotalItems = data.Count,
+                    }
+                }
+            });
+        }
+
+
     }
 }

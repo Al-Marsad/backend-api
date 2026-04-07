@@ -2,6 +2,7 @@
 using BL.DTO.InitialIncidentReport;
 using BL.Services.Interfaces;
 using DAL.Entities;
+using DAL.Enums;
 using DAL.Exceptions;
 using DAL.Repositories.Interfaces;
 
@@ -49,6 +50,47 @@ namespace BL.Services
             return _mapper.Map<ReturnDetailedInitialIncidentReportDTO>(report);
         }
 
+        public async Task<List<ReturnDetailedInitialIncidentReportDTO>> GetByPageAsync(int page, int pageSize, string userId)
+        {
+            if(page < 1)
+            {
+                throw new ValidationException("Validation failed", new {Page = "Can't be less than 1" });
+            }
+
+            if(pageSize < 0 || pageSize > 50)
+            {
+                throw new ValidationException("Validation failed", new {PageSize = "Can't be less than 0 or greater than 50"});
+
+            }
+
+            var reports = await _initialReportRepo.GetPageAsync((page - 1) * pageSize, pageSize, userId);
+            var returnReports = _mapper.Map<List<ReturnDetailedInitialIncidentReportDTO>>(reports);
+
+            return returnReports;
+        }
+
+        public async Task<List<ReturnDetailedInitialIncidentReportDTO>> GetByPageAsync(int page, int pageSize, string userId, InitialIncidentReportStatus status)
+        {
+            if (page < 1)
+            {
+                throw new ValidationException("Validation failed", new { Page = "Can't be less than 1" });
+            }
+
+            if (pageSize < 0 || pageSize > 50)
+            {
+                throw new ValidationException("Validation failed", new { PageSize = "Can't be less than 0 or greater than 50" });
+
+            }
+
+            if (!Enum.IsDefined(typeof(InitialIncidentReportStatus), status)) {
+                throw new ValidationException("Validation failed", new {Status = "Value is invalid"});
+            }
+
+            var reports = await _initialReportRepo.GetPageAsync((page - 1) * pageSize, pageSize, userId, status);
+            var returnReports = _mapper.Map<List<ReturnDetailedInitialIncidentReportDTO>>(reports);
+
+            return returnReports;
+        }
 
     }
 }

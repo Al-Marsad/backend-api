@@ -31,27 +31,30 @@ namespace DAL.Repositories
             return report;
         }
 
-        public async Task<List<InitialIncidentReport>> GetPageAsync(int Skip, int Take, int userId)
+        public async Task<List<InitialIncidentReport>> GetPageAsync(int Skip, int Take, string userId)
         {
             if(Skip < 0 || Take < 0)
             {
                 return new List<InitialIncidentReport>();
             }
 
-            return await _dbContext.InitialIncidentReports.Where(r => r.Id == userId)
+            return await _dbContext.InitialIncidentReports.Where(r => r.CitizenReporterId == userId)
                 .Skip(Skip)
                 .Take(Take)
                 .ToListAsync();
         }
 
-        public async Task<List<InitialIncidentReport>> GetByStatusAsync(InitialIncidentReportStatus status)
+        public async Task<List<InitialIncidentReport>> GetPageAsync(int Skip, int Take, string userId, InitialIncidentReportStatus status)
         {
-            if (!Enum.IsDefined(typeof(InitialIncidentReportStatus), status))
+            if (Skip < 0 || Take < 0)
             {
-                throw new BadRequestException("Status value is unknown");
+                return new List<InitialIncidentReport>();
             }
 
-            return await _dbContext.InitialIncidentReports.Where(r => r.Status == status).ToListAsync();
+            return await _dbContext.InitialIncidentReports.Where(r => r.CitizenReporterId == userId && r.Status == status)
+                .Skip(Skip)
+                .Take(Take)
+                .ToListAsync();
         }
     }
 }

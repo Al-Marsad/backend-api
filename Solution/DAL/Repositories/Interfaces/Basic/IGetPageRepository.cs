@@ -8,6 +8,6 @@ namespace DAL.Repositories.Interfaces.Basic
 {
     public interface IGetPageRepository<T>
     {
-        public Task<List<T>> GetPageAsync(int Skip, int Take, int userId);
+        public Task<List<T>> GetPageAsync(int Skip, int Take, string userId);
     }
 }

@@ -10,6 +10,6 @@ namespace DAL.Repositories.Interfaces
         IGetByIdRepository<InitialIncidentReport>,
         IGetPageRepository<InitialIncidentReport>
     {
-        public Task<List<InitialIncidentReport>> GetByStatusAsync(InitialIncidentReportStatus status);
+        public Task<List<InitialIncidentReport>> GetPageAsync(int Skip, int Take, string userId, InitialIncidentReportStatus status);
     }
 }
