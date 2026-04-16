@@ -14,5 +14,6 @@ namespace DAL.Entities
         public virtual List<AppUser> Users { get; set; } = new();
 
         public virtual List<Location> Locations { get; set; } = new();
+        public virtual List<InitialIncidentReport> InitialIncidentReports { get; set; } = new();
     }
 }

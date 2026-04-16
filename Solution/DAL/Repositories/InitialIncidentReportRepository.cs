@@ -41,7 +41,7 @@ namespace DAL.Repositories
             if (skip < 0 || take < 0)
                 return new List<InitialIncidentReport>();
 
-            var query = _dbContext.InitialIncidentReports
+            var query = _dbContext.InitialIncidentReports.Include(i => i.City)
                 .Where(r => r.CitizenReporterId == userId);
 
             if (status.HasValue)

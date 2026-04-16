@@ -16,7 +16,9 @@ namespace BL.MappingProfiles
             CreateMap<InitialIncidentReport, ReturnInitialIncidentReportDTO>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
             CreateMap<InitialIncidentReport, ReturnDetailedInitialIncidentReportDTO>()
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForMember(dest => dest.City, opt => opt.MapFrom(src => new {Id = src.City.Id, 
+                    ArabicName = src.City.ArabicName, EnglishName = src.City.EnglishName}));
             CreateMap<InitialIncidentReportStatus, StatusValuesDTO>()
                 .ForMember(dest => dest.StatuName, opt => opt.MapFrom(src => src.ToString()))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src));
