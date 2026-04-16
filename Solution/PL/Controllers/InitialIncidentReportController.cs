@@ -9,7 +9,6 @@ namespace PL.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = RolesSelector.Citizen)]
     public class InitialIncidentReportController : ControllerBase
     {
         private readonly IInitialIncidentReportService _initialReportService;
@@ -19,6 +18,7 @@ namespace PL.Controllers
             this._initialReportService = initialReportService;
         }
 
+        [Authorize(Roles = RolesSelector.Citizen)]
         [HttpPost]
         public async Task<IActionResult> SendReport(AddInitialIncidentReportDTO reportDto)
         {
@@ -48,6 +48,7 @@ namespace PL.Controllers
             });
         }
 
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.Citizen}")]
         [HttpGet("{Id:int}")]
         public async Task<IActionResult> GetById(int Id)
         {
@@ -75,6 +76,7 @@ namespace PL.Controllers
             });
         }
 
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.Citizen}")]
         [HttpGet("Mine")]
         public async Task<IActionResult> GetByPage([FromQuery]GetByPageInitialIncidentReportDTO reportDto)
         {
@@ -111,6 +113,7 @@ namespace PL.Controllers
             });
         }
 
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.Citizen}")]
         [HttpGet("Statuses")]
         public IActionResult GetStatusValues()
         {
