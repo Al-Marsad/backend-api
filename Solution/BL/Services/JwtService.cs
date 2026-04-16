@@ -23,6 +23,7 @@ namespace BL.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Name, user.UserName),
+                new Claim("CityId", user.CityId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -35,7 +36,7 @@ namespace BL.Services
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var audiences = _config.GetSection("Jwt:Audiences").Get<string[]>();
-            foreach (var aud in audiences)
+            foreach (var aud in audiences) 
             {
                 claims.Add(new Claim(JwtRegisteredClaimNames.Aud, aud));
             }
