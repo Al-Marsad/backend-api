@@ -27,7 +27,7 @@ namespace DAL.Repositories
 
         public async Task<InitialIncidentReport?> GetByIdAsync(int id)
         {
-            var report = await _dbContext.InitialIncidentReports.SingleOrDefaultAsync(r => r.Id == id);
+            var report = await _dbContext.InitialIncidentReports.Include(r => r.City).SingleOrDefaultAsync(r => r.Id == id);
             return report;
         }
 
