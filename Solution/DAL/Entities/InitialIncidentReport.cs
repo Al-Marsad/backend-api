@@ -19,8 +19,10 @@ namespace DAL.Entities
 
         public double LocationLat { get; set; }
         public double LocationLng { get; set; }
-        public string? LocationLabel { get; set; }
 
+        [ForeignKey(nameof(City))]
+        public int CityId { get; set; }
+        public virtual City City { get; set; }
         public string? WitnessName { get; set; }
 
         [Phone]

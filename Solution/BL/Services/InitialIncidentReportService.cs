@@ -51,46 +51,30 @@ namespace BL.Services
             return _mapper.Map<ReturnDetailedInitialIncidentReportDTO>(report);
         }
 
-        public async Task<List<ReturnDetailedInitialIncidentReportDTO>> GetByPageAsync(int page, int pageSize, string userId)
-        {
-            if(page < 1)
-            {
-                throw new ValidationException("Validation failed", new {Page = "Can't be less than 1" });
-            }
-
-            if(pageSize < 0 || pageSize > 50)
-            {
-                throw new ValidationException("Validation failed", new {PageSize = "Can't be less than 0 or greater than 50"});
-
-            }
-
-            var reports = await _initialReportRepo.GetPageAsync((page - 1) * pageSize, pageSize, userId);
-            var returnReports = _mapper.Map<List<ReturnDetailedInitialIncidentReportDTO>>(reports);
-
-            return returnReports;
-        }
-
-        public async Task<List<ReturnDetailedInitialIncidentReportDTO>> GetByPageAsync(int page, int pageSize, string userId, InitialIncidentReportStatus status)
+        public async Task<List<ReturnDetailedInitialIncidentReportDTO>> GetByPageAsync(
+            int page,
+            int pageSize,
+            string userId,
+            InitialIncidentReportStatus? status = null,
+            int? cityId = null)
         {
             if (page < 1)
-            {
                 throw new ValidationException("Validation failed", new { Page = "Can't be less than 1" });
-            }
 
             if (pageSize < 0 || pageSize > 50)
-            {
                 throw new ValidationException("Validation failed", new { PageSize = "Can't be less than 0 or greater than 50" });
 
-            }
+            if (status.HasValue && !Enum.IsDefined(typeof(InitialIncidentReportStatus), status.Value))
+                throw new ValidationException("Validation failed", new { Status = "Value is invalid" });
 
-            if (!Enum.IsDefined(typeof(InitialIncidentReportStatus), status)) {
-                throw new ValidationException("Validation failed", new {Status = "Value is invalid"});
-            }
+            var reports = await _initialReportRepo.GetPageAsync(
+                (page - 1) * pageSize,
+                pageSize,
+                userId,
+                status,
+                cityId);
 
-            var reports = await _initialReportRepo.GetPageAsync((page - 1) * pageSize, pageSize, userId, status);
-            var returnReports = _mapper.Map<List<ReturnDetailedInitialIncidentReportDTO>>(reports);
-
-            return returnReports;
+            return _mapper.Map<List<ReturnDetailedInitialIncidentReportDTO>>(reports);
         }
         public List<StatusValuesDTO> GetStatusValues()
         {

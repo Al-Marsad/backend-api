@@ -93,16 +93,7 @@ namespace PL.Controllers
                 });
             }
 
-            var data = new List<ReturnDetailedInitialIncidentReportDTO>();
-
-            if (reportDto.Status == null)
-            {
-                data = await _initialReportService.GetByPageAsync(reportDto.Page, reportDto.PageSize, userId);
-            } else
-            {
-                data = await _initialReportService.GetByPageAsync(reportDto.Page, reportDto.PageSize, userId, reportDto.Status.Value);
-
-            }
+            var data = await _initialReportService.GetByPageAsync(reportDto.Page, reportDto.PageSize, userId, reportDto.Status, reportDto.CityId);
 
             return Ok(new
             {
