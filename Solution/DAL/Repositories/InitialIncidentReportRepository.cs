@@ -34,15 +34,19 @@ namespace DAL.Repositories
         public async Task<List<InitialIncidentReport>> GetPageAsync(
           int skip,
           int take,
-          string userId,
+          string? userId = null,
           InitialIncidentReportStatus? status = null,
           int? cityId = null)
         {
             if (skip < 0 || take < 0)
                 return new List<InitialIncidentReport>();
 
-            var query = _dbContext.InitialIncidentReports.Include(i => i.City)
-                .Where(r => r.CitizenReporterId == userId);
+            var query = _dbContext.InitialIncidentReports
+                .Include(i => i.City)
+                .AsQueryable();
+
+            if (userId != null)
+                query = query.Where(r => r.CitizenReporterId == userId);
 
             if (status.HasValue)
                 query = query.Where(r => r.Status == status.Value);

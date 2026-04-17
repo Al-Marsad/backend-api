@@ -36,11 +36,11 @@ namespace DAL.Entities
         [ForeignKey(nameof(City))]
         public int CityId { get; set; }
         public virtual City City { get; set; }
-        public virtual List<InitialIncidentReport>? InitialIncidentReports { get; set; } = new();
+        public virtual List<InitialIncidentReport> InitialIncidentReports { get; set; } = new();
+        public virtual List<InitialIncidentReport> AssignedInitialReports { get; set; } = new();
+        public virtual List<LegalReview> LegalReviews { get; set; } = new();
 
-        public virtual List<LegalReview>? LegalReviews { get; set; } = new();
-
-        public virtual List<NewsItem>? News { get; set; } = new();
+        public virtual List<NewsItem> News { get; set; } = new();
 
         public virtual List<Incident> Incidents { get; set; } = new();
 

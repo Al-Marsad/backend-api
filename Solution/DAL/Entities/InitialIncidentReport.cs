@@ -12,7 +12,7 @@ namespace DAL.Entities
         public DateTime CreationDate { get; set; } = DateTime.UtcNow;
 
         [Required]
-        public InitialIncidentReportStatus Status { get; set; } = InitialIncidentReportStatus.PENDING;
+        public InitialIncidentReportStatus Status { get; set; } = InitialIncidentReportStatus.UNASSIGNED;
 
         [Required]
         public string InitialDescription { get; set; }
@@ -31,8 +31,12 @@ namespace DAL.Entities
 
         [ForeignKey(nameof(CitizenReporter))]
         public string CitizenReporterId { get; set; }
+        
+        [ForeignKey(nameof(FieldResearcher))]
+        public string? FieldResearcherId { get; set; }
 
         public virtual AppUser CitizenReporter { get; set; }
+        public virtual AppUser? FieldResearcher { get; set; }
 
         public virtual List<Incident> Incidents { get; set; } = new();
     }

@@ -9,6 +9,6 @@ namespace DAL.Repositories.Interfaces
         ISaveRepository, 
         IGetByIdRepository<InitialIncidentReport>
     {
-        public Task<List<InitialIncidentReport>> GetPageAsync(int Skip, int Take, string userId, InitialIncidentReportStatus? status, int? CityId);
+        public Task<List<InitialIncidentReport>> GetPageAsync(int Skip, int Take, string? userId, InitialIncidentReportStatus? status, int? CityId);
     }
 }

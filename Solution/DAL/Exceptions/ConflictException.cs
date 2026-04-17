@@ -9,7 +9,7 @@ namespace DAL.Exceptions
     public class ConflictException : BusinessException
     {
 
-        public ConflictException(string message, object? fields)
+        public ConflictException(string message, object? fields = null)
         : base(message, 409, "CONFLICT", fields) {}
     }
 }
