@@ -1,15 +1,15 @@
-﻿using System.Security.Claims;
+﻿using System.Data;
+using System.Security.Claims;
 using BL.DTO.InitialIncidentReport;
+using BL.Helper;
 using BL.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using BL.Helper;
 
 namespace PL.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = RolesSelector.Citizen)]
     public class InitialIncidentReportController : ControllerBase
     {
         private readonly IInitialIncidentReportService _initialReportService;
@@ -19,6 +19,7 @@ namespace PL.Controllers
             this._initialReportService = initialReportService;
         }
 
+        [Authorize(Roles = RolesSelector.Citizen)]
         [HttpPost]
         public async Task<IActionResult> SendReport(AddInitialIncidentReportDTO reportDto)
         {
@@ -48,6 +49,7 @@ namespace PL.Controllers
             });
         }
 
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.Citizen}")]
         [HttpGet("{Id:int}")]
         public async Task<IActionResult> GetById(int Id)
         {
@@ -75,34 +77,19 @@ namespace PL.Controllers
             });
         }
 
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.Citizen}")]
         [HttpGet("Mine")]
         public async Task<IActionResult> GetByPage([FromQuery]GetByPageInitialIncidentReportDTO reportDto)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (userId == null)
+            var currentUser = new CurrentUser
             {
-                return Unauthorized(new
-                {
-                    Success = false,
-                    Error = new
-                    {
-                        Code = "UNAUTHORIZED",
-                        Message = "JWT missing or expired !!"
-                    }
-                });
-            }
+                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                Role = User.FindFirstValue(ClaimTypes.Role),
+                CityId = User.FindFirstValue("CityId")
+            };
 
-            var data = new List<ReturnDetailedInitialIncidentReportDTO>();
-
-            if (reportDto.Status == null)
-            {
-                data = await _initialReportService.GetByPageAsync(reportDto.Page, reportDto.PageSize, userId);
-            } else
-            {
-                data = await _initialReportService.GetByPageAsync(reportDto.Page, reportDto.PageSize, userId, reportDto.Status.Value);
-
-            }
+            var data = await _initialReportService.GetByPageAsync(reportDto, currentUser);
 
             return Ok(new
             {
@@ -120,6 +107,7 @@ namespace PL.Controllers
             });
         }
 
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.Citizen}")]
         [HttpGet("Statuses")]
         public IActionResult GetStatusValues()
         {
@@ -127,6 +115,26 @@ namespace PL.Controllers
             return Ok(new
             {
                 Success = true,
+                Data = data
+            });
+        }
+
+        [Authorize(Roles = RolesSelector.FieldResearcher)]
+        [HttpPut("AssignToFieldResearcher/{Id:int}")]
+        public async Task<IActionResult> AssignToFieldResearcher([FromRoute] int Id)
+        {
+            var dataDTO = new AssignToFieldResearcherDTO
+            {
+                ReportId = Id,
+                FieldResearcherId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            };
+
+            var data = await _initialReportService.AssignToFieldResearcher(dataDTO);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Initial report assigned to field researcher successfully",
                 Data = data
             });
         }

@@ -1,5 +1,7 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using BL.DTO.InitialIncidentReport;
+using BL.Helper;
 using BL.Services.Interfaces;
 using DAL.Entities;
 using DAL.Enums;
@@ -51,47 +53,68 @@ namespace BL.Services
             return _mapper.Map<ReturnDetailedInitialIncidentReportDTO>(report);
         }
 
-        public async Task<List<ReturnDetailedInitialIncidentReportDTO>> GetByPageAsync(int page, int pageSize, string userId)
+        public async Task<List<ReturnDetailedInitialIncidentReportDTO>> GetByPageAsync(
+            GetByPageInitialIncidentReportDTO reportDTO,
+            CurrentUser user
+           )
         {
-            if(page < 1)
-            {
-                throw new ValidationException("Validation failed", new {Page = "Can't be less than 1" });
-            }
-
-            if(pageSize < 0 || pageSize > 50)
-            {
-                throw new ValidationException("Validation failed", new {PageSize = "Can't be less than 0 or greater than 50"});
-
-            }
-
-            var reports = await _initialReportRepo.GetPageAsync((page - 1) * pageSize, pageSize, userId);
-            var returnReports = _mapper.Map<List<ReturnDetailedInitialIncidentReportDTO>>(reports);
-
-            return returnReports;
-        }
-
-        public async Task<List<ReturnDetailedInitialIncidentReportDTO>> GetByPageAsync(int page, int pageSize, string userId, InitialIncidentReportStatus status)
-        {
-            if (page < 1)
-            {
+            if (reportDTO.Page < 1)
                 throw new ValidationException("Validation failed", new { Page = "Can't be less than 1" });
-            }
 
-            if (pageSize < 0 || pageSize > 50)
-            {
+            if (reportDTO.PageSize < 0 || reportDTO.PageSize > 50)
                 throw new ValidationException("Validation failed", new { PageSize = "Can't be less than 0 or greater than 50" });
 
+            if (reportDTO.Status.HasValue && !Enum.IsDefined(typeof(InitialIncidentReportStatus), reportDTO.Status.Value))
+                throw new ValidationException("Validation failed", new { Status = "Value is invalid" });
+
+            string? userId = null;
+
+            if (user.Role == RolesSelector.FieldResearcher)
+            {
+                if (!reportDTO.CityId.HasValue)
+                    reportDTO.CityId = Convert.ToInt32(user.CityId);
+            }
+            else
+            {
+                userId = user.UserId;
+
+                if (userId == null)
+                {
+                    throw new UnauthorizedException("JWT missing or expired");
+                }
             }
 
-            if (!Enum.IsDefined(typeof(InitialIncidentReportStatus), status)) {
-                throw new ValidationException("Validation failed", new {Status = "Value is invalid"});
-            }
+            var reports = await _initialReportRepo.GetPageAsync(
+                (reportDTO.Page - 1) * reportDTO.PageSize,
+                reportDTO.PageSize,
+                userId,
+                reportDTO.Status,
+                reportDTO.CityId);
 
-            var reports = await _initialReportRepo.GetPageAsync((page - 1) * pageSize, pageSize, userId, status);
-            var returnReports = _mapper.Map<List<ReturnDetailedInitialIncidentReportDTO>>(reports);
-
-            return returnReports;
+            return _mapper.Map<List<ReturnDetailedInitialIncidentReportDTO>>(reports);
         }
+        public async Task<ReturnInitialIncidentReportDTO> AssignToFieldResearcher(AssignToFieldResearcherDTO data)
+        {
+            var report = await _initialReportRepo.GetByIdAsync(data.ReportId);
+            if (report == null)
+            {
+                throw new DataNotFoundException("There is no initial report with this id");
+            }
+           
+            if(report.FieldResearcherId != null)
+            {
+                throw new ConflictException("Initial report was already assigned to a field researcher");
+
+            }
+
+            report.FieldResearcherId = data.FieldResearcherId;
+            report.Status = InitialIncidentReportStatus.ASSIGNED;
+
+            await _initialReportRepo.SaveAsync();
+
+            return _mapper.Map<ReturnInitialIncidentReportDTO>(report);
+        }
+
         public List<StatusValuesDTO> GetStatusValues()
         {
             return _mapper.Map<List<StatusValuesDTO>>(Enum.GetValues<InitialIncidentReportStatus>().ToList());

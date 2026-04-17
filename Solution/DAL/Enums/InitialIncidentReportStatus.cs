@@ -8,9 +8,10 @@ namespace DAL.Enums
 {
     public enum InitialIncidentReportStatus
     {
+        UNASSIGNED,
+        ASSIGNED,
         PENDING,
-        UNDER_VERIFICATION,
-        VERIFIED,
-        CLOSED
+        CLOSED,
+        REJECTED
     }
 }

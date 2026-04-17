@@ -8,6 +8,8 @@ namespace DAL.Enums
 {
     public enum FinalIncidentReportStatus
     {
-
+        APPROVED,
+        REJECTED,
+        PENDING_REVIEW
     }
 }

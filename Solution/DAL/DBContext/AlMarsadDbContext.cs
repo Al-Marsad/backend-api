@@ -38,6 +38,22 @@ namespace DAL.DBContext
             .HasForeignKey(r => r.CitizenReporterId)
             .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<InitialIncidentReport>()
+           .HasOne(r => r.FieldResearcher)
+           .WithMany(u => u.AssignedInitialReports)
+           .HasForeignKey(r => r.FieldResearcherId)
+           .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<InitialIncidentReport>()
+            .HasOne(r => r.City)
+            .WithMany(u => u.InitialIncidentReports)
+            .HasForeignKey(r => r.CityId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<InitialIncidentReport>()
+            .Property(i => i.CityId).HasDefaultValue(1);
+
+
             builder.Entity<AppUser>()
             .HasOne(f => f.City)
             .WithMany(c => c.Users)

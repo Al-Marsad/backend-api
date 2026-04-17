@@ -8,7 +8,7 @@ namespace DAL.Exceptions
 {
     public class ValidationException : BusinessException
     {
-        public ValidationException(string message, object? fields)
+        public ValidationException(string message, object? fields = null)
         : base(message, 422, "VALIDATION_ERROR", fields) {}
     }
 }

@@ -27,33 +27,36 @@ namespace DAL.Repositories
 
         public async Task<InitialIncidentReport?> GetByIdAsync(int id)
         {
-            var report = await _dbContext.InitialIncidentReports.SingleOrDefaultAsync(r => r.Id == id);
+            var report = await _dbContext.InitialIncidentReports.Include(r => r.City).SingleOrDefaultAsync(r => r.Id == id);
             return report;
         }
 
-        public async Task<List<InitialIncidentReport>> GetPageAsync(int Skip, int Take, string userId)
+        public async Task<List<InitialIncidentReport>> GetPageAsync(
+          int skip,
+          int take,
+          string? userId = null,
+          InitialIncidentReportStatus? status = null,
+          int? cityId = null)
         {
-            if(Skip < 0 || Take < 0)
-            {
+            if (skip < 0 || take < 0)
                 return new List<InitialIncidentReport>();
-            }
 
-            return await _dbContext.InitialIncidentReports.Where(r => r.CitizenReporterId == userId)
-                .Skip(Skip)
-                .Take(Take)
-                .ToListAsync();
-        }
+            var query = _dbContext.InitialIncidentReports
+                .Include(i => i.City)
+                .AsQueryable();
 
-        public async Task<List<InitialIncidentReport>> GetPageAsync(int Skip, int Take, string userId, InitialIncidentReportStatus status)
-        {
-            if (Skip < 0 || Take < 0)
-            {
-                return new List<InitialIncidentReport>();
-            }
+            if (userId != null)
+                query = query.Where(r => r.CitizenReporterId == userId);
 
-            return await _dbContext.InitialIncidentReports.Where(r => r.CitizenReporterId == userId && r.Status == status)
-                .Skip(Skip)
-                .Take(Take)
+            if (status.HasValue)
+                query = query.Where(r => r.Status == status.Value);
+
+            if (cityId.HasValue)
+                query = query.Where(r => r.CityId == cityId.Value);
+
+            return await query
+                .Skip(skip)
+                .Take(take)
                 .ToListAsync();
         }
     }

@@ -20,7 +20,8 @@ namespace BL.DTO.InitialIncidentReport
         [Range(-180, 180, ErrorMessage = "Longitude must be between -180 and 180")]
         public double? LocationLng { get; set; }
 
-        public string? LocationLabel { get; set; }
+        [Required(ErrorMessage = "CityId is required")]
+        public int? CityId { get; set; }
 
         public string? WitnessName { get; set; }
         

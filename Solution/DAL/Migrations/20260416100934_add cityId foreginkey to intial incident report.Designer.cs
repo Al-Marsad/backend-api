@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DAL.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AlMarsadDbContext))]
-    partial class AlMarsadDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260416100934_add cityId foreginkey to intial incident report")]
+    partial class addcityIdforeginkeytointialincidentreport
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -365,10 +368,6 @@ namespace DAL.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("creation_date");
 
-                    b.Property<string>("FieldResearcherId")
-                        .HasColumnType("text")
-                        .HasColumnName("field_researcher_id");
-
                     b.Property<string>("InitialDescription")
                         .IsRequired()
                         .HasColumnType("text")
@@ -402,9 +401,6 @@ namespace DAL.Migrations
 
                     b.HasIndex("CityId")
                         .HasDatabaseName("ix_initial_incident_reports_city_id");
-
-                    b.HasIndex("FieldResearcherId")
-                        .HasDatabaseName("ix_initial_incident_reports_field_researcher_id");
 
                     b.ToTable("initial_incident_reports", (string)null);
                 });
@@ -962,17 +958,9 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_initial_incident_reports_cities_city_id");
 
-                    b.HasOne("DAL.Entities.AppUser", "FieldResearcher")
-                        .WithMany("AssignedInitialReports")
-                        .HasForeignKey("FieldResearcherId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("fk_initial_incident_reports_app_user_field_researcher_id");
-
                     b.Navigation("CitizenReporter");
 
                     b.Navigation("City");
-
-                    b.Navigation("FieldResearcher");
                 });
 
             modelBuilder.Entity("DAL.Entities.LegalReview", b =>
@@ -1121,8 +1109,6 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Entities.AppUser", b =>
                 {
-                    b.Navigation("AssignedInitialReports");
-
                     b.Navigation("FinalIncidentReports");
 
                     b.Navigation("Incidents");
