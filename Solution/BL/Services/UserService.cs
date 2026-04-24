@@ -2,6 +2,7 @@
 using BL.DTO.User;
 using BL.Helper;
 using BL.Services.Interfaces;
+using DAL.DBContext;
 using DAL.Entities;
 using DAL.Exceptions;
 using Microsoft.AspNetCore.Identity;
@@ -13,12 +14,18 @@ namespace BL.Services
     public class UserService : IUserService
     {
         private readonly UserManager<AppUser> _userManager;
+        private readonly AlMarsadDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly DTOBuilder _dtoBuilder;
 
         public UserService(UserManager<AppUser> userManager,
-            IMapper mapper) {
+            IMapper mapper,
+            AlMarsadDbContext dbContext,
+             DTOBuilder dtoBuilder) {
             this._userManager = userManager;    
             this._mapper = mapper;
+            this._dbContext = dbContext;
+            this._dtoBuilder = dtoBuilder;
         }
         public async Task<GetUserPorfileDTO> GetProfileAsync(string userId)
         {
@@ -33,64 +40,100 @@ namespace BL.Services
 
             return userProfileDTO;
         }
-        public async Task<GetUserPorfileDTO> UpdateProfileAsync(UpdateUserProfileDTO profileDTO, string userId)
+        public async Task<GetUserPorfileDTO> UpdateProfileAsync(UpdateUserProfileDTO dto, string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
-
             if (user == null)
                 throw new DataNotFoundException("User not found");
 
-            user.FirstName = profileDTO.FirstName ?? user.FirstName;
-            user.SecondName = profileDTO.SecondName ?? user.SecondName;
-            user.ThirdName = profileDTO.ThirdName ?? user.ThirdName;
-            user.LastName = profileDTO.LastName ?? user.LastName;
-            user.PhoneNumber = profileDTO.PhoneNumber ?? user.PhoneNumber;
-            user.CityId = profileDTO.CityId ?? user.CityId;
+            user.FirstName = dto.FirstName ?? user.FirstName;
+            user.SecondName = dto.SecondName ?? user.SecondName;
+            user.ThirdName = dto.ThirdName ?? user.ThirdName;
+            user.LastName = dto.LastName ?? user.LastName;
+
+            if (!string.IsNullOrEmpty(dto.PhoneNumber) && user.PhoneNumber != dto.PhoneNumber)
+                user.PhoneNumber = dto.PhoneNumber;
+
+            user.CityId = dto.CityId ?? user.CityId;
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+                IdentityHandler.HandleIdentityErrors(result);
+
+            return await _dtoBuilder.BuildUserProfileDTO(user);
+        }
+
+        public async Task<GetUserPorfileDTO> AdminUpdateUserAsync(UpdateFullUserAccountDTO dto, string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                throw new DataNotFoundException("User not found");
+
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
 
             try
             {
-                var result = await _userManager.UpdateAsync(user);
+                user.FirstName = dto.FirstName ?? user.FirstName;
+                user.SecondName = dto.SecondName ?? user.SecondName;
+                user.ThirdName = dto.ThirdName ?? user.ThirdName;
+                user.LastName = dto.LastName ?? user.LastName;
 
+                if (!string.IsNullOrEmpty(dto.PhoneNumber) && user.PhoneNumber != dto.PhoneNumber)
+                    user.PhoneNumber = dto.PhoneNumber;
+                
+                user.CityId = dto.CityId ?? user.CityId;
 
-                if (!result.Succeeded)
+                if (!string.IsNullOrWhiteSpace(dto.Email) && dto.Email != user.Email)
                 {
-                    var identityErrors = result.Errors.ToList();
+                    var existingUser = await _userManager.FindByEmailAsync(dto.Email);
 
-                    var fields = identityErrors
-                        .GroupBy(e => FieldMapper.MapField(e.Code))
-                        .ToDictionary(
-                            g => g.Key,
-                            g => g.First().Description
-                        );
-
-                    bool isDuplicate = identityErrors.Any(e =>
-                        e.Code == "DuplicateEmail" ||
-                        e.Code == "DuplicateUserName"
-                    );
-
-                    if (isDuplicate)
+                    if (existingUser != null && existingUser.Id != user.Id)
                     {
-                        throw new ConflictException(
-                            "Duplicate resource",
-                            fields
-                        );
+                        throw new ConflictException("Duplicate resource", new
+                        {
+                            Email = "Email is already taken"
+                        });
                     }
 
-                    throw new ValidationException(
-                        "Validation failed",
-                        fields
-                    );
+                    user.Email = dto.Email;
                 }
-                var userProfileDTO = _mapper.Map<GetUserPorfileDTO>(user);
-                var roles = await _userManager.GetRolesAsync(user);
-                userProfileDTO.Role = String.Join(",", roles);
 
-                return userProfileDTO;
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                    IdentityHandler.HandleIdentityErrors(result);
+
+                if (dto.ResetPassword == true)
+                {
+                    if (string.IsNullOrWhiteSpace(dto.Password))
+                        throw new ValidationException("Password is required when ResetPassword is true");
+
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    var resetResult = await _userManager.ResetPasswordAsync(user, token, dto.Password);
+
+                    if (!resetResult.Succeeded)
+                        IdentityHandler.HandleIdentityErrors(resetResult);
+
+                    user.RefreshToken = null;
+                    user.RefreshTokenExpirationTime = null;
+
+                    await _userManager.UpdateSecurityStampAsync(user);
+
+                    var result2 = await _userManager.UpdateAsync(user);
+                    if (!result2.Succeeded)
+                        IdentityHandler.HandleIdentityErrors(result2);
+                }
+
+                await transaction.CommitAsync();
+
+                return await _dtoBuilder.BuildUserProfileDTO(user);
             }
-            catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")
+            catch
             {
-                throw new ConflictException("Duplicate resource", new { PhoneNumber = "Phone Number is already taken." });
+                await transaction.RollbackAsync();
+                throw;
             }
         }
+
     }
 }

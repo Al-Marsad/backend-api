@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BL.Helper;
 using BL.MappingProfiles;
 using BL.Services;
 using BL.Services.Interfaces;
@@ -22,6 +23,7 @@ namespace BL.Extensions
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<ICityService, CityService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<DTOBuilder>();
 
             return services;
         }

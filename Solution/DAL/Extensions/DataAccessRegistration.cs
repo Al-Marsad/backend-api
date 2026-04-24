@@ -36,6 +36,10 @@ namespace DAL.Extensions
             })
             .AddEntityFrameworkStores<AlMarsadDbContext>()
             .AddDefaultTokenProviders();
+            services.Configure<SecurityStampValidatorOptions>(options =>
+            {
+                options.ValidationInterval = TimeSpan.FromMinutes(1);
+            });
 
             // Add Application Repositories
             services.AddScoped<IInitialIncidentReportRepository, InitialIncidentReportRepository>();

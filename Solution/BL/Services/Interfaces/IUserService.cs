@@ -11,5 +11,11 @@ namespace BL.Services.Interfaces
     {
         public Task<GetUserPorfileDTO> GetProfileAsync(string userId);
         public Task<GetUserPorfileDTO> UpdateProfileAsync(UpdateUserProfileDTO profileDTO, string userId);
+        public Task<GetUserPorfileDTO> AdminUpdateUserAsync(UpdateFullUserAccountDTO dto, string userId);
+
+        //public Task<GetUserPorfileDTO> UpdateEmail(UpdateFullUserAccountDTO userDTO, string userId);
+        //public Task<GetUserPorfileDTO> UpdatePassword(UpdateFullUserAccountDTO userDTO, string userId);
+
+
     }
 }
