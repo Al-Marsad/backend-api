@@ -135,5 +135,25 @@ namespace BL.Services
             }
         }
 
+        public async Task ChangePasswordAsync(ChangePasswordDTO passwordDTO, string userId)
+        {
+            if (passwordDTO.CurrentPassword == passwordDTO.NewPassword)
+            {
+                throw new ValidationException("Validation failed", new
+                {
+                    NewPassword = "New password must be different from current password"
+                });
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                throw new DataNotFoundException("User not found");
+
+            var result = await _userManager.ChangePasswordAsync(user, passwordDTO.CurrentPassword, passwordDTO.NewPassword);
+
+            if (!result.Succeeded)
+                IdentityHandler.HandleIdentityErrors(result);
+        }
+
     }
 }

@@ -5,6 +5,7 @@ using BL.Services.Interfaces;
 using DAL.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PL.Controllers
 {
@@ -99,5 +100,33 @@ namespace PL.Controllers
                 Data = data
             });
         }
+
+        [Authorize]
+        [HttpPut("Password")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDTO passwordDTO)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            await _userService.ChangePasswordAsync(passwordDTO, userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Password changed successfully",
+            });
+        }
+
     }
 }

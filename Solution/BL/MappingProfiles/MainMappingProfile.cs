@@ -26,9 +26,7 @@ namespace BL.MappingProfiles
                 .ForMember(dest => dest.Birthdate, opt => opt.MapFrom(src => DateTime.SpecifyKind(src.Birthdate, DateTimeKind.Utc)));
             CreateMap<AppUser, ReturnRegisteredUserDTO>();
             CreateMap<AppUser, ReturnLoginUserDTO>();
-            CreateMap<AppUser, GetUserPorfileDTO>()
-                .ForMember(dest => dest.AccountStatus, opt => opt.MapFrom(src => src.AccountStatus.ToString()));
-
+            CreateMap<AppUser, GetUserPorfileDTO>();
 
             // City Profile
             CreateMap<AddCityDTO, City>();
