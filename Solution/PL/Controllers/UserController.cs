@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using BL.DTO.General;
 using BL.DTO.User;
 using BL.Helper;
 using BL.Services.Interfaces;
@@ -181,6 +182,44 @@ namespace PL.Controllers
             });
 
         }
+
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpGet]
+        public async Task<IActionResult> GetUserByPage([FromQuery]PaginationDTO pageDTO)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _userService.GetUsersByPageAsync(pageDTO, userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Data = new
+                {
+                    Items = data.Data,
+                    Pagination = new
+                    {
+                        CurrentPage = data.Page,
+                        CurrentPageItems = data.Data.Count,
+                        PageSize = data.PageSize,
+                        TotalItems = data.TotalCount,
+                    }
+                }
+            });
+        }
+
 
     }
 }

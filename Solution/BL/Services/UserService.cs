@@ -1,13 +1,15 @@
-﻿using AutoMapper;
+﻿using System.Diagnostics.CodeAnalysis;
+using AutoMapper;
+using BL.DTO.General;
 using BL.DTO.User;
 using BL.Helper;
 using BL.Services.Interfaces;
 using DAL.DBContext;
 using DAL.Entities;
+using DAL.Enums;
 using DAL.Exceptions;
 using Microsoft.AspNetCore.Identity;
-using DAL.Enums;
-using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore;
 
 namespace BL.Services
 {
@@ -21,17 +23,18 @@ namespace BL.Services
         public UserService(UserManager<AppUser> userManager,
             IMapper mapper,
             AlMarsadDbContext dbContext,
-             DTOBuilder dtoBuilder) {
-            this._userManager = userManager;    
+             DTOBuilder dtoBuilder)
+        {
+            this._userManager = userManager;
             this._mapper = mapper;
             this._dbContext = dbContext;
             this._dtoBuilder = dtoBuilder;
         }
         public async Task<GetUserPorfileDTO> GetProfileAsync(string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);    
+            var user = await _userManager.FindByIdAsync(userId);
 
-            if(user == null) 
+            if (user == null)
                 throw new DataNotFoundException("User not found");
 
             var userProfileDTO = _mapper.Map<GetUserPorfileDTO>(user);
@@ -81,7 +84,7 @@ namespace BL.Services
 
                 if (!string.IsNullOrEmpty(dto.PhoneNumber) && user.PhoneNumber != dto.PhoneNumber)
                     user.PhoneNumber = dto.PhoneNumber;
-                
+
                 user.CityId = dto.CityId ?? user.CityId;
 
                 if (!string.IsNullOrWhiteSpace(dto.Email) && dto.Email != user.Email)
@@ -181,6 +184,33 @@ namespace BL.Services
                 IdentityHandler.HandleIdentityErrors(result);
         }
 
+        public async Task<PagedResultDTO<List<GetUserPorfileDTO>>> GetUsersByPageAsync(PaginationDTO pageDTO, 
+            string? excludedUserId = null)
+        {
+            var query = _userManager.Users.AsQueryable();
 
+            if (!string.IsNullOrWhiteSpace(excludedUserId))
+            {
+                query = query.Where(u => u.Id != excludedUserId);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var users = await query
+                .Skip((pageDTO.Page - 1) * pageDTO.PageSize)
+                .Take(pageDTO.PageSize)
+                .ToListAsync();
+
+           
+            var userDTOs = _mapper.Map<List<GetUserPorfileDTO>>(users);
+
+            return new PagedResultDTO<List<GetUserPorfileDTO>>
+            {
+                Data = userDTOs,
+                TotalCount = totalCount,
+                Page = pageDTO.Page,
+                PageSize = pageDTO.PageSize
+            };
+        }
     }
 }
