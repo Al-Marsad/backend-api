@@ -6,8 +6,8 @@ using DAL.DBContext;
 using DAL.Entities;
 using DAL.Exceptions;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Npgsql;
+using DAL.Enums;
+using System.Diagnostics.CodeAnalysis;
 
 namespace BL.Services
 {
@@ -151,6 +151,19 @@ namespace BL.Services
 
             var result = await _userManager.ChangePasswordAsync(user, passwordDTO.CurrentPassword, passwordDTO.NewPassword);
 
+            if (!result.Succeeded)
+                IdentityHandler.HandleIdentityErrors(result);
+        }
+
+        public async Task ChangeAccountStatus(ChangeAccountStatusDTO statusDTO, string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                throw new DataNotFoundException("User not found");
+
+            user.AccountStatus = statusDTO.Status ?? user.AccountStatus;
+
+            var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
                 IdentityHandler.HandleIdentityErrors(result);
         }

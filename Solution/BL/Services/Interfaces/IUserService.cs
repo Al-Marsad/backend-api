@@ -14,6 +14,8 @@ namespace BL.Services.Interfaces
         public Task<GetUserPorfileDTO> AdminUpdateUserAsync(UpdateFullUserAccountDTO dto, string userId);
 
         public Task ChangePasswordAsync(ChangePasswordDTO passwordDTO, string userId);
+        public Task ChangeAccountStatus(ChangeAccountStatusDTO statusDTO, string userId);
+        //public Task DeleteAccount(ChangeAccountStatusDTO statusDTO, string userId);
         //public Task<GetUserPorfileDTO> UpdatePassword(UpdateFullUserAccountDTO userDTO, string userId);
 
 

@@ -102,7 +102,7 @@ namespace PL.Controllers
         }
 
         [Authorize]
-        [HttpPut("Password")]
+        [HttpPatch("Password")]
         public async Task<IActionResult> ChangePassword(ChangePasswordDTO passwordDTO)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -127,6 +127,35 @@ namespace PL.Controllers
                 Message = "Password changed successfully",
             });
         }
+
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpPatch("AccountStatus/{userId}")]
+        public async Task<IActionResult> ChangeAccountStatus(string userId, ChangeAccountStatusDTO StatusDTO)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "BAD_REQUEST",
+                        Message = "User ID is required in the route."
+                    }
+                });
+            }
+
+            await _userService.ChangeAccountStatus(StatusDTO, userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Account status changed successfully",
+            });
+
+        }
+
+
 
     }
 }
