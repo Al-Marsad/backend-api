@@ -1,7 +1,6 @@
 ﻿using DAL.DBContext;
 using DAL.Entities;
 using DAL.Enums;
-using DAL.Exceptions;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +13,11 @@ namespace DAL.Repositories
         public InitialIncidentReportRepository(AlMarsadDbContext dbContext)
         {
             this._dbContext = dbContext;
+        }
+
+        public async Task<int> CountAsync()
+        {
+            return await _dbContext.InitialIncidentReports.CountAsync();
         }
         public async Task AddAsync(InitialIncidentReport report)
         {

@@ -96,12 +96,13 @@ namespace PL.Controllers
                 Success = true,
                 Data = new
                 {
-                    Items = data,
+                    Items = data.Data,
                     Pagination = new
                     {
-                        CurrentPage = reportDto.Page,
-                        PageSize = reportDto.PageSize,
-                        TotalItems = data.Count,
+                        CurrentPage = data.Page,
+                        CurrentPageItems = data.Data.Count,
+                        PageSize = data.PageSize,
+                        TotalItems = data.TotalCount,
                     }
                 }
             });

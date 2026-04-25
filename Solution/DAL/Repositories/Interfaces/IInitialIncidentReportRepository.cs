@@ -7,7 +7,8 @@ namespace DAL.Repositories.Interfaces
 {
     public interface IInitialIncidentReportRepository : ICreateRepository<InitialIncidentReport>, 
         ISaveRepository, 
-        IGetByIdRepository<InitialIncidentReport>
+        IGetByIdRepository<InitialIncidentReport>,
+        ICountRepository
     {
         public Task<List<InitialIncidentReport>> GetPageAsync(int Skip, int Take, string? userId, InitialIncidentReportStatus? status, int? CityId);
     }

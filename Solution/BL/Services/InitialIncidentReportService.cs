@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using BL.DTO.InitialIncidentReport;
 using BL.Helper;
 using BL.Services.Interfaces;
@@ -7,7 +6,7 @@ using DAL.Entities;
 using DAL.Enums;
 using DAL.Exceptions;
 using DAL.Repositories.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+using BL.DTO.General;
 
 namespace BL.Services
 {
@@ -53,7 +52,7 @@ namespace BL.Services
             return _mapper.Map<ReturnDetailedInitialIncidentReportDTO>(report);
         }
 
-        public async Task<List<ReturnDetailedInitialIncidentReportDTO>> GetByPageAsync(
+        public async Task<PagedResultDTO<List<ReturnDetailedInitialIncidentReportDTO>>> GetByPageAsync(
             GetByPageInitialIncidentReportDTO reportDTO,
             CurrentUser user
            )
@@ -91,7 +90,16 @@ namespace BL.Services
                 reportDTO.Status,
                 reportDTO.CityId);
 
-            return _mapper.Map<List<ReturnDetailedInitialIncidentReportDTO>>(reports);
+            var count = await _initialReportRepo.CountAsync();
+            var reportDTOs = _mapper.Map<List<ReturnDetailedInitialIncidentReportDTO>>(reports);
+
+            return new PagedResultDTO<List<ReturnDetailedInitialIncidentReportDTO>>()
+            {
+                Data = reportDTOs,
+                Page = reportDTO.Page,
+                PageSize = reportDTO.PageSize,
+                TotalCount = count
+            };
         }
         public async Task<ReturnInitialIncidentReportDTO> AssignToFieldResearcher(AssignToFieldResearcherDTO data)
         {
