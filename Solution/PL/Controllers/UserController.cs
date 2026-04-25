@@ -38,7 +38,7 @@ namespace PL.Controllers
             }
 
             var data = await _userService.GetProfileAsync(userId);
-            
+
             return Ok(new
             {
                 Success = true,
@@ -65,11 +65,11 @@ namespace PL.Controllers
             }
 
             var data = await _userService.UpdateProfileAsync(profileDTO, userId);
-            
+
             return Ok(new
             {
                 Success = true,
-                Message = "Profile updated successfully",   
+                Message = "Profile updated successfully",
                 Data = data
             });
         }
@@ -155,7 +155,32 @@ namespace PL.Controllers
 
         }
 
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpDelete("{userId}")]
+        public async Task<IActionResult> DeleteAccount(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "BAD_REQUEST",
+                        Message = "User ID is required in the route."
+                    }
+                });
+            }
 
+            await _userService.DeleteAccount(userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Account deleted successfully",
+            });
+
+        }
 
     }
 }
