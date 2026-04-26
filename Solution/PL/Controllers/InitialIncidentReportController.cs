@@ -1,10 +1,12 @@
 ﻿using System.Data;
 using System.Security.Claims;
+using BL.DTO.General;
 using BL.DTO.InitialIncidentReport;
 using BL.Helper;
 using BL.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace PL.Controllers
 {
@@ -96,12 +98,13 @@ namespace PL.Controllers
                 Success = true,
                 Data = new
                 {
-                    Items = data,
+                    Items = data.Data,
                     Pagination = new
                     {
-                        CurrentPage = reportDto.Page,
-                        PageSize = reportDto.PageSize,
-                        TotalItems = data.Count,
+                        CurrentPage = data.Page,
+                        CurrentPageItems = data.Data.Count,
+                        PageSize = data.PageSize,
+                        TotalItems = data.TotalCount,
                     }
                 }
             });
@@ -123,10 +126,24 @@ namespace PL.Controllers
         [HttpPut("AssignToFieldResearcher/{Id:int}")]
         public async Task<IActionResult> AssignToFieldResearcher([FromRoute] int Id)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
             var dataDTO = new AssignToFieldResearcherDTO
             {
                 ReportId = Id,
-                FieldResearcherId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+                FieldResearcherId = userId
             };
 
             var data = await _initialReportService.AssignToFieldResearcher(dataDTO);
@@ -139,5 +156,76 @@ namespace PL.Controllers
             });
         }
 
+        [Authorize(Roles = RolesSelector.FieldResearcher)]
+        [HttpPut("UnassignToFieldResearcher/{Id:int}")]
+        public async Task<IActionResult> UnassignToFieldResearcher([FromRoute] int Id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var dataDTO = new AssignToFieldResearcherDTO
+            {
+                ReportId = Id,
+                FieldResearcherId = userId
+            };
+
+            var data = await _initialReportService.UnassignToFieldResearcher(dataDTO);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Receiving successfully cancelled.",
+                Data = data
+            });
+        }
+
+        [Authorize(Roles = RolesSelector.FieldResearcher)]
+        [HttpGet("MyAssigned")]
+        public async Task<IActionResult> GetFieldResearcherAssignedReports([FromQuery]PaginationDTO pageDTO, 
+            [FromQuery]string? search = null)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _initialReportService.GetMyAssignedReportsAsync(userId, pageDTO, search);
+            
+            return Ok(new
+            {
+                Success = true,
+                Data = new
+                {
+                    Items = data.Data,
+                    Pagination = new
+                    {
+                        CurrentPage = data.Page,
+                        CurrentPageItems = data.Data.Count,
+                        PageSize = data.PageSize,
+                        TotalItems = data.TotalCount,
+                    }
+                }
+            });
+        }
     }
 }

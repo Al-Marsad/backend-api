@@ -1,4 +1,7 @@
 ﻿using DAL.Exceptions;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using PL.Helper;
 
 namespace PL.Middlewares
 {
@@ -28,15 +31,28 @@ namespace PL.Middlewares
 
         private static Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
-            int statusCode = 500;
+            int statusCode = StatusCodes.Status500InternalServerError;
             string code = "INTERNAL_ERROR";
             object? fields = null;
+            string message = "An unexpected error occurred";
 
             if (ex is BusinessException bizEx)
             {
                 statusCode = bizEx.StatusCode;
                 code = bizEx.Code;
                 fields = bizEx.Fields;
+                message = bizEx.Message;
+            }
+
+            else if (ex is DbUpdateException dbEx &&
+                     dbEx.InnerException is PostgresException pgEx &&
+                     pgEx.SqlState == "23505")
+            {
+                statusCode = StatusCodes.Status409Conflict;
+                code = "DUPLICATE_RESOURCE";
+                message = "Duplicate resource";
+
+                fields = ConstraintMapper.MapPostgresConstraint(pgEx.ConstraintName);
             }
 
             var response = new
@@ -45,18 +61,15 @@ namespace PL.Middlewares
                 Error = new
                 {
                     Code = code,
-                    Message = ex.Message,
+                    Message = message,
                     Fields = fields
                 }
             };
 
-
-                context.Response.StatusCode = statusCode;
+            context.Response.StatusCode = statusCode;
             context.Response.ContentType = "application/json";
 
             return context.Response.WriteAsJsonAsync(response);
         }
-
-
     }
 }

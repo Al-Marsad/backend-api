@@ -1,13 +1,13 @@
-﻿using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
+using BL.DTO.General;
 using BL.DTO.InitialIncidentReport;
 using BL.Helper;
 using BL.Services.Interfaces;
 using DAL.Entities;
 using DAL.Enums;
 using DAL.Exceptions;
+using DAL.Repositories;
 using DAL.Repositories.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 
 namespace BL.Services
 {
@@ -53,16 +53,11 @@ namespace BL.Services
             return _mapper.Map<ReturnDetailedInitialIncidentReportDTO>(report);
         }
 
-        public async Task<List<ReturnDetailedInitialIncidentReportDTO>> GetByPageAsync(
+        public async Task<PagedResultDTO<List<ReturnDetailedInitialIncidentReportDTO>>> GetByPageAsync(
             GetByPageInitialIncidentReportDTO reportDTO,
             CurrentUser user
            )
         {
-            if (reportDTO.Page < 1)
-                throw new ValidationException("Validation failed", new { Page = "Can't be less than 1" });
-
-            if (reportDTO.PageSize < 0 || reportDTO.PageSize > 50)
-                throw new ValidationException("Validation failed", new { PageSize = "Can't be less than 0 or greater than 50" });
 
             if (reportDTO.Status.HasValue && !Enum.IsDefined(typeof(InitialIncidentReportStatus), reportDTO.Status.Value))
                 throw new ValidationException("Validation failed", new { Status = "Value is invalid" });
@@ -84,14 +79,22 @@ namespace BL.Services
                 }
             }
 
-            var reports = await _initialReportRepo.GetPageAsync(
+            var (reports, totalItems) = await _initialReportRepo.GetPageAsync(
                 (reportDTO.Page - 1) * reportDTO.PageSize,
                 reportDTO.PageSize,
                 userId,
                 reportDTO.Status,
                 reportDTO.CityId);
 
-            return _mapper.Map<List<ReturnDetailedInitialIncidentReportDTO>>(reports);
+            var reportDTOs = _mapper.Map<List<ReturnDetailedInitialIncidentReportDTO>>(reports);
+
+            return new PagedResultDTO<List<ReturnDetailedInitialIncidentReportDTO>>()
+            {
+                Data = reportDTOs,
+                Page = reportDTO.Page,
+                PageSize = reportDTO.PageSize,
+                TotalCount = totalItems
+            };
         }
         public async Task<ReturnInitialIncidentReportDTO> AssignToFieldResearcher(AssignToFieldResearcherDTO data)
         {
@@ -115,9 +118,57 @@ namespace BL.Services
             return _mapper.Map<ReturnInitialIncidentReportDTO>(report);
         }
 
+        public async Task<ReturnInitialIncidentReportDTO> UnassignToFieldResearcher(AssignToFieldResearcherDTO data)
+        {
+            var report = await _initialReportRepo.GetByIdAsync(data.ReportId);
+            if (report == null)
+            {
+                throw new DataNotFoundException("There is no initial report with this id");
+            }
+
+            if (report.Status != InitialIncidentReportStatus.ASSIGNED)
+            {
+                throw new ConflictException("initial report can't be unassigned due to its status");
+            }
+
+            if (report.FieldResearcherId != data.FieldResearcherId)
+            {
+                throw new ForbiddenException($"Initial report was not assigned to current field researcher");
+
+            }
+
+            report.FieldResearcherId = null;
+            report.Status = InitialIncidentReportStatus.UNASSIGNED;
+
+            await _initialReportRepo.SaveAsync();
+
+            return _mapper.Map<ReturnInitialIncidentReportDTO>(report);
+        }
+
         public List<StatusValuesDTO> GetStatusValues()
         {
             return _mapper.Map<List<StatusValuesDTO>>(Enum.GetValues<InitialIncidentReportStatus>().ToList());
+        }
+
+        public async Task<PagedResultDTO<List<ReturnDetailedInitialIncidentReportDTO>>> GetMyAssignedReportsAsync(
+            string userId,
+            PaginationDTO paginationDTO, 
+            string? search = null)
+        {
+            var Skip = (paginationDTO.Page - 1) * paginationDTO.PageSize;
+            var Take = paginationDTO.PageSize;
+
+            var (reports, totalItems) = await _initialReportRepo.GetAssignedReportsAsync(userId, Skip, Take, search);
+
+            var reportDTOs = _mapper.Map<List<ReturnDetailedInitialIncidentReportDTO>>(reports);
+
+            return new PagedResultDTO<List<ReturnDetailedInitialIncidentReportDTO>>
+            {
+                Data = reportDTOs,
+                Page = paginationDTO.Page,
+                PageSize = paginationDTO.PageSize,
+                TotalCount = totalItems
+            };
         }
     }
 }

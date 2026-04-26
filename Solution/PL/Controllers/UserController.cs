@@ -1,15 +1,17 @@
 ﻿using System.Security.Claims;
+using BL.DTO.General;
 using BL.DTO.User;
+using BL.Helper;
 using BL.Services.Interfaces;
+using DAL.Exceptions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PL.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -18,6 +20,7 @@ namespace PL.Controllers
             _userService = userService;
         }
 
+        [Authorize]
         [HttpGet("Profile")]
         public async Task<IActionResult> GetProfile()
         {
@@ -36,7 +39,7 @@ namespace PL.Controllers
             }
 
             var data = await _userService.GetProfileAsync(userId);
-            
+
             return Ok(new
             {
                 Success = true,
@@ -44,18 +47,190 @@ namespace PL.Controllers
             });
         }
 
+        [Authorize]
         [HttpPut("Profile")]
         public async Task<IActionResult> UpdateProfile(UpdateUserProfileDTO profileDTO)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
             var data = await _userService.UpdateProfileAsync(profileDTO, userId);
-            
+
             return Ok(new
             {
                 Success = true,
-                Message = "Profile updated successfully",   
+                Message = "Profile updated successfully",
                 Data = data
             });
         }
+
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpPut("{userId}")]
+        public async Task<IActionResult> UpdateFullUserAccount(string userId, UpdateFullUserAccountDTO userDTO)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "BAD_REQUEST",
+                        Message = "User ID is required in the route."
+                    }
+                });
+            }
+
+            var data = await _userService.AdminUpdateUserAsync(userDTO, userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "User information updated successfully",
+                Data = data
+            });
+        }
+
+        [Authorize]
+        [HttpPatch("Password")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDTO passwordDTO)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            await _userService.ChangePasswordAsync(passwordDTO, userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Password changed successfully",
+            });
+        }
+
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpPatch("AccountStatus/{userId}")]
+        public async Task<IActionResult> ChangeAccountStatus(string userId, ChangeAccountStatusDTO StatusDTO)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "BAD_REQUEST",
+                        Message = "User ID is required in the route."
+                    }
+                });
+            }
+
+            await _userService.ChangeAccountStatus(StatusDTO, userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Account status changed successfully",
+            });
+
+        }
+
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpDelete("{userId}")]
+        public async Task<IActionResult> DeleteAccount(string userId)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "BAD_REQUEST",
+                        Message = "User ID is required in the route."
+                    }
+                });
+            }
+
+            await _userService.DeleteAccount(userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Account deleted successfully",
+            });
+
+        }
+
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpGet]
+        public async Task<IActionResult> GetUserByPage([FromQuery]PaginationDTO pageDTO)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _userService.GetUsersByPageAsync(pageDTO, userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Data = new
+                {
+                    Items = data.Data,
+                    Pagination = new
+                    {
+                        CurrentPage = data.Page,
+                        CurrentPageItems = data.Data.Count,
+                        PageSize = data.PageSize,
+                        TotalItems = data.TotalCount,
+                    }
+                }
+            });
+        }
+
+        [Authorize]
+        [HttpGet("AccountStatuses")]
+        public IActionResult GetAccountStatusValues()
+        {
+            var data = _userService.GetAccountStatusValues();
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
+
     }
 }

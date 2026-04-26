@@ -14,8 +14,4 @@
     <ProjectReference Include="..\DAL\DAL.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DTO\Common\" />
-  </ItemGroup>
-
 </Project>

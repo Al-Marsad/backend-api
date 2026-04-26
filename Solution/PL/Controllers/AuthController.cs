@@ -31,7 +31,7 @@ namespace PL.Controllers
             });
         }
 
-        [Authorize(Roles = RolesSelector.Admin)]
+        //[Authorize(Roles = RolesSelector.Admin)]
         [HttpPost("Register")]
         public async Task<IActionResult> Register(AddUserDTO userDTO)
         {
