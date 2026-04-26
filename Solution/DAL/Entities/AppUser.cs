@@ -45,5 +45,6 @@ namespace DAL.Entities
         public virtual List<Incident> Incidents { get; set; } = new();
 
         public virtual List<FinalIncidentReport> FinalIncidentReports { get; set; } = new();
+        public virtual List<AppUserRole> UserRoles { get; set; } = new();
     }
 }

@@ -44,34 +44,7 @@ namespace BL.Services
                 var result = await _userManager.CreateAsync(user, userDTO.Password);
 
                 if (!result.Succeeded)
-                {
-                    var identityErrors = result.Errors.ToList();
-
-                    var fields = identityErrors
-                        .GroupBy(e => FieldMapper.MapField(e.Code))
-                        .ToDictionary(
-                            g => g.Key,
-                            g => g.First().Description
-                        );
-
-                    bool isDuplicate = identityErrors.Any(e =>
-                        e.Code == "DuplicateEmail" ||
-                        e.Code == "DuplicateUserName"
-                    );
-
-                    if (isDuplicate)
-                    {
-                        throw new ConflictException(
-                            "Duplicate resource",
-                            fields
-                        );
-                    }
-
-                    throw new ValidationException(
-                        "Validation failed",
-                        fields
-                    );
-                }
+                    IdentityHandler.HandleIdentityErrors(result);
 
             }
             catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")

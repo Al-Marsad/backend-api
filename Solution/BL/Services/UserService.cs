@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using BL.DTO.General;
 using BL.DTO.InitialIncidentReport;
 using BL.DTO.User;
@@ -192,12 +193,6 @@ namespace BL.Services
         public async Task<PagedResultDTO<List<GetUserPorfileDTO>>> GetUsersByPageAsync(PaginationDTO pageDTO, 
             string? excludedUserId = null)
         {
-            if (pageDTO.Page < 1)
-                throw new ValidationException("Validation failed", new { Page = "Can't be less than 1" });
-
-            if (pageDTO.PageSize < 0 || pageDTO.PageSize > 50)
-                throw new ValidationException("Validation failed", new { PageSize = "Can't be less than 0 or greater than 50" });
-
             var query = _userManager.Users.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(excludedUserId))
@@ -207,13 +202,14 @@ namespace BL.Services
 
             var totalCount = await query.CountAsync();
 
-            var users = await query
+            var userDTOs = await query
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .OrderBy(u => u.UserName)
                 .Skip((pageDTO.Page - 1) * pageDTO.PageSize)
                 .Take(pageDTO.PageSize)
+                .ProjectTo<GetUserPorfileDTO>(_mapper.ConfigurationProvider)
                 .ToListAsync();
-
-           
-            var userDTOs = _mapper.Map<List<GetUserPorfileDTO>>(users);
 
             return new PagedResultDTO<List<GetUserPorfileDTO>>
             {
