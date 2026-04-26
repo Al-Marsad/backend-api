@@ -35,7 +35,7 @@ namespace DAL.Repositories
             return report;
         }
 
-        public async Task<List<InitialIncidentReport>> GetPageAsync(
+        public async Task<(List<InitialIncidentReport>, int TotalItems)> GetPageAsync(
           int skip,
           int take,
           string? userId = null,
@@ -43,11 +43,12 @@ namespace DAL.Repositories
           int? cityId = null)
         {
             if (skip < 0 || take < 0)
-                return new List<InitialIncidentReport>();
+                return (new List<InitialIncidentReport>(), 0);
 
             var query = _dbContext.InitialIncidentReports
                 .Include(i => i.City)
                 .AsQueryable();
+
 
             if (userId != null)
                 query = query.Where(r => r.CitizenReporterId == userId);
@@ -57,11 +58,40 @@ namespace DAL.Repositories
 
             if (cityId.HasValue)
                 query = query.Where(r => r.CityId == cityId.Value);
+            
+            var totalItems = await query.CountAsync();
 
-            return await query
+            var reports = await query
                 .Skip(skip)
                 .Take(take)
                 .ToListAsync();
+
+            return (reports, totalItems);
+        }
+
+        public async Task<(List<InitialIncidentReport>, int totalItems)> GetAssignedReportsAsync(string userId, int Skip, 
+            int Take, string? search = null)
+        {
+            var query = _dbContext.InitialIncidentReports
+                .Where(x => x.FieldResearcherId == userId &&
+                            x.Status == InitialIncidentReportStatus.ASSIGNED);
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(x =>
+                    x.InitialDescription.Contains(search));
+            }
+
+            var totalItems = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(x => x.CreationDate)
+                .Skip(Skip)
+                .Take(Take)
+                .ToListAsync();
+
+            return (items, totalItems);
         }
     }
 }
+

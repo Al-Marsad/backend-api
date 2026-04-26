@@ -220,6 +220,17 @@ namespace PL.Controllers
             });
         }
 
+        [Authorize]
+        [HttpGet("AccountStatuses")]
+        public IActionResult GetAccountStatusValues()
+        {
+            var data = _userService.GetAccountStatusValues();
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
 
     }
 }

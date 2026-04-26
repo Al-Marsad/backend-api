@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using AutoMapper;
 using BL.DTO.General;
+using BL.DTO.InitialIncidentReport;
 using BL.DTO.User;
 using BL.Helper;
 using BL.Services.Interfaces;
@@ -160,6 +161,10 @@ namespace BL.Services
 
         public async Task ChangeAccountStatus(ChangeAccountStatusDTO statusDTO, string userId)
         {
+
+            if (statusDTO.Status.HasValue && !Enum.IsDefined(typeof(AccountStatus), statusDTO.Status.Value))
+                throw new ValidationException("Validation failed", new { Status = "Value is invalid" });
+
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 throw new DataNotFoundException("User not found");
@@ -217,6 +222,11 @@ namespace BL.Services
                 Page = pageDTO.Page,
                 PageSize = pageDTO.PageSize
             };
+        }
+
+        public List<StatusValuesDTO> GetAccountStatusValues()
+        {
+            return _mapper.Map<List<StatusValuesDTO>>(Enum.GetValues<AccountStatus>().ToList());
         }
     }
 }

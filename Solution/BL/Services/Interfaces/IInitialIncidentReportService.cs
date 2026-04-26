@@ -12,7 +12,10 @@ namespace BL.Services.Interfaces
         public Task<PagedResultDTO<List<ReturnDetailedInitialIncidentReportDTO>>> GetByPageAsync(
             GetByPageInitialIncidentReportDTO reportDTO ,CurrentUser user);
         public List<StatusValuesDTO> GetStatusValues();
-
+        public Task<PagedResultDTO<List<ReturnDetailedInitialIncidentReportDTO>>> GetMyAssignedReportsAsync(string userId,
+        PaginationDTO paginationDTO, string? search);
         public Task<ReturnInitialIncidentReportDTO> AssignToFieldResearcher(AssignToFieldResearcherDTO data);
+        public Task<ReturnInitialIncidentReportDTO> UnassignToFieldResearcher(AssignToFieldResearcherDTO data);
+
     }
 }

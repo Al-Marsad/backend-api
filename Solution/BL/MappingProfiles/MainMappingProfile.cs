@@ -27,6 +27,9 @@ namespace BL.MappingProfiles
             CreateMap<AppUser, ReturnRegisteredUserDTO>();
             CreateMap<AppUser, ReturnLoginUserDTO>();
             CreateMap<AppUser, GetUserPorfileDTO>();
+            CreateMap<AccountStatus, StatusValuesDTO>()
+                .ForMember(dest => dest.StatuName, opt => opt.MapFrom(src => src.ToString()))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src));
 
             // City Profile
             CreateMap<AddCityDTO, City>();
