@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using BL.DTO.General;
 using BL.DTO.InitialIncidentReport;
 using BL.DTO.User;
@@ -201,13 +202,14 @@ namespace BL.Services
 
             var totalCount = await query.CountAsync();
 
-            var users = await query
+            var userDTOs = await query
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .OrderBy(u => u.UserName)
                 .Skip((pageDTO.Page - 1) * pageDTO.PageSize)
                 .Take(pageDTO.PageSize)
+                .ProjectTo<GetUserPorfileDTO>(_mapper.ConfigurationProvider)
                 .ToListAsync();
-
-           
-            var userDTOs = _mapper.Map<List<GetUserPorfileDTO>>(users);
 
             return new PagedResultDTO<List<GetUserPorfileDTO>>
             {

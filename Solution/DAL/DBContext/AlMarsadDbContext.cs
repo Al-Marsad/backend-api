@@ -9,9 +9,21 @@ using static System.Collections.Specialized.BitVector32;
 
 namespace DAL.DBContext
 {
-    public class AlMarsadDbContext : IdentityDbContext<AppUser>
+    public class AlMarsadDbContext : 
+        IdentityDbContext<
+            AppUser,
+            AppRole,
+            string,
+            IdentityUserClaim<string>,
+            AppUserRole,
+            IdentityUserLogin<string>,
+            IdentityRoleClaim<string>,
+            IdentityUserToken<string>
+        >
     {
         public DbSet<AppUser> Users { get; set; }
+        public DbSet<AppRole> Roles { get; set; }
+        public DbSet<AppUserRole> UserRoles { get; set; }
         public DbSet<InitialIncidentReport> InitialIncidentReports { get; set; }
         public DbSet<City> Cities { get; set; } 
         public DbSet<Evidence> Evidences { get; set; }
@@ -31,6 +43,20 @@ namespace DAL.DBContext
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            base.OnModelCreating(builder);
+
+            builder.Entity<AppUserRole>(userRole =>
+            {
+                userRole.HasKey(ur => new { ur.UserId, ur.RoleId });
+
+                userRole.HasOne(ur => ur.Role)
+                    .WithMany(r => r.UserRoles)
+                    .HasForeignKey(ur => ur.RoleId);
+
+                userRole.HasOne(ur => ur.User)
+                    .WithMany(u => u.UserRoles)
+                    .HasForeignKey(ur => ur.UserId);
+            });
 
             builder.Entity<InitialIncidentReport>()
             .HasOne(r => r.CitizenReporter)
@@ -170,8 +196,6 @@ namespace DAL.DBContext
             .WithMany(i => i.Evidences)
             .HasForeignKey(e => e.IncidentId)
             .OnDelete(DeleteBehavior.Restrict);
-
-            base.OnModelCreating(builder);
         }
     }
 }
