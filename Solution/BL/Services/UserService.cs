@@ -192,12 +192,6 @@ namespace BL.Services
         public async Task<PagedResultDTO<List<GetUserPorfileDTO>>> GetUsersByPageAsync(PaginationDTO pageDTO, 
             string? excludedUserId = null)
         {
-            if (pageDTO.Page < 1)
-                throw new ValidationException("Validation failed", new { Page = "Can't be less than 1" });
-
-            if (pageDTO.PageSize < 0 || pageDTO.PageSize > 50)
-                throw new ValidationException("Validation failed", new { PageSize = "Can't be less than 0 or greater than 50" });
-
             var query = _userManager.Users.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(excludedUserId))
