@@ -89,7 +89,7 @@ namespace BL.Services
             var refreshToken = _jwtService.GenerateRefreshToken();
 
             user.RefreshToken = refreshToken;
-            user.RefreshTokenExpirationTime = DateTime.UtcNow.AddDays(double.Parse(_config["Jwt:ExpiryInDays"] ?? "7"));
+            user.RefreshTokenExpirationTime = DateTime.UtcNow.AddDays(double.Parse(_config["Jwt:ExpiryInDays"]));
 
             var result2 = await _userManager.UpdateAsync(user);
 
@@ -125,7 +125,7 @@ namespace BL.Services
 
             var newAccessToken = _jwtService.GenerateAccessToken(user, roles);
             var newRefreshToken = _jwtService.GenerateRefreshToken();
-            var newRefreshTokenExpirationTime = DateTime.UtcNow.AddDays(double.Parse(_config["Jwt:ExpiryInDays"] ?? "7"));
+            var newRefreshTokenExpirationTime = DateTime.UtcNow.AddDays(double.Parse(_config["Jwt:ExpiryInDays"]));
 
             user.RefreshToken = newRefreshToken;
             user.RefreshTokenExpirationTime = newRefreshTokenExpirationTime;
@@ -139,7 +139,7 @@ namespace BL.Services
             var returnData = new ReturnAccessTokenDTO()
             {
                 AccessToken = newAccessToken,
-                ExpiresIn = Convert.ToInt32(_config["Jwt:ExpiryInMinutes"] ?? "5"),
+                ExpiresIn = Convert.ToInt32(_config["Jwt:ExpiryInMinutes"]),
                 RefreshToken = newRefreshToken,
                 RefreshTokenExpirationTime = newRefreshTokenExpirationTime
             };
