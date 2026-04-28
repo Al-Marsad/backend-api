@@ -13,8 +13,6 @@ namespace DAL.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("SET cluster setting cluster.preserve_downgrade_option = '23.1';", suppressTransaction: true);
-
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
@@ -30,45 +28,13 @@ namespace DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUsers",
-                columns: table => new
-                {
-                    id = table.Column<string>(type: "text", nullable: false),
-                    first_name = table.Column<string>(type: "text", nullable: false),
-                    second_name = table.Column<string>(type: "text", nullable: false),
-                    third_name = table.Column<string>(type: "text", nullable: false),
-                    last_name = table.Column<string>(type: "text", nullable: false),
-                    account_status = table.Column<int>(type: "integer", nullable: false),
-                    birthdate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    refresh_token = table.Column<string>(type: "text", nullable: true),
-                    refresh_token_expiration_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    normalized_user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    normalized_email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    email_confirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    password_hash = table.Column<string>(type: "text", nullable: true),
-                    security_stamp = table.Column<string>(type: "text", nullable: true),
-                    concurrency_stamp = table.Column<string>(type: "text", nullable: true),
-                    phone_number = table.Column<string>(type: "text", nullable: false),
-                    phone_number_confirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    two_factor_enabled = table.Column<bool>(type: "boolean", nullable: false),
-                    lockout_end = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    lockout_enabled = table.Column<bool>(type: "boolean", nullable: false),
-                    access_failed_count = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_asp_net_users", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "cities",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "text", nullable: false)
+                    arabic_name = table.Column<string>(type: "text", nullable: false),
+                    english_name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -116,6 +82,71 @@ namespace DAL.Migrations
                         principalTable: "AspNetRoles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUsers",
+                columns: table => new
+                {
+                    id = table.Column<string>(type: "text", nullable: false),
+                    first_name = table.Column<string>(type: "text", nullable: false),
+                    second_name = table.Column<string>(type: "text", nullable: false),
+                    third_name = table.Column<string>(type: "text", nullable: false),
+                    last_name = table.Column<string>(type: "text", nullable: false),
+                    account_status = table.Column<int>(type: "integer", nullable: false),
+                    birthdate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    availability_status = table.Column<bool>(type: "boolean", nullable: true),
+                    refresh_token = table.Column<string>(type: "text", nullable: true),
+                    refresh_token_expiration_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    city_id = table.Column<int>(type: "integer", nullable: false),
+                    user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    normalized_user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    normalized_email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    email_confirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    password_hash = table.Column<string>(type: "text", nullable: true),
+                    security_stamp = table.Column<string>(type: "text", nullable: true),
+                    concurrency_stamp = table.Column<string>(type: "text", nullable: true),
+                    phone_number = table.Column<string>(type: "text", nullable: false),
+                    phone_number_confirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    two_factor_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    lockout_end = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    lockout_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    access_failed_count = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_asp_net_users", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_asp_net_users_cities_city_id",
+                        column: x => x.city_id,
+                        principalTable: "cities",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "locations",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    area_name = table.Column<string>(type: "text", nullable: false),
+                    area_class = table.Column<int>(type: "integer", nullable: true),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    location_lat = table.Column<double>(type: "double precision", nullable: false),
+                    location_lng = table.Column<double>(type: "double precision", nullable: false),
+                    city_id = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_locations", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_locations_cities_city_id",
+                        column: x => x.city_id,
+                        principalTable: "cities",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -211,62 +242,32 @@ namespace DAL.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     creation_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     status = table.Column<int>(type: "integer", nullable: false),
-                    initial_description = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
-                    citizen_reporter_id = table.Column<string>(type: "text", nullable: false)
+                    initial_description = table.Column<string>(type: "text", nullable: false),
+                    location_lat = table.Column<double>(type: "double precision", nullable: false),
+                    location_lng = table.Column<double>(type: "double precision", nullable: false),
+                    city_id = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    witness_name = table.Column<string>(type: "text", nullable: true),
+                    witness_phone = table.Column<string>(type: "text", nullable: true),
+                    citizen_reporter_id = table.Column<string>(type: "text", nullable: false),
+                    field_researcher_id = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_initial_incident_reports", x => x.id);
                     table.ForeignKey(
-                        name: "fk_initial_incident_reports_app_user_citizen_reporter_id",
+                        name: "fk_initial_incident_reports_asp_net_users_citizen_reporter_id",
                         column: x => x.citizen_reporter_id,
                         principalTable: "AspNetUsers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "field_researcher_infos",
-                columns: table => new
-                {
-                    user_id = table.Column<string>(type: "text", nullable: false),
-                    availability_status = table.Column<bool>(type: "boolean", nullable: false),
-                    city_id = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_field_researcher_infos", x => x.user_id);
                     table.ForeignKey(
-                        name: "fk_field_researcher_infos_app_user_user_id",
-                        column: x => x.user_id,
+                        name: "fk_initial_incident_reports_asp_net_users_field_researcher_id",
+                        column: x => x.field_researcher_id,
                         principalTable: "AspNetUsers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "fk_field_researcher_infos_cities_city_id",
-                        column: x => x.city_id,
-                        principalTable: "cities",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "locations",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    area_name = table.Column<string>(type: "text", nullable: false),
-                    area_class = table.Column<int>(type: "integer", nullable: true),
-                    coordinates = table.Column<string>(type: "text", nullable: false),
-                    description = table.Column<string>(type: "text", nullable: false),
-                    city_id = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_locations", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_locations_cities_city_id",
+                        name: "fk_initial_incident_reports_cities_city_id",
                         column: x => x.city_id,
                         principalTable: "cities",
                         principalColumn: "id",
@@ -291,10 +292,10 @@ namespace DAL.Migrations
                 {
                     table.PrimaryKey("pk_incidents", x => x.id);
                     table.ForeignKey(
-                        name: "fk_incidents_field_researcher_infos_field_researcher_id",
+                        name: "fk_incidents_app_user_field_researcher_id",
                         column: x => x.field_researcher_id,
-                        principalTable: "field_researcher_infos",
-                        principalColumn: "user_id",
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "fk_incidents_initial_incident_reports_initial_incident_report_",
@@ -328,10 +329,10 @@ namespace DAL.Migrations
                 {
                     table.PrimaryKey("pk_final_incident_reports", x => x.id);
                     table.ForeignKey(
-                        name: "fk_final_incident_reports_field_researcher_infos_field_researc",
+                        name: "fk_final_incident_reports_app_user_field_researcher_id",
                         column: x => x.field_researcher_id,
-                        principalTable: "field_researcher_infos",
-                        principalColumn: "user_id",
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "fk_final_incident_reports_incidents_incident_id",
@@ -434,14 +435,14 @@ namespace DAL.Migrations
                     review_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     review_content = table.Column<string>(type: "text", nullable: false),
                     final_incident_report_id = table.Column<int>(type: "integer", nullable: false),
-                    app_user_id = table.Column<string>(type: "text", nullable: false)
+                    legal_team_member_id = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_legal_reviews", x => x.id);
                     table.ForeignKey(
-                        name: "fk_legal_reviews_app_user_app_user_id",
-                        column: x => x.app_user_id,
+                        name: "fk_legal_reviews_app_user_legal_team_member_id",
+                        column: x => x.legal_team_member_id,
                         principalTable: "AspNetUsers",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
@@ -516,6 +517,11 @@ namespace DAL.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "ix_asp_net_users_city_id",
+                table: "AspNetUsers",
+                column: "city_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_asp_net_users_phone_number",
                 table: "AspNetUsers",
                 column: "phone_number",
@@ -528,9 +534,15 @@ namespace DAL.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_cities_name",
+                name: "ix_cities_arabic_name",
                 table: "cities",
-                column: "name",
+                column: "arabic_name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_cities_english_name",
+                table: "cities",
+                column: "english_name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -542,11 +554,6 @@ namespace DAL.Migrations
                 name: "ix_evidences_residence_id",
                 table: "evidences",
                 column: "residence_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_field_researcher_infos_city_id",
-                table: "field_researcher_infos",
-                column: "city_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_final_incident_reports_field_researcher_id",
@@ -580,15 +587,25 @@ namespace DAL.Migrations
                 column: "citizen_reporter_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_legal_reviews_app_user_id",
-                table: "legal_reviews",
-                column: "app_user_id");
+                name: "ix_initial_incident_reports_city_id",
+                table: "initial_incident_reports",
+                column: "city_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_initial_incident_reports_field_researcher_id",
+                table: "initial_incident_reports",
+                column: "field_researcher_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_legal_reviews_final_incident_report_id",
                 table: "legal_reviews",
                 column: "final_incident_report_id",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_legal_reviews_legal_team_member_id",
+                table: "legal_reviews",
+                column: "legal_team_member_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_locations_city_id",
@@ -679,9 +696,6 @@ namespace DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "incidents");
-
-            migrationBuilder.DropTable(
-                name: "field_researcher_infos");
 
             migrationBuilder.DropTable(
                 name: "initial_incident_reports");

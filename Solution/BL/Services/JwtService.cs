@@ -45,7 +45,7 @@ namespace BL.Services
                 issuer: _config["Jwt:Issuer"],
                 audience: null,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:ExpiryInMinutes"] ?? "5")),
+                expires: DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:ExpiryInMinutes"])),
                 signingCredentials: creds
             );
 
