@@ -6,6 +6,6 @@ namespace BL.Services.Interfaces
     public interface ICityService
     {
         public Task<ReturnCityDTO> AddAsync(AddCityDTO cityDTO); 
-        public Task<List<ReturnCityDTO>> GetAllAsync();
+        public Task<List<ReturnCityDTO>> GetAllAsync(string? searchTerm = null);
     }
 }

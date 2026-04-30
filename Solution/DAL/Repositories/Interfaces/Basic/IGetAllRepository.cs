@@ -3,7 +3,7 @@ namespace DAL.Repositories.Interfaces.Basic
 {
     public interface IGetAllRepository<T>
     {
-        public Task<List<T>> GetAllAsync();
+        public Task<List<T>> GetAllAsync(string? searchTerm = null);
 
     }
 }

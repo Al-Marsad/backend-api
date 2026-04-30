@@ -31,9 +31,9 @@ namespace BL.Services
 
             return _mapper.Map<ReturnCityDTO>(city);
         }
-        public async Task<List<ReturnCityDTO>> GetAllAsync()
+        public async Task<List<ReturnCityDTO>> GetAllAsync(string? searchTerm = null)
         {
-            return _mapper.Map<List<ReturnCityDTO>>(await _cityRepo.GetAllAsync());
+            return _mapper.Map<List<ReturnCityDTO>>(await _cityRepo.GetAllAsync(searchTerm));
         }
     }
 }

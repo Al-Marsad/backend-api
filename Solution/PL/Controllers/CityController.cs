@@ -19,9 +19,9 @@ namespace PL.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery]string? Search)
         {
-            var data = await _cityService.GetAllAsync();
+            var data = await _cityService.GetAllAsync(Search);
             return Ok(new
             {
                 Success = true,
