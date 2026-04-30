@@ -1,8 +1,9 @@
 ﻿using BL.DTO.City;
+using BL.Helper;
 using BL.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using BL.Helper;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PL.Controllers
 {
@@ -41,5 +42,19 @@ namespace PL.Controllers
                 Data = data
             });
         }
+
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpDelete("{CityId}")]
+        public async Task<IActionResult> Delete([FromRoute]int CityId)
+        {
+            await _cityService.DeleteAsync(CityId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "City Deleted Successfully"
+            });
+        }
+
     }
 }

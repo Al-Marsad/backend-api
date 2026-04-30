@@ -35,5 +35,12 @@ namespace BL.Services
         {
             return _mapper.Map<List<ReturnCityDTO>>(await _cityRepo.GetAllAsync(searchTerm));
         }
+        public async Task DeleteAsync(int Id)
+        {
+            await _cityRepo.DeleteAsync(Id);
+            
+            await _cityRepo.SaveAsync();
+        }
+
     }
 }

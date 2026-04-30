@@ -1,6 +1,8 @@
 ﻿using DAL.DBContext;
 using DAL.Entities;
+using DAL.Exceptions;
 using DAL.Repositories.Interfaces;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repositories
@@ -33,6 +35,18 @@ namespace DAL.Repositories
             
 
             return await query.ToListAsync();
+        }
+
+        public async Task DeleteAsync(int Id)
+        {
+            var city = await _dbContext.Cities.SingleOrDefaultAsync(c => c.Id == Id);
+            
+            if (city == null)
+            {
+                throw new DataNotFoundException("There is no city found with this id");
+            }
+
+            _dbContext.Cities.Remove(city);
         }
     }
 }
