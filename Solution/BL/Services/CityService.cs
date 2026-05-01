@@ -7,6 +7,7 @@ using AutoMapper;
 using BL.DTO.City;
 using BL.Services.Interfaces;
 using DAL.Entities;
+using DAL.Exceptions;
 using DAL.Repositories.Interfaces;
 
 namespace BL.Services
@@ -37,7 +38,14 @@ namespace BL.Services
         }
         public async Task DeleteAsync(int Id)
         {
-            await _cityRepo.DeleteAsync(Id);
+            var city = await _cityRepo.GetByIdAsync(Id);
+
+            if(city == null)
+            {
+                throw new DataNotFoundException("City not found");
+            }
+
+            _cityRepo.Delete(city);
             
             await _cityRepo.SaveAsync();
         }

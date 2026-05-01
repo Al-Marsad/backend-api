@@ -37,10 +37,13 @@ namespace DAL.Repositories
             return await query.ToListAsync();
         }
 
-        public async Task DeleteAsync(int Id)
+        public async Task<City?> GetByIdAsync(int id)
         {
-            var city = await _dbContext.Cities.SingleOrDefaultAsync(c => c.Id == Id);
-            
+            return await _dbContext.Cities.SingleOrDefaultAsync(c => c.Id == id);
+        }   
+
+        public void Delete(City city)
+        {            
             if (city == null)
             {
                 throw new DataNotFoundException("There is no city found with this id");
@@ -48,5 +51,15 @@ namespace DAL.Repositories
 
             _dbContext.Cities.Remove(city);
         }
+
+        //public async Task UpdateAsync(City city)
+        //{
+        //    if(city == null)
+        //    {
+        //        throw new DataNotFoundException("There is no city found with this id to update");
+        //    }
+
+        //    _dbContext.Cities.Update(city);
+        //}
     }
 }

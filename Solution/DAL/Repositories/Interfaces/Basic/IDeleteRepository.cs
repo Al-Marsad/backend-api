@@ -8,6 +8,6 @@ namespace DAL.Repositories.Interfaces.Basic
 {
     public interface IDeleteRepository<T>
     {
-        public Task DeleteAsync(int Id);
+        public void Delete(T entity);
     }
 }
