@@ -191,6 +191,7 @@ namespace BL.Services
         }
 
         public async Task<PagedResultDTO<List<GetUserPorfileDTO>>> GetUsersByPageAsync(PaginationDTO pageDTO, 
+            UserNamesSearchDTO SearchDTO,
             string? excludedUserId = null)
         {
             var query = _userManager.Users.AsQueryable();
@@ -198,6 +199,26 @@ namespace BL.Services
             if (!string.IsNullOrWhiteSpace(excludedUserId))
             {
                 query = query.Where(u => u.Id != excludedUserId);
+            }
+
+            if(!string.IsNullOrEmpty(SearchDTO.FirstName))
+            {
+                query = query.Where(u => u.FirstName.Contains(SearchDTO.FirstName));
+            }
+
+            if (!string.IsNullOrEmpty(SearchDTO.SecondName))
+            {
+                query = query.Where(u => u.SecondName.Contains(SearchDTO.SecondName));
+            }
+
+            if (!string.IsNullOrEmpty(SearchDTO.ThirdName))
+            {
+                query = query.Where(u => u.ThirdName.Contains(SearchDTO.ThirdName));
+            }
+
+            if (!string.IsNullOrEmpty(SearchDTO.LastName))
+            {
+                query = query.Where(u => u.LastName.Contains(SearchDTO.LastName));
             }
 
             var totalCount = await query.CountAsync();

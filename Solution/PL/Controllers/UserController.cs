@@ -185,7 +185,7 @@ namespace PL.Controllers
 
         [Authorize(Roles = RolesSelector.Admin)]
         [HttpGet]
-        public async Task<IActionResult> GetUserByPage([FromQuery]PaginationDTO pageDTO)
+        public async Task<IActionResult> GetUserByPage([FromQuery]PaginationDTO pageDTO, [FromQuery] UserNamesSearchDTO searchDTO)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null)
@@ -201,7 +201,7 @@ namespace PL.Controllers
                 });
             }
 
-            var data = await _userService.GetUsersByPageAsync(pageDTO, userId);
+            var data = await _userService.GetUsersByPageAsync(pageDTO, searchDTO, userId);
 
             return Ok(new
             {
