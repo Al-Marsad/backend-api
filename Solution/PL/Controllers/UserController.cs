@@ -220,6 +220,19 @@ namespace PL.Controllers
             });
         }
 
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpGet("UserCounts")]
+        public async Task<IActionResult> GetUserCounts()
+        {
+            var data = await _userService.GetUserCountsAsync();
+
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
+
         [Authorize]
         [HttpGet("AccountStatuses")]
         public IActionResult GetAccountStatusValues()

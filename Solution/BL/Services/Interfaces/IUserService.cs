@@ -20,5 +20,7 @@ namespace BL.Services.Interfaces
         public Task ChangeAccountStatus(ChangeAccountStatusDTO statusDTO, string userId);
         public Task DeleteAccount(string userId);
         public List<StatusValuesDTO> GetAccountStatusValues();
+
+        public Task<UserCountsDTO> GetUserCountsAsync();
     }
 }

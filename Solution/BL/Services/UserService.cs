@@ -245,5 +245,24 @@ namespace BL.Services
         {
             return _mapper.Map<List<StatusValuesDTO>>(Enum.GetValues<AccountStatus>().ToList());
         }
+
+        public async Task<UserCountsDTO> GetUserCountsAsync()
+        {
+            var result = await _userManager.Users.SelectMany(u => u.UserRoles)
+                .GroupBy(ur => ur.Role.Name)
+                .Select(g => new {
+                    Role = g.Key,
+                    Count = g.Count()
+                }).ToListAsync();
+
+            return new UserCountsDTO() {
+                AdminsCount = result.FirstOrDefault(r => r.Role == RolesSelector.Admin)?.Count ?? 0,
+                FieldResearchersCount = result.FirstOrDefault(r => r.Role == RolesSelector.FieldResearcher)?.Count ?? 0,
+                LegalTeamCount = result.FirstOrDefault(r => r.Role == RolesSelector.LegalTeamMember)?.Count ?? 0,
+                ManagersCount = result.FirstOrDefault(r => r.Role == RolesSelector.Manager)?.Count ?? 0,
+                CitizensCount = result.FirstOrDefault(r => r.Role == RolesSelector.Citizen)?.Count ?? 0
+            };
+        }
+
     }
 }
