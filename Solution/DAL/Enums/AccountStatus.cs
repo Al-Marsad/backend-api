@@ -9,7 +9,6 @@ namespace DAL.Enums
     public enum AccountStatus
     {
         Active,
-        Inactive,
-        Deleted
+        Inactive
     }
 }

@@ -18,7 +18,6 @@ namespace BL.Services.Interfaces
             UserNamesSearchDTO searchDTO, string? excludedUserId = null);
         public Task ChangePasswordAsync(ChangePasswordDTO passwordDTO, string userId);
         public Task ChangeAccountStatus(ChangeAccountStatusDTO statusDTO, string userId);
-        public Task DeleteAccount(string userId);
         public List<StatusValuesDTO> GetAccountStatusValues();
 
         public Task<UserCountsDTO> GetUserCountsAsync();

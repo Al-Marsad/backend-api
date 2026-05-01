@@ -177,19 +177,6 @@ namespace BL.Services
                 IdentityHandler.HandleIdentityErrors(result);
         }
 
-        public async Task DeleteAccount(string userId)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-                throw new DataNotFoundException("User not found");
-
-            user.AccountStatus = AccountStatus.Deleted;
-
-            var result = await _userManager.UpdateAsync(user);
-            if (!result.Succeeded)
-                IdentityHandler.HandleIdentityErrors(result);
-        }
-
         public async Task<PagedResultDTO<List<GetUserPorfileDTO>>> GetUsersByPageAsync(PaginationDTO pageDTO, 
             UserNamesSearchDTO SearchDTO,
             string? excludedUserId = null)
