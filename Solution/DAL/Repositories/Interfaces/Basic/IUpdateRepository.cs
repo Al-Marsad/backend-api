@@ -2,6 +2,6 @@
 {
     public interface IUpdateRepository<T>
     {
-        public Task UpdateAsync(T entity);
+        public void Update(T entity);
     }
 }

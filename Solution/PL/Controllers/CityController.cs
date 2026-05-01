@@ -56,5 +56,18 @@ namespace PL.Controllers
             });
         }
 
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpPut("{CityId}")]
+        public async Task<IActionResult> Update([FromRoute] int CityId, [FromBody]AddCityDTO cityDTO)
+        {
+            await _cityService.UpdateAsync(CityId, cityDTO);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "City Updated Successfully"
+            });
+        }
+
     }
 }

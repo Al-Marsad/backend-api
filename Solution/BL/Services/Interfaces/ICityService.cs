@@ -9,5 +9,6 @@ namespace BL.Services.Interfaces
         public Task<List<ReturnCityDTO>> GetAllAsync(string? searchTerm = null);
 
         public Task DeleteAsync(int Id);
+        public Task UpdateAsync(int Id, AddCityDTO cityDTO);
     }
 }

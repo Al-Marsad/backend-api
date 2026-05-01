@@ -44,22 +44,12 @@ namespace DAL.Repositories
 
         public void Delete(City city)
         {            
-            if (city == null)
-            {
-                throw new DataNotFoundException("There is no city found with this id");
-            }
-
             _dbContext.Cities.Remove(city);
         }
 
-        //public async Task UpdateAsync(City city)
-        //{
-        //    if(city == null)
-        //    {
-        //        throw new DataNotFoundException("There is no city found with this id to update");
-        //    }
-
-        //    _dbContext.Cities.Update(city);
-        //}
+        public void Update(City city)
+        {
+            _dbContext.Cities.Update(city);
+        }
     }
 }
