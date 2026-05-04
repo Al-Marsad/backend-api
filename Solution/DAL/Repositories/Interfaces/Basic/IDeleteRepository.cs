@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAL.Enums
+namespace DAL.Repositories.Interfaces.Basic
 {
-    public enum AccountStatus
+    public interface IDeleteRepository<T>
     {
-        Active,
-        Inactive
+        public void Delete(T entity);
     }
 }

@@ -157,35 +157,8 @@ namespace PL.Controllers
         }
 
         [Authorize(Roles = RolesSelector.Admin)]
-        [HttpDelete("{userId}")]
-        public async Task<IActionResult> DeleteAccount(string userId)
-        {
-            if (string.IsNullOrWhiteSpace(userId))
-            {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Error = new
-                    {
-                        Code = "BAD_REQUEST",
-                        Message = "User ID is required in the route."
-                    }
-                });
-            }
-
-            await _userService.DeleteAccount(userId);
-
-            return Ok(new
-            {
-                Success = true,
-                Message = "Account deleted successfully",
-            });
-
-        }
-
-        [Authorize(Roles = RolesSelector.Admin)]
         [HttpGet]
-        public async Task<IActionResult> GetUserByPage([FromQuery]PaginationDTO pageDTO)
+        public async Task<IActionResult> GetUserByPage([FromQuery]PaginationDTO pageDTO, [FromQuery] UserNamesSearchDTO searchDTO)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null)
@@ -201,7 +174,7 @@ namespace PL.Controllers
                 });
             }
 
-            var data = await _userService.GetUsersByPageAsync(pageDTO, userId);
+            var data = await _userService.GetUsersByPageAsync(pageDTO, searchDTO, userId);
 
             return Ok(new
             {
@@ -217,6 +190,19 @@ namespace PL.Controllers
                         TotalItems = data.TotalCount,
                     }
                 }
+            });
+        }
+
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpGet("UserCounts")]
+        public async Task<IActionResult> GetUserCounts()
+        {
+            var data = await _userService.GetUserCountsAsync();
+
+            return Ok(new
+            {
+                Success = true,
+                Data = data
             });
         }
 

@@ -177,20 +177,8 @@ namespace BL.Services
                 IdentityHandler.HandleIdentityErrors(result);
         }
 
-        public async Task DeleteAccount(string userId)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-                throw new DataNotFoundException("User not found");
-
-            user.AccountStatus = AccountStatus.Deleted;
-
-            var result = await _userManager.UpdateAsync(user);
-            if (!result.Succeeded)
-                IdentityHandler.HandleIdentityErrors(result);
-        }
-
         public async Task<PagedResultDTO<List<GetUserPorfileDTO>>> GetUsersByPageAsync(PaginationDTO pageDTO, 
+            UserNamesSearchDTO SearchDTO,
             string? excludedUserId = null)
         {
             var query = _userManager.Users.AsQueryable();
@@ -198,6 +186,26 @@ namespace BL.Services
             if (!string.IsNullOrWhiteSpace(excludedUserId))
             {
                 query = query.Where(u => u.Id != excludedUserId);
+            }
+
+            if(!string.IsNullOrEmpty(SearchDTO.FirstName))
+            {
+                query = query.Where(u => u.FirstName.Contains(SearchDTO.FirstName));
+            }
+
+            if (!string.IsNullOrEmpty(SearchDTO.SecondName))
+            {
+                query = query.Where(u => u.SecondName.Contains(SearchDTO.SecondName));
+            }
+
+            if (!string.IsNullOrEmpty(SearchDTO.ThirdName))
+            {
+                query = query.Where(u => u.ThirdName.Contains(SearchDTO.ThirdName));
+            }
+
+            if (!string.IsNullOrEmpty(SearchDTO.LastName))
+            {
+                query = query.Where(u => u.LastName.Contains(SearchDTO.LastName));
             }
 
             var totalCount = await query.CountAsync();
@@ -224,5 +232,24 @@ namespace BL.Services
         {
             return _mapper.Map<List<StatusValuesDTO>>(Enum.GetValues<AccountStatus>().ToList());
         }
+
+        public async Task<UserCountsDTO> GetUserCountsAsync()
+        {
+            var result = await _userManager.Users.SelectMany(u => u.UserRoles)
+                .GroupBy(ur => ur.Role.Name)
+                .Select(g => new {
+                    Role = g.Key,
+                    Count = g.Count()
+                }).ToListAsync();
+
+            return new UserCountsDTO() {
+                AdminsCount = result.FirstOrDefault(r => r.Role == RolesSelector.Admin)?.Count ?? 0,
+                FieldResearchersCount = result.FirstOrDefault(r => r.Role == RolesSelector.FieldResearcher)?.Count ?? 0,
+                LegalTeamCount = result.FirstOrDefault(r => r.Role == RolesSelector.LegalTeamMember)?.Count ?? 0,
+                ManagersCount = result.FirstOrDefault(r => r.Role == RolesSelector.Manager)?.Count ?? 0,
+                CitizensCount = result.FirstOrDefault(r => r.Role == RolesSelector.Citizen)?.Count ?? 0
+            };
+        }
+
     }
 }

@@ -1,8 +1,9 @@
 ﻿using BL.DTO.City;
+using BL.Helper;
 using BL.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using BL.Helper;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PL.Controllers
 {
@@ -19,13 +20,14 @@ namespace PL.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery]string? Search)
         {
-            var data = await _cityService.GetAllAsync();
+            var data = await _cityService.GetAllAsync(Search);
             return Ok(new
             {
                 Success = true,
-                Data = data
+                Data = data,
+                Count = data.Count
             });
         }
 
@@ -41,5 +43,45 @@ namespace PL.Controllers
                 Data = data
             });
         }
+
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpDelete("{CityId}")]
+        public async Task<IActionResult> Delete([FromRoute]int CityId)
+        {
+            await _cityService.DeleteAsync(CityId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "City Deleted Successfully"
+            });
+        }
+
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpPut("{CityId}")]
+        public async Task<IActionResult> Update([FromRoute] int CityId, [FromBody]AddCityDTO cityDTO)
+        {
+            await _cityService.UpdateAsync(CityId, cityDTO);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "City Updated Successfully"
+            });
+        }
+
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpGet("Count")]
+        public async Task<IActionResult> Count()
+        {
+            var data = await _cityService.CountAsync();
+
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
+
     }
 }

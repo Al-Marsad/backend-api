@@ -14,14 +14,23 @@
 
             return constraint switch
             {
-                var c when c.Contains("Email", StringComparison.OrdinalIgnoreCase) =>
+                var c when c.Contains("email", StringComparison.OrdinalIgnoreCase) =>
                     new() { ["Email"] = "Email is already taken." },
 
-                var c when c.Contains("UserName", StringComparison.OrdinalIgnoreCase) =>
+                var c when c.Contains("user_name", StringComparison.OrdinalIgnoreCase) =>
                     new() { ["UserName"] = "Username is already taken." },
 
-                var c when c.Contains("PhoneNumber", StringComparison.OrdinalIgnoreCase) =>
+                var c when c.Contains("phone_number", StringComparison.OrdinalIgnoreCase) =>
                     new() { ["PhoneNumber"] = "Phone number is already taken." },
+                
+                var c when c.Contains("arabic_name", StringComparison.OrdinalIgnoreCase) =>
+                new() { ["ArabicName"] = "Arabic name is already taken." },
+                
+                var c when c.Contains("english_name", StringComparison.OrdinalIgnoreCase) =>
+                new() { ["EnglishName"] = "English name is already taken." },
+
+                var c when c.Contains("pk", StringComparison.OrdinalIgnoreCase) =>
+               new() { ["Primary Key"] = "Primary key is already taken." },
 
                 _ =>
                     new() { ["General"] = "Duplicate value violates unique constraint." }

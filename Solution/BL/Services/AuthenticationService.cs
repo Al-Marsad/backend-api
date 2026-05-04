@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using BL.DTO.User;
 using BL.Helper;
 using BL.Services.Interfaces;
 using DAL.Entities;
 using DAL.Exceptions;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Npgsql;
+using DAL.Enums;
 
 namespace BL.Services
 {
@@ -38,20 +32,11 @@ namespace BL.Services
         public async Task<ReturnRegisteredUserDTO> Regsiter(AddUserDTO userDTO, string RoleName)
         {
             var user = _mapper.Map<AppUser>(userDTO);
+           
+            var result = await _userManager.CreateAsync(user, userDTO.Password);
 
-            try
-            {
-                var result = await _userManager.CreateAsync(user, userDTO.Password);
-
-                if (!result.Succeeded)
-                    IdentityHandler.HandleIdentityErrors(result);
-
-            }
-            catch (DbUpdateException ex) when (ex.InnerException is PostgresException pgEx && pgEx.SqlState == "23505")
-            {
-                throw new ConflictException("Duplicate resource", new { PhoneNumber = "Phone Number is already taken." });
-            }
-
+            if (!result.Succeeded)
+                IdentityHandler.HandleIdentityErrors(result);
 
             await _userManager.AddToRoleAsync(user, RoleName);
 
@@ -68,6 +53,11 @@ namespace BL.Services
                 throw new UnauthorizedException("There is no user with this email");
 
             };
+
+            if (user.AccountStatus == AccountStatus.Inactive)
+            {
+                throw new ForbiddenException("Your account is inactive. Please contact support.");
+            }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, userDTO.Password, lockoutOnFailure: true);
 
@@ -115,8 +105,13 @@ namespace BL.Services
             {
                 throw new UnauthorizedException("There is no user with this refresh token");
             }
-            
-            if(user.RefreshTokenExpirationTime <= DateTime.Now)
+
+            if (user.AccountStatus == AccountStatus.Inactive)
+            {
+                throw new ForbiddenException("Your account is inactive. Please contact support.");
+            }
+
+            if (user.RefreshTokenExpirationTime <= DateTime.Now)
             {
                 throw new UnauthorizedException("Refresh token is expired");
             }

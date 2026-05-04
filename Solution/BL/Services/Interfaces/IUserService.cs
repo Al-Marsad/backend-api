@@ -15,13 +15,11 @@ namespace BL.Services.Interfaces
         public Task<GetUserPorfileDTO> UpdateProfileAsync(UpdateUserProfileDTO profileDTO, string userId);
         public Task<GetUserPorfileDTO> AdminUpdateUserAsync(UpdateFullUserAccountDTO dto, string userId);
         public Task<PagedResultDTO<List<GetUserPorfileDTO>>> GetUsersByPageAsync(PaginationDTO pageDTO,
-            string? excludedUserId = null);
+            UserNamesSearchDTO searchDTO, string? excludedUserId = null);
         public Task ChangePasswordAsync(ChangePasswordDTO passwordDTO, string userId);
         public Task ChangeAccountStatus(ChangeAccountStatusDTO statusDTO, string userId);
-        public Task DeleteAccount(string userId);
         public List<StatusValuesDTO> GetAccountStatusValues();
-        //public Task<GetUserPorfileDTO> UpdatePassword(UpdateFullUserAccountDTO userDTO, string userId);
 
-
+        public Task<UserCountsDTO> GetUserCountsAsync();
     }
 }

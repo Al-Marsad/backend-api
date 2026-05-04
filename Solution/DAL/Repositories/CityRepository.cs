@@ -1,6 +1,8 @@
 ﻿using DAL.DBContext;
 using DAL.Entities;
+using DAL.Exceptions;
 using DAL.Repositories.Interfaces;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repositories
@@ -21,12 +23,38 @@ namespace DAL.Repositories
 
         public async Task SaveAsync()
         {
-            await _dbContext.SaveChangesAsync();    
+            await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<List<City>> GetAllAsync()
+        public async Task<List<City>> GetAllAsync(string? searchTerm = null)
         {
-            return await _dbContext.Cities.ToListAsync(); 
+            var query = _dbContext.Cities.AsQueryable();
+
+            if(!String.IsNullOrEmpty(searchTerm))
+                query = query.Where(c => c.ArabicName.Contains(searchTerm) || c.EnglishName.Contains(searchTerm));
+            
+
+            return await query.ToListAsync();
         }
+
+        public async Task<City?> GetByIdAsync(int id)
+        {
+            return await _dbContext.Cities.SingleOrDefaultAsync(c => c.Id == id);
+        }   
+
+        public void Delete(City city)
+        {            
+            _dbContext.Cities.Remove(city);
+        }
+
+        public void Update(City city)
+        {
+            _dbContext.Cities.Update(city);
+        }
+
+        public async Task<int> CountAsync()
+        {
+            return await _dbContext.Cities.CountAsync();
+        }   
     }
 }
