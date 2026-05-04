@@ -20,9 +20,9 @@ namespace BL.Services
         public async Task<ReturnCityDTO> AddAsync(AddCityDTO cityDTO)
         {
             var city = _mapper.Map<City>(cityDTO);
-            
+
             await _cityRepo.AddAsync(city);
-            
+
             await _cityRepo.SaveAsync();
 
             return _mapper.Map<ReturnCityDTO>(city);
@@ -35,13 +35,13 @@ namespace BL.Services
         {
             var city = await _cityRepo.GetByIdAsync(Id);
 
-            if(city == null)
+            if (city == null)
             {
                 throw new DataNotFoundException("There is no city found with this id");
             }
 
             _cityRepo.Delete(city);
-            
+
             await _cityRepo.SaveAsync();
         }
 
@@ -62,5 +62,9 @@ namespace BL.Services
             await _cityRepo.SaveAsync();
         }
 
+        public async Task<int> CountAsync()
+        {
+            return await _cityRepo.CountAsync();
+        }
     }
 }

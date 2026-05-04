@@ -4,7 +4,7 @@ using DAL.Repositories.Interfaces.Basic;
 namespace DAL.Repositories.Interfaces
 {
     public interface ICityRepository : ICreateRepository<City>, IGetAllRepository<City>,
-        ISaveRepository, IDeleteRepository<City>, IUpdateRepository<City>, IGetByIdRepository<City>
+        ISaveRepository, IDeleteRepository<City>, IUpdateRepository<City>, IGetByIdRepository<City>, ICountRepository
     {
 
     }

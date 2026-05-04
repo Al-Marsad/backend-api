@@ -26,7 +26,8 @@ namespace PL.Controllers
             return Ok(new
             {
                 Success = true,
-                Data = data
+                Data = data,
+                Count = data.Count
             });
         }
 
@@ -66,6 +67,19 @@ namespace PL.Controllers
             {
                 Success = true,
                 Message = "City Updated Successfully"
+            });
+        }
+
+        [Authorize(Roles = RolesSelector.Admin)]
+        [HttpGet("Count")]
+        public async Task<IActionResult> Count()
+        {
+            var data = await _cityService.CountAsync();
+
+            return Ok(new
+            {
+                Success = true,
+                Data = data
             });
         }
 

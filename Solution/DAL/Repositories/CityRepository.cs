@@ -51,5 +51,10 @@ namespace DAL.Repositories
         {
             _dbContext.Cities.Update(city);
         }
+
+        public async Task<int> CountAsync()
+        {
+            return await _dbContext.Cities.CountAsync();
+        }   
     }
 }

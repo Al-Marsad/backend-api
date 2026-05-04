@@ -10,5 +10,7 @@ namespace BL.Services.Interfaces
 
         public Task DeleteAsync(int Id);
         public Task UpdateAsync(int Id, AddCityDTO cityDTO);
+
+        public Task<int> CountAsync();
     }
 }
