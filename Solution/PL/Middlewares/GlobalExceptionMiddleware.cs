@@ -34,7 +34,7 @@ namespace PL.Middlewares
             int statusCode = StatusCodes.Status500InternalServerError;
             string code = "INTERNAL_ERROR";
             object? fields = null;
-            string message = "An unexpected error occurred";
+            string message = ex.Message;
 
             if (ex is BusinessException bizEx)
             {
@@ -45,14 +45,20 @@ namespace PL.Middlewares
             }
 
             else if (ex is DbUpdateException dbEx &&
-                     dbEx.InnerException is PostgresException pgEx &&
-                     pgEx.SqlState == "23505")
+                     dbEx.InnerException is PostgresException pgEx)
             {
-                statusCode = StatusCodes.Status409Conflict;
-                code = "DUPLICATE_RESOURCE";
-                message = "Duplicate resource";
+                if (pgEx.SqlState == "23505") {
+                    statusCode = StatusCodes.Status409Conflict;
+                    code = "CONFLICT";
+                    message = "Duplicate resource";
 
-                fields = ConstraintMapper.MapPostgresConstraint(pgEx.ConstraintName);
+                    fields = ConstraintMapper.MapPostgresConstraint(pgEx.ConstraintName);
+                }else if (pgEx.SqlState == "23503")
+                {
+                    statusCode = StatusCodes.Status409Conflict;
+                    code = "CONFLICT";
+                    message = "Related resource is in use";
+                }
             }
 
             var response = new
