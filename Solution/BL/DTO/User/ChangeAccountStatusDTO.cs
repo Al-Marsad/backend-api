@@ -11,7 +11,7 @@ namespace BL.DTO.User
     public class ChangeAccountStatusDTO
     {
         [Required(ErrorMessage = "Account status is required")]
-        [AllowedValues(AccountStatus.Active, AccountStatus.Inactive)]
+        //[AllowedValues(AccountStatus.Active, AccountStatus.Inactive)]
         public AccountStatus? Status { get; set; }
     }
 }

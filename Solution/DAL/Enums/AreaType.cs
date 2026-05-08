@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace DAL.Enums
 {
-    public enum EvidenceType
+    public enum AreaType
     {
-        Image,
-        Video,
-        Audio,
-        Document    
+        Residential,
+        Agricultural,
+        Medical,
+        Educational,
+        Infrastructure,
+        Religious
     }
 }
