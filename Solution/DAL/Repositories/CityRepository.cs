@@ -9,7 +9,7 @@ namespace DAL.Repositories
 {
     public class CityRepository : ICityRepository
     {
-        private AlMarsadDbContext _dbContext;
+        private readonly AlMarsadDbContext _dbContext;
 
         public CityRepository(AlMarsadDbContext dbContext)
         {

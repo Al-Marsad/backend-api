@@ -29,15 +29,21 @@ namespace DAL.Entities
         public string? WitnessPhone { get; set; }
         
 
+
         [ForeignKey(nameof(CitizenReporter))]
         public string CitizenReporterId { get; set; }
+        public virtual AppUser CitizenReporter { get; set; }
+
+
         
         [ForeignKey(nameof(FieldResearcher))]
         public string? FieldResearcherId { get; set; }
-
-        public virtual AppUser CitizenReporter { get; set; }
         public virtual AppUser? FieldResearcher { get; set; }
 
-        public virtual List<Incident> Incidents { get; set; } = new();
+
+
+        [ForeignKey(nameof(Incident))]
+        public int? IncidentId { get; set; }
+        public virtual Incident? Incident { get; set; }
     }
 }

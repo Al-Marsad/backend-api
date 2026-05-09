@@ -8,6 +8,7 @@ namespace DAL.Enums
 {
     public enum EvidenceType
     {
+        Other,
         Image,
         Video,
         Audio,

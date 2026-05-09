@@ -104,8 +104,8 @@ namespace DAL.DBContext
 
             builder.Entity<Incident>()
             .HasOne(i => i.InitialIncidentReport)
-            .WithMany(i => i.Incidents)
-            .HasForeignKey(i => i.InitialIncidentReportId)
+            .WithOne(i => i.Incident)
+            .HasForeignKey<Incident>(i => i.InitialIncidentReportId)
             .OnDelete(DeleteBehavior.Restrict);
 
 
@@ -179,6 +179,7 @@ namespace DAL.DBContext
             .WithMany(i => i.PersonalVictimTestimonies)
             .HasForeignKey(t => t.VictimId)
             .OnDelete(DeleteBehavior.Restrict);
+
 
             builder.Entity<Evidence>()
             .HasOne(e => e.Incident)

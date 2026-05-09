@@ -1,26 +1,23 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using DAL.Entities;
 using DAL.Enums;
 
-namespace DAL.Entities
+namespace BL.DTO.Victimm
 {
-    public class PersonalVictimTestimonie
+    public class ReturnVictimTestimonieDTO
     {
         public int Id { get; set; }
         public DateTime IssueDate { get; set; }
         public string? PersonalNarrative { get; set; }
         public InjuryStatus InjuryStatus { get; set; }
         public string InjuryDescription { get; set; }
-
-
-
-        [ForeignKey(nameof(Incident))]
         public int IncidentId { get; set; }
-        public virtual Incident Incident { get; set; }
-        
-        
-        [ForeignKey(nameof(Victim))]
         public int VictimId { get; set; }
-        public virtual Victim Victim { get; set; }
-
+        public virtual ReturnVictimDTO Victim { get; set; }
     }
 }

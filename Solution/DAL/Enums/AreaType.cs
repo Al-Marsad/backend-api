@@ -8,6 +8,7 @@ namespace DAL.Enums
 {
     public enum AreaType
     {
+        Other,
         Residential,
         Agricultural,
         Medical,

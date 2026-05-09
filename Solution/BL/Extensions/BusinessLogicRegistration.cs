@@ -23,6 +23,7 @@ namespace BL.Extensions
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<ICityService, CityService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IIncidentService, IncidentService>();
             services.AddScoped<DTOBuilder>();
 
             return services;

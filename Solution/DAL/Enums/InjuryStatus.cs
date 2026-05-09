@@ -9,6 +9,7 @@ namespace DAL.Enums
 {
     public enum InjuryStatus
     {
+        Other,
         Killed,
         Injured,
         Arrested,
