@@ -204,6 +204,9 @@ namespace BL.Services
                 if(FileTypeValidator.IsMatchingType(item.File.ContentType, item.Type) == false)
                     throw new ValidationException($"File type {item.File.ContentType} does not match evidence type {item.Type}");
 
+                if(item.CaptureDate > DateTime.UtcNow)
+                    throw new ValidationException($"Capture date is not valid in future: {item.CaptureDate}");
+
                 var uploadResult = await _cloudinaryService.UploadAsync(item.File, item.Type);
 
                 return new Evidence
