@@ -49,6 +49,7 @@ namespace BL.MappingProfiles
                 .ForMember(dest => dest.PersonalVictimTestimonies, opt => opt.MapFrom(src => src.PersonalVictimTestimonies));
             CreateMap<Incident, ReturnFullIncidentDTO>()
                 .ForMember(dest => dest.PersonalVictimTestimonies, opt => opt.MapFrom(src => src.PersonalVictimTestimonies));
+            CreateMap<Incident, ReturnIncidentDTO>();
 
 
             // Victim Testimonie Profile

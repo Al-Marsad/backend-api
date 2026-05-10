@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BL.DTO.Victimm;
 using DAL.Enums;
 
 namespace BL.DTO.Incident
 {
-    public class ReturnFullIncidentDTO
+    public class ReturnIncidentDTO
     {
         public int Id { get; set; }
         public DateTime DateOfOccurrence { get; set; }
@@ -26,8 +25,5 @@ namespace BL.DTO.Incident
         public int CityId { get; set; }
         public int? InitialIncidentReportId { get; set; }
         public string? FieldResearcherId { get; set; }
-
-        public List<ReturnVictimTestimonieDTO> PersonalVictimTestimonies { get; set; }
-
     }
 }

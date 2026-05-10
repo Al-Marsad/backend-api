@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using BL.DTO.General;
 using BL.DTO.Incident;
+using BL.DTO.InitialIncidentReport;
 using BL.DTO.Victimm;
 using BL.Services.Interfaces;
 using DAL.Entities;
@@ -146,6 +148,23 @@ namespace BL.Services
 
 
             return _mapper.Map<ReturnFullIncidentDTO>(fullLoadedIncident);
+        }
+
+        public async Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetByPageAsync(
+         PaginationDTO pageDTO, string userId, string? searchVictimNationalId)
+        {
+            var (incidents, totalItems) = await _incidentRepo.GetPageAsync((pageDTO.Page - 1) * pageDTO.PageSize,
+                pageDTO.PageSize, userId, searchVictimNationalId);
+
+            var incidentDTOs = _mapper.Map<List<ReturnIncidentDTO>>(incidents);
+
+            return new PagedResultDTO<List<ReturnIncidentDTO>>()
+            {
+                Data = incidentDTOs,
+                Page = pageDTO.Page,
+                PageSize = pageDTO.PageSize,
+                TotalCount = totalItems
+            };
         }
     }
 }
