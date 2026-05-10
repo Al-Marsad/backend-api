@@ -14,7 +14,7 @@ namespace DAL.Entities
         public Gender Gender { get; set; }
         public DateTime Birthdate { get; set; }
         public MaritalStatus MaritalStatus { get; set; }
-        public int FmailySize { get; set; }
+        public int FamilySize { get; set; }
         [Phone]
         public string PhoneNumber { get; set; }
         public virtual List<PersonalVictimTestimonie> PersonalVictimTestimonies { get; set; } = new();
