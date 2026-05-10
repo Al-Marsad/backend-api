@@ -15,6 +15,7 @@ namespace BL.Services.Interfaces
             PaginationDTO pageDTO, string userId, string? searchVictimNationalId);
 
         public Task<List<ReturnEvidenceDTO>> AddRangeOfRelatedEvidences(List<AddEvidenceDTO> evidenceDTOs, int incidentId);
+        public Task<List<ReturnEvidenceDTO>> GetEvidencesByIncidentIdAsync(int incidentId);
 
     }
 }

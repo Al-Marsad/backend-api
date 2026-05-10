@@ -203,11 +203,18 @@ namespace BL.Services
 
             var evidenceEntities = (await Task.WhenAll(uploadTasks)).ToList();
 
-            await _incidentRepo.AddRangeOfEvidences(evidenceEntities);
+            await _incidentRepo.AddRangeOfEvidencesAsync(evidenceEntities);
 
             await _incidentRepo.SaveAsync();
 
             return _mapper.Map<List<ReturnEvidenceDTO>>(evidenceEntities);  
+        }
+
+        public async Task<List<ReturnEvidenceDTO>> GetEvidencesByIncidentIdAsync(int incidentId)
+        {
+            var evidences = await _incidentRepo.GetEvidencesByIncidentIdAsync(incidentId);
+            
+            return _mapper.Map<List<ReturnEvidenceDTO>>(evidences);
         }
 
     }

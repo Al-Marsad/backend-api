@@ -71,11 +71,15 @@ namespace DAL.Repositories
 
         }
 
-        public async Task AddRangeOfEvidences(List<Evidence> evidences)
+        public async Task AddRangeOfEvidencesAsync(List<Evidence> evidences)
         {
             await _dbContext.Evidences.AddRangeAsync(evidences);
         }
 
+        public async Task<List<Evidence>> GetEvidencesByIncidentIdAsync(int incidentId)
+        {
+            return await _dbContext.Evidences.Where(e => e.IncidentId == incidentId).ToListAsync();
+        }
 
     }
 }

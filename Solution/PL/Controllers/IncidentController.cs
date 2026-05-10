@@ -89,13 +89,26 @@ namespace PL.Controllers
 
 
         [Authorize(Roles = RolesSelector.FieldResearcher)]
-        [HttpPost("UploadEvidence/{incidentId:int}")]
+        [HttpPost("Evidences/{incidentId:int}")]
         public async Task<IActionResult> AddIncidentRelatedEvidences([FromRoute] int incidentId, 
             [FromForm] List<AddEvidenceDTO> Evidences)
         {
 
             var data = await _incidentService.AddRangeOfRelatedEvidences(Evidences, incidentId);
 
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
+
+
+        [Authorize(Roles = RolesSelector.FieldResearcher)]
+        [HttpGet("Evidences/{incidentId:int}")]
+        public async Task<IActionResult> GetEvidencesByIncidentId([FromRoute] int incidentId)
+        {
+            var data = await _incidentService.GetEvidencesByIncidentIdAsync(incidentId);
             return Ok(new
             {
                 Success = true,
