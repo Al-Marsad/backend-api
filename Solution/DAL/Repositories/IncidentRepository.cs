@@ -52,6 +52,7 @@ namespace DAL.Repositories
             var count = await query.CountAsync();
 
             return (await query
+                .OrderByDescending(x => x.CreationDate)
                 .Skip(skip)
                 .Take(take)
                 .ToListAsync(), count);

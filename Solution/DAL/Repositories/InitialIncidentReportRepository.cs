@@ -62,6 +62,7 @@ namespace DAL.Repositories
             var totalItems = await query.CountAsync();
 
             var reports = await query
+                .OrderByDescending(x => x.CreationDate)
                 .Skip(skip)
                 .Take(take)
                 .ToListAsync();
