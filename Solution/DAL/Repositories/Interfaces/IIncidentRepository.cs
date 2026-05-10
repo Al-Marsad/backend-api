@@ -7,6 +7,7 @@ namespace DAL.Repositories.Interfaces
     {
         public Task<(List<Incident>, int)> GetPageAsync(int skip, int take, string userId, string? searchVictimNationalId);
         public Task<Incident?> GetFullByIdAsync(int id);
+        public Task AddRangeOfEvidences(List<Evidence> evidences);
 
 
 

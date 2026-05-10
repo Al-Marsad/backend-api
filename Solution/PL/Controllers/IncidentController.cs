@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using BL.DTO.Evidence;
 using BL.DTO.General;
 using BL.DTO.Incident;
 using BL.Helper;
@@ -83,6 +84,22 @@ namespace PL.Controllers
                         TotalItems = data.TotalCount,
                     }
                 }
+            });
+        }
+
+
+        [Authorize(Roles = RolesSelector.FieldResearcher)]
+        [HttpPost("UploadEvidence/{incidentId:int}")]
+        public async Task<IActionResult> AddIncidentRelatedEvidences([FromRoute] int incidentId, 
+            [FromForm] List<AddEvidenceDTO> Evidences)
+        {
+
+            var data = await _incidentService.AddRangeOfRelatedEvidences(Evidences, incidentId);
+
+            return Ok(new
+            {
+                Success = true,
+                Data = data
             });
         }
 

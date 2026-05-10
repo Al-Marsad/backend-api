@@ -71,5 +71,11 @@ namespace DAL.Repositories
 
         }
 
+        public async Task AddRangeOfEvidences(List<Evidence> evidences)
+        {
+            await _dbContext.Evidences.AddRangeAsync(evidences);
+        }
+
+
     }
 }

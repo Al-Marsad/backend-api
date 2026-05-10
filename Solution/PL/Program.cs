@@ -26,7 +26,7 @@ namespace PL
             builder.Services.AddDataAccess(builder.Configuration);
 
             // Add BL Services
-            builder.Services.AddBusinessLogic();
+            builder.Services.AddBusinessLogic(builder.Configuration);
 
             // Customize Response Of Automatic Validation
             builder.Services.Configure<ApiBehaviorOptions>(options =>

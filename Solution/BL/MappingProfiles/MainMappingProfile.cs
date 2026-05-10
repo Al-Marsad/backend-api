@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BL.DTO.City;
 using BL.DTO.Classification;
+using BL.DTO.Evidence;
 using BL.DTO.Incident;
 using BL.DTO.InitialIncidentReport;
 using BL.DTO.Question;
@@ -76,7 +77,8 @@ namespace BL.MappingProfiles
             CreateMap<IncidentClassType, ReturnIncidentClassTypeDTO>();
             
 
-
+            // Incident Evidence Profile
+            CreateMap<Evidence, ReturnEvidenceDTO>();
         }
     }
 }

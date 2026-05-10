@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using BL.DTO.Evidence;
 using BL.DTO.General;
 using BL.DTO.Incident;
 using BL.DTO.InitialIncidentReport;
 using BL.DTO.Victimm;
+using BL.Helper;
 using BL.Services.Interfaces;
 using DAL.Entities;
 using DAL.Enums;
@@ -17,16 +19,19 @@ namespace BL.Services
         private readonly IVictimRepository _victimRepo;
         private readonly IInitialIncidentReportRepository _initialIncidentReportRepo; 
         private readonly IMapper _mapper;
+        private readonly ICloudinaryService _cloudinaryService;
 
         public IncidentService(IIncidentRepository incidentRepo,
             IVictimRepository victimRepo,
             IMapper mapper,
-            IInitialIncidentReportRepository initialIncidentReportRepo)
+            IInitialIncidentReportRepository initialIncidentReportRepo,
+            ICloudinaryService cloudinaryService)
         {
             this._incidentRepo = incidentRepo;
             this._victimRepo = victimRepo;
             this._mapper = mapper;
             this._initialIncidentReportRepo = initialIncidentReportRepo;
+            this._cloudinaryService = cloudinaryService;
         }
         public async Task<ReturnFullIncidentDTO> AddAsync(AddIncidentDTO incidentDTO)
         {
@@ -166,5 +171,44 @@ namespace BL.Services
                 TotalCount = totalItems
             };
         }
+
+        public async Task<List<ReturnEvidenceDTO>> AddRangeOfRelatedEvidences(List<AddEvidenceDTO> evidenceDTOs, int incidentId)
+        {
+            if (evidenceDTOs == null || evidenceDTOs.Count == 0)
+                throw new ValidationException("No evidences provided");
+
+            var uploadTasks = evidenceDTOs.Select(async item =>
+            {
+                if (item.File == null || item.File.Length == 0)
+                    throw new ValidationException("Invalid file provided");
+
+                if (!Enum.IsDefined(typeof(EvidenceType), item.Type))
+                    throw new ValidationException($"Invalid evidence type: {item.Type}");
+
+                if(FileTypeValidator.IsMatchingType(item.File.ContentType, item.Type) == false)
+                    throw new ValidationException($"File type {item.File.ContentType} does not match evidence type {item.Type}");
+
+                var uploadResult = await _cloudinaryService.UploadAsync(item.File, item.Type);
+
+                return new Evidence
+                {
+                    CloudinaryUrl = uploadResult.Url,
+                    CloudinaryPublicId = uploadResult.PublicId,
+                    Type = item.Type,
+                    CaptureDate = DateTime.SpecifyKind(item.CaptureDate, DateTimeKind.Utc),
+                    Description = item.Description,
+                    IncidentId = incidentId
+                };
+            });
+
+            var evidenceEntities = (await Task.WhenAll(uploadTasks)).ToList();
+
+            await _incidentRepo.AddRangeOfEvidences(evidenceEntities);
+
+            await _incidentRepo.SaveAsync();
+
+            return _mapper.Map<List<ReturnEvidenceDTO>>(evidenceEntities);  
+        }
+
     }
 }

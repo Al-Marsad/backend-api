@@ -11,7 +11,6 @@ namespace DAL.Enums
         Other,
         Image,
         Video,
-        Audio,
         Document    
     }
 }

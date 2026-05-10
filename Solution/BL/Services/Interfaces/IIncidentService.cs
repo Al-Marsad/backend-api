@@ -1,4 +1,5 @@
 ﻿using BL.DTO.City;
+using BL.DTO.Evidence;
 using BL.DTO.General;
 using BL.DTO.Incident;
 using BL.DTO.InitialIncidentReport;
@@ -12,6 +13,8 @@ namespace BL.Services.Interfaces
         public Task<ReturnFullIncidentDTO> AddAsync(AddIncidentDTO incidentDTO);
         public Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetByPageAsync(
             PaginationDTO pageDTO, string userId, string? searchVictimNationalId);
+
+        public Task<List<ReturnEvidenceDTO>> AddRangeOfRelatedEvidences(List<AddEvidenceDTO> evidenceDTOs, int incidentId);
 
     }
 }
