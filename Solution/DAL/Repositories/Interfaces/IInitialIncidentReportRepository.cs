@@ -14,5 +14,7 @@ namespace DAL.Repositories.Interfaces
             InitialIncidentReportStatus? status, int? CityId);
         public Task<(List<InitialIncidentReport>, int totalItems)> GetAssignedReportsAsync(string userId, int Skip,
             int Take, string? search);
+
+        public Task<bool> HasIncident(int initialIncidentId);
     }
 }

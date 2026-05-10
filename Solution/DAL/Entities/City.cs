@@ -12,8 +12,7 @@ namespace DAL.Entities
         public string ArabicName { get; set; }
         public string EnglishName { get; set; }
         public virtual List<AppUser> Users { get; set; } = new();
-
-        public virtual List<Location> Locations { get; set; } = new();
         public virtual List<InitialIncidentReport> InitialIncidentReports { get; set; } = new();
+        public virtual List<Incident> Incidents { get; set; } = new();
     }
 }

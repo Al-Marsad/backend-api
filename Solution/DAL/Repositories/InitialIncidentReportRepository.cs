@@ -8,7 +8,7 @@ namespace DAL.Repositories
 {
     public class InitialIncidentReportRepository : IInitialIncidentReportRepository
     {
-        private AlMarsadDbContext _dbContext;
+        private readonly AlMarsadDbContext _dbContext;
 
         public InitialIncidentReportRepository(AlMarsadDbContext dbContext)
         {
@@ -62,6 +62,7 @@ namespace DAL.Repositories
             var totalItems = await query.CountAsync();
 
             var reports = await query
+                .OrderByDescending(x => x.CreationDate)
                 .Skip(skip)
                 .Take(take)
                 .ToListAsync();
@@ -92,6 +93,11 @@ namespace DAL.Repositories
 
             return (items, totalItems);
         }
+        public async Task<bool> HasIncident(int initialIncidentId)
+        {
+            return await _dbContext.Incidents.AnyAsync(i => i.InitialIncidentReportId == initialIncidentId);
+        }
+
     }
 }
 

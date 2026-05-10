@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAL.Enums
+namespace BL.Services.Interfaces
 {
-    public enum HousingType
+    public interface IVictimService
     {
-        DetachedHouse,
-        AttachedHouse,
-        Apartment
+        Task<bool> VictimExists(string nationalId);
     }
 }

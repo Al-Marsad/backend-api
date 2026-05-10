@@ -3,6 +3,7 @@ using System;
 using DAL.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AlMarsadDbContext))]
-    partial class AlMarsadDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260508173712_add AI classifying modification on database")]
+    partial class addAIclassifyingmodificationondatabase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -251,27 +254,22 @@ namespace DAL.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("capture_date");
 
-                    b.Property<string>("CloudinaryPublicId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("cloudinary_public_id");
-
-                    b.Property<string>("CloudinaryUrl")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("cloudinary_url");
-
                     b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
 
-                    b.Property<int>("IncidentId")
+                    b.Property<int?>("IncidentId")
                         .HasColumnType("integer")
                         .HasColumnName("incident_id");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer")
                         .HasColumnName("type");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("url");
 
                     b.HasKey("Id")
                         .HasName("pk_evidences");
@@ -351,7 +349,7 @@ namespace DAL.Migrations
                         .HasColumnType("text")
                         .HasColumnName("area_name");
 
-                    b.Property<int>("AreaType")
+                    b.Property<int?>("AreaType")
                         .HasColumnType("integer")
                         .HasColumnName("area_type");
 
@@ -423,7 +421,6 @@ namespace DAL.Migrations
                         .HasDatabaseName("ix_incidents_field_researcher_id");
 
                     b.HasIndex("InitialIncidentReportId")
-                        .IsUnique()
                         .HasDatabaseName("ix_incidents_initial_incident_report_id");
 
                     b.ToTable("incidents", (string)null);
@@ -511,10 +508,6 @@ namespace DAL.Migrations
                     b.Property<string>("FieldResearcherId")
                         .HasColumnType("text")
                         .HasColumnName("field_researcher_id");
-
-                    b.Property<int?>("IncidentId")
-                        .HasColumnType("integer")
-                        .HasColumnName("incident_id");
 
                     b.Property<string>("InitialDescription")
                         .IsRequired()
@@ -667,7 +660,7 @@ namespace DAL.Migrations
                         .HasColumnType("text")
                         .HasColumnName("injury_description");
 
-                    b.Property<int>("InjuryStatus")
+                    b.Property<int?>("InjuryStatus")
                         .HasColumnType("integer")
                         .HasColumnName("injury_status");
 
@@ -728,14 +721,14 @@ namespace DAL.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("birthdate");
 
-                    b.Property<int>("FamilySize")
-                        .HasColumnType("integer")
-                        .HasColumnName("family_size");
-
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("first_name");
+
+                    b.Property<int>("FmailySize")
+                        .HasColumnType("integer")
+                        .HasColumnName("fmaily_size");
 
                     b.Property<int>("Gender")
                         .HasColumnType("integer")
@@ -956,7 +949,6 @@ namespace DAL.Migrations
                         .WithMany("Evidences")
                         .HasForeignKey("IncidentId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
                         .HasConstraintName("fk_evidences_incidents_incident_id");
 
                     b.Navigation("Incident");
@@ -1000,8 +992,8 @@ namespace DAL.Migrations
                         .HasConstraintName("fk_incidents_app_user_field_researcher_id");
 
                     b.HasOne("DAL.Entities.InitialIncidentReport", "InitialIncidentReport")
-                        .WithOne("Incident")
-                        .HasForeignKey("DAL.Entities.Incident", "InitialIncidentReportId")
+                        .WithMany("Incidents")
+                        .HasForeignKey("InitialIncidentReportId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_incidents_initial_incident_reports_initial_incident_report_");
 
@@ -1222,7 +1214,7 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Entities.InitialIncidentReport", b =>
                 {
-                    b.Navigation("Incident");
+                    b.Navigation("Incidents");
                 });
 
             modelBuilder.Entity("DAL.Entities.Victim", b =>

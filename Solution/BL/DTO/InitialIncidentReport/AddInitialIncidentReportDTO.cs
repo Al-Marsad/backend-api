@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace BL.DTO.InitialIncidentReport
 {
@@ -28,6 +24,7 @@ namespace BL.DTO.InitialIncidentReport
         [Phone]
         public string? WitnessPhone { get; set; }
 
+        [JsonIgnore]
         public string? CitizenReporterId { get; set; }
     }
 }

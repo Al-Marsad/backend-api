@@ -3,6 +3,7 @@ using System;
 using DAL.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AlMarsadDbContext))]
-    partial class AlMarsadDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260510103736_update evidences table")]
+    partial class updateevidencestable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -265,7 +268,7 @@ namespace DAL.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
-                    b.Property<int>("IncidentId")
+                    b.Property<int?>("IncidentId")
                         .HasColumnType("integer")
                         .HasColumnName("incident_id");
 
@@ -664,6 +667,7 @@ namespace DAL.Migrations
                         .HasColumnName("incident_id");
 
                     b.Property<string>("InjuryDescription")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("injury_description");
 
@@ -728,14 +732,14 @@ namespace DAL.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("birthdate");
 
-                    b.Property<int>("FamilySize")
-                        .HasColumnType("integer")
-                        .HasColumnName("family_size");
-
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("first_name");
+
+                    b.Property<int>("FmailySize")
+                        .HasColumnType("integer")
+                        .HasColumnName("fmaily_size");
 
                     b.Property<int>("Gender")
                         .HasColumnType("integer")
@@ -956,7 +960,6 @@ namespace DAL.Migrations
                         .WithMany("Evidences")
                         .HasForeignKey("IncidentId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
                         .HasConstraintName("fk_evidences_incidents_incident_id");
 
                     b.Navigation("Incident");

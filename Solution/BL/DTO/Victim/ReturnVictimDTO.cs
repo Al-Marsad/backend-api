@@ -1,9 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using DAL.Entities;
 using DAL.Enums;
 
-namespace DAL.Entities
+namespace BL.DTO.Victim
 {
-    public class Victim
+    public class ReturnVictimDTO
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
@@ -14,10 +20,7 @@ namespace DAL.Entities
         public Gender Gender { get; set; }
         public DateTime Birthdate { get; set; }
         public MaritalStatus MaritalStatus { get; set; }
-        public int FamilySize { get; set; }
-        [Phone]
+        public int FmailySize { get; set; }
         public string PhoneNumber { get; set; }
-        public virtual List<PersonalVictimTestimonie> PersonalVictimTestimonies { get; set; } = new();
     }
 }
-    

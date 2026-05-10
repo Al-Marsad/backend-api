@@ -32,6 +32,9 @@
                 var c when c.Contains("pk", StringComparison.OrdinalIgnoreCase) =>
                new() { ["Primary Key"] = "Primary key is already taken." },
 
+                var c when c.Contains("national", StringComparison.OrdinalIgnoreCase) =>
+                new() { ["National Id"] = "Primary key is already taken." },
+
                 _ =>
                     new() { ["General"] = "Duplicate value violates unique constraint." }
             };
