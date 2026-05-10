@@ -3,6 +3,8 @@ using BL.Helper;
 using BL.MappingProfiles;
 using BL.Services;
 using BL.Services.Interfaces;
+using DAL.Repositories;
+using DAL.Repositories.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BL.Extensions
@@ -24,6 +26,8 @@ namespace BL.Extensions
             services.AddScoped<ICityService, CityService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IIncidentService, IncidentService>();
+            services.AddScoped<IVictimService, VictimService>();
+
             services.AddScoped<DTOBuilder>();
 
             return services;

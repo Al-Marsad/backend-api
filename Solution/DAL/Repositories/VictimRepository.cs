@@ -15,9 +15,6 @@ namespace DAL.Repositories
         }
         public async Task<Victim?> GetByNationalIdAsync(string nationalId)
         {
-            if (string.IsNullOrWhiteSpace(nationalId))
-                return null;
-
             var victim = await this._dbContext.Victims.SingleOrDefaultAsync(v => v.NationalId == nationalId);
 
             return victim;
