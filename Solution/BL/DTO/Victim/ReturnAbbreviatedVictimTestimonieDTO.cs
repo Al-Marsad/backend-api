@@ -7,17 +7,13 @@ using System.Threading.Tasks;
 using DAL.Entities;
 using DAL.Enums;
 
-namespace BL.DTO.Victimm
+namespace BL.DTO.Victim
 {
-    public class ReturnVictimTestimonieDTO
+    public class ReturnAbbreviatedVictimTestimonieDTO
     {
         public int Id { get; set; }
-        public DateTime IssueDate { get; set; }
-        public string? PersonalNarrative { get; set; }
-        public InjuryStatus InjuryStatus { get; set; }
-        public string InjuryDescription { get; set; }
         public int IncidentId { get; set; }
         public int VictimId { get; set; }
-        public virtual ReturnVictimDTO Victim { get; set; }
+        public virtual ReturnAbbreviatedVictimDTO Victim { get; set; }
     }
 }

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using DAL.Entities;
 using DAL.Enums;
 
-namespace BL.DTO.Victimm
+namespace BL.DTO.Victim
 {
     public class AddVictimTestimonieDTO
     {

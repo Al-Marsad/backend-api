@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using BL.DTO.Victimm;
+using BL.DTO.Victim;
 using DAL.Enums;
 
 namespace BL.DTO.Incident

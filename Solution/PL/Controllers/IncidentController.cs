@@ -22,6 +22,19 @@ namespace PL.Controllers
         }
 
         [Authorize(Roles = RolesSelector.FieldResearcher)]
+        [HttpGet("{Id:int}")]
+        public async Task<IActionResult> GetById([FromRoute] int Id)
+        {
+            var data = await _incidentService.GetByIdAsync(Id);
+
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }   
+
+        [Authorize(Roles = RolesSelector.FieldResearcher)]
         [HttpPost]
         public async Task<IActionResult> AddIncident([FromBody] AddIncidentDTO incidentDTO)
         {

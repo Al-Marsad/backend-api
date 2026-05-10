@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BL.DTO.Victimm;
+using BL.DTO.Victim;
 using DAL.Enums;
 
 namespace BL.DTO.Incident
@@ -27,7 +27,7 @@ namespace BL.DTO.Incident
         public int? InitialIncidentReportId { get; set; }
         public string? FieldResearcherId { get; set; }
 
-        public List<ReturnVictimTestimonieDTO> PersonalVictimTestimonies { get; set; }
+        public List<ReturnAbbreviatedVictimTestimonieDTO> PersonalVictimTestimonies { get; set; }
 
     }
 }

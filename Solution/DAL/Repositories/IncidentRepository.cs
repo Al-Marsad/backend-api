@@ -59,7 +59,7 @@ namespace DAL.Repositories
 
         public async Task<Incident?> GetByIdAsync(int id)
         {
-            return await _dbContext.Incidents.SingleOrDefaultAsync(i => i.Id == id);
+            return await _dbContext.Incidents.SingleOrDefaultAsync(i => i.Id == id); 
         }
 
         public async Task<Incident?> GetFullByIdAsync(int id)
@@ -67,6 +67,39 @@ namespace DAL.Repositories
             return await _dbContext.Incidents
                 .Include(i => i.PersonalVictimTestimonies)
                 .ThenInclude(t => t.Victim)
+                .Select(i => new Incident
+                {
+                    Id = i.Id,
+                    DateOfOccurrence = i.DateOfOccurrence,
+                    CreationDate = i.CreationDate,
+                    DetailedDescription = i.DetailedDescription,
+                    WitnessCount = i.WitnessCount,
+                    WitnessDetails = i.WitnessDetails,
+                    AreaName = i.AreaName,
+                    AreaClass = i.AreaClass,
+                    AreaType = i.AreaType,
+                    LocationDescription = i.LocationDescription,
+                    LocationLat = i.LocationLat,
+                    LocationLng = i.LocationLng,
+                    PerpetratorDescription = i.PerpetratorDescription,
+                    SensitivityScore = i.SensitivityScore,
+                    QuestionnaireJSON = i.QuestionnaireJSON,
+                    CityId = i.CityId,
+                    FieldResearcherId = i.FieldResearcherId,
+                    PersonalVictimTestimonies = i.PersonalVictimTestimonies.Select(t => new PersonalVictimTestimonie
+                    {
+                        Id = t.Id,
+                        IncidentId = t.IncidentId,
+                        VictimId = t.VictimId,
+                        Victim = new Victim
+                        {
+                            Id = t.Victim.Id,
+                            FirstName = t.Victim.FirstName,
+                            LastName = t.Victim.LastName,
+                            NationalId = t.Victim.NationalId
+                        }
+                    }).ToList()
+                })
                 .SingleOrDefaultAsync(i => i.Id == id);
 
         }

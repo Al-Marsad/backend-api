@@ -2,7 +2,7 @@
 using BL.Attributes.ValidationAttributes;
 using DAL.Enums;
 
-namespace BL.DTO.Victimm
+namespace BL.DTO.Victim
 {
     public class AddVictimDTO
     {

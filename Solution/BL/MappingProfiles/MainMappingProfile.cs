@@ -6,7 +6,7 @@ using BL.DTO.Incident;
 using BL.DTO.InitialIncidentReport;
 using BL.DTO.Question;
 using BL.DTO.User;
-using BL.DTO.Victimm;
+using BL.DTO.Victim;
 using DAL.Entities;
 using DAL.Enums;
 
@@ -59,14 +59,14 @@ namespace BL.MappingProfiles
             CreateMap<AddVictimTestimonieDTO, PersonalVictimTestimonie>()
                     .ForMember(dest => dest.IssueDate, opt => opt.MapFrom(src => DateTime.SpecifyKind(src.IssueDate, DateTimeKind.Utc)))
                     .ForMember(dest => dest.Victim, opt => opt.MapFrom(src => src.Victim));
-            CreateMap<PersonalVictimTestimonie, ReturnVictimTestimonieDTO>()
+            CreateMap<PersonalVictimTestimonie, ReturnAbbreviatedVictimTestimonieDTO>()
                     .ForMember(dest => dest.Victim, opt => opt.MapFrom(src => src.Victim));
 
 
             // Victim Profile
             CreateMap<AddVictimDTO, Victim>()
                 .ForMember(dest => dest.Birthdate, opt => opt.MapFrom(src => DateTime.SpecifyKind(src.Birthdate, DateTimeKind.Utc)));
-            CreateMap<Victim, ReturnVictimDTO>();
+            CreateMap<Victim, ReturnAbbreviatedVictimDTO>();
 
 
             // Question Profile

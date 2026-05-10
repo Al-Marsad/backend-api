@@ -17,5 +17,7 @@ namespace BL.Services.Interfaces
         public Task<List<ReturnEvidenceDTO>> AddRangeOfRelatedEvidences(List<AddEvidenceDTO> evidenceDTOs, int incidentId);
         public Task<List<ReturnEvidenceDTO>> GetEvidencesByIncidentIdAsync(int incidentId);
 
+        public Task<ReturnIncidentDTO> GetByIdAsync(int Id);
+
     }
 }

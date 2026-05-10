@@ -2,8 +2,6 @@
 using BL.DTO.Evidence;
 using BL.DTO.General;
 using BL.DTO.Incident;
-using BL.DTO.InitialIncidentReport;
-using BL.DTO.Victimm;
 using BL.Helper;
 using BL.Services.Interfaces;
 using DAL.Entities;
@@ -27,12 +25,23 @@ namespace BL.Services
             IInitialIncidentReportRepository initialIncidentReportRepo,
             ICloudinaryService cloudinaryService)
         {
-            this._incidentRepo = incidentRepo;
-            this._victimRepo = victimRepo;
-            this._mapper = mapper;
-            this._initialIncidentReportRepo = initialIncidentReportRepo;
-            this._cloudinaryService = cloudinaryService;
+            _incidentRepo = incidentRepo;
+            _victimRepo = victimRepo;
+            _mapper = mapper;
+            _initialIncidentReportRepo = initialIncidentReportRepo;
+            _cloudinaryService = cloudinaryService;
         }
+
+        public async Task<ReturnIncidentDTO> GetByIdAsync(int Id)
+        {
+            var incident = await _incidentRepo.GetByIdAsync(Id);
+
+            if(incident == null)
+                throw new DataNotFoundException($"Incident with id '{Id}' not found");
+
+            return _mapper.Map<ReturnIncidentDTO>(incident);    
+        }
+
         public async Task<ReturnFullIncidentDTO> AddAsync(AddIncidentDTO incidentDTO)
         {
             InitialIncidentReport? intiaIncident = null;
@@ -180,7 +189,7 @@ namespace BL.Services
 
             var incident = await _incidentRepo.GetByIdAsync(incidentId);
             if (incident == null)
-                throw new DataNotFoundException($"Incident with id {incidentId} not found");
+                throw new DataNotFoundException($"Incident with id '{incidentId}' not found");
 
 
             var uploadTasks = evidenceDTOs.Select(async item =>
@@ -220,7 +229,7 @@ namespace BL.Services
         {
             var incident = await _incidentRepo.GetByIdAsync(incidentId);
             if (incident == null)
-                throw new DataNotFoundException($"Incident with id {incidentId} not found");
+                throw new DataNotFoundException($"Incident with id '{incidentId}' not found");
 
             var evidences = await _incidentRepo.GetEvidencesByIncidentIdAsync(incidentId);
             
