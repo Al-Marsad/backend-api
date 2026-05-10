@@ -32,7 +32,7 @@ namespace PL.Controllers
                 Success = true,
                 Data = data
             });
-        }   
+        }
 
         [Authorize(Roles = RolesSelector.FieldResearcher)]
         [HttpPost]
@@ -65,7 +65,7 @@ namespace PL.Controllers
 
         [Authorize(Roles = RolesSelector.FieldResearcher)]
         [HttpGet("Mine")]
-        public async Task<IActionResult> GetByPage([FromQuery]PaginationDTO pageDTO, [FromQuery]string? NationalId)
+        public async Task<IActionResult> GetByPage([FromQuery] PaginationDTO pageDTO, [FromQuery] string? NationalId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null)
@@ -102,8 +102,8 @@ namespace PL.Controllers
 
 
         [Authorize(Roles = RolesSelector.FieldResearcher)]
-        [HttpPost("Evidences/{incidentId:int}")]
-        public async Task<IActionResult> AddIncidentRelatedEvidences([FromRoute] int incidentId, 
+        [HttpPost("{incidentId:int}/Evidences")]
+        public async Task<IActionResult> AddIncidentRelatedEvidences([FromRoute] int incidentId,
             [FromForm] List<AddEvidenceDTO> Evidences)
         {
 
@@ -118,10 +118,11 @@ namespace PL.Controllers
 
 
         [Authorize(Roles = RolesSelector.FieldResearcher)]
-        [HttpGet("Evidences/{incidentId:int}")]
+        [HttpGet("{incidentId:int}/Evidences")]
         public async Task<IActionResult> GetEvidencesByIncidentId([FromRoute] int incidentId)
         {
             var data = await _incidentService.GetEvidencesByIncidentIdAsync(incidentId);
+            
             return Ok(new
             {
                 Success = true,
@@ -129,5 +130,19 @@ namespace PL.Controllers
             });
         }
 
+
+        [Authorize(Roles = RolesSelector.FieldResearcher)]
+        [HttpGet("{incidentId:int}/Testimonies")]
+        public async Task<IActionResult> GetTestimoniesAndTheirVictimsByIncidentId([FromRoute] int incidentId)
+        {
+            var data = await _incidentService.GetTestimoniesAndTheirVictimsByIncidentIdAsync(incidentId);
+            
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+
+        }
     }
 }

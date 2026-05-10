@@ -2,6 +2,7 @@
 using BL.DTO.Evidence;
 using BL.DTO.General;
 using BL.DTO.Incident;
+using BL.DTO.Victim;
 using BL.Helper;
 using BL.Services.Interfaces;
 using DAL.Entities;
@@ -235,6 +236,18 @@ namespace BL.Services
             
             return _mapper.Map<List<ReturnEvidenceDTO>>(evidences);
         }
+
+        public async Task<List<ReturnVictimTestimonieDTO>> GetTestimoniesAndTheirVictimsByIncidentIdAsync(int incidentId)
+        {
+            var incident = await _incidentRepo.GetByIdAsync(incidentId);
+
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id '{incidentId}' not found");
+
+            var testimonies = await _incidentRepo.GetTestimoniesAndTheirVictimsByIncidentIdAsync(incidentId);
+            return _mapper.Map<List<ReturnVictimTestimonieDTO>>(testimonies);
+        }
+
 
     }
 }

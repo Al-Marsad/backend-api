@@ -10,6 +10,7 @@ namespace DAL.Repositories.Interfaces
         public Task AddRangeOfEvidencesAsync(List<Evidence> evidences);
 
         public Task<List<Evidence>> GetEvidencesByIncidentIdAsync(int incidentId);
+        public Task<List<PersonalVictimTestimonie>> GetTestimoniesAndTheirVictimsByIncidentIdAsync(int incidentId);
 
     }
 }

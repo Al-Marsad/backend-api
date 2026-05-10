@@ -3,6 +3,7 @@ using BL.DTO.Evidence;
 using BL.DTO.General;
 using BL.DTO.Incident;
 using BL.DTO.InitialIncidentReport;
+using BL.DTO.Victim;
 using BL.Helper;
 using DAL.Entities;
 
@@ -18,6 +19,8 @@ namespace BL.Services.Interfaces
         public Task<List<ReturnEvidenceDTO>> GetEvidencesByIncidentIdAsync(int incidentId);
 
         public Task<ReturnIncidentDTO> GetByIdAsync(int Id);
+        public Task<List<ReturnVictimTestimonieDTO>> GetTestimoniesAndTheirVictimsByIncidentIdAsync(int incidentId);
+
 
     }
 }

@@ -61,12 +61,15 @@ namespace BL.MappingProfiles
                     .ForMember(dest => dest.Victim, opt => opt.MapFrom(src => src.Victim));
             CreateMap<PersonalVictimTestimonie, ReturnAbbreviatedVictimTestimonieDTO>()
                     .ForMember(dest => dest.Victim, opt => opt.MapFrom(src => src.Victim));
+            CreateMap<PersonalVictimTestimonie, ReturnVictimTestimonieDTO>()
+            .ForMember(dest => dest.Victim, opt => opt.MapFrom(src => src.Victim));
 
 
             // Victim Profile
             CreateMap<AddVictimDTO, Victim>()
                 .ForMember(dest => dest.Birthdate, opt => opt.MapFrom(src => DateTime.SpecifyKind(src.Birthdate, DateTimeKind.Utc)));
             CreateMap<Victim, ReturnAbbreviatedVictimDTO>();
+            CreateMap<Victim, ReturnVictimDTO>();
 
 
             // Question Profile

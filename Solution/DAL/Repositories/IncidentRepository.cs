@@ -114,5 +114,13 @@ namespace DAL.Repositories
             return await _dbContext.Evidences.Where(e => e.IncidentId == incidentId).ToListAsync();
         }
 
+        public async Task<List<PersonalVictimTestimonie>> GetTestimoniesAndTheirVictimsByIncidentIdAsync(int incidentId)
+        {
+            return await _dbContext.PersonalVictimTestimonies
+                .Where(t => t.IncidentId == incidentId)
+                .Include(t => t.Victim)
+                .ToListAsync(); 
+        }
+
     }
 }
