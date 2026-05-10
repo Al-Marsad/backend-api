@@ -177,6 +177,12 @@ namespace BL.Services
             if (evidenceDTOs == null || evidenceDTOs.Count == 0)
                 throw new ValidationException("No evidences provided");
 
+
+            var incident = await _incidentRepo.GetByIdAsync(incidentId);
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id {incidentId} not found");
+
+
             var uploadTasks = evidenceDTOs.Select(async item =>
             {
                 if (item.File == null || item.File.Length == 0)
@@ -212,6 +218,10 @@ namespace BL.Services
 
         public async Task<List<ReturnEvidenceDTO>> GetEvidencesByIncidentIdAsync(int incidentId)
         {
+            var incident = await _incidentRepo.GetByIdAsync(incidentId);
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id {incidentId} not found");
+
             var evidences = await _incidentRepo.GetEvidencesByIncidentIdAsync(incidentId);
             
             return _mapper.Map<List<ReturnEvidenceDTO>>(evidences);
