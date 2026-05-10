@@ -9,7 +9,7 @@ namespace DAL.Entities
         public DateTime IssueDate { get; set; }
         public string? PersonalNarrative { get; set; }
         public InjuryStatus InjuryStatus { get; set; }
-        public string InjuryDescription { get; set; }
+        public string? InjuryDescription { get; set; }
 
 
 
