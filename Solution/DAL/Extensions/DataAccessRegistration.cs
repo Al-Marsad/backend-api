@@ -46,6 +46,7 @@ namespace DAL.Extensions
             services.AddScoped<ICityRepository, CityRepository>();
             services.AddScoped<IIncidentRepository, IncidentRepository>();
             services.AddScoped<IVictimRepository, VictimRepository>();
+            services.AddScoped<IQuestionRepository, QuestionRepository>();
 
 
 

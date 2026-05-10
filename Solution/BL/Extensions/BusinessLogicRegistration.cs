@@ -27,6 +27,7 @@ namespace BL.Extensions
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IIncidentService, IncidentService>();
             services.AddScoped<IVictimService, VictimService>();
+            services.AddScoped<IQuestionService, QuestionService>();
 
             services.AddScoped<DTOBuilder>();
 

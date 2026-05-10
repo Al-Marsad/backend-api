@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using BL.DTO.City;
+using BL.DTO.Classification;
 using BL.DTO.Incident;
 using BL.DTO.InitialIncidentReport;
+using BL.DTO.Question;
 using BL.DTO.User;
 using BL.DTO.Victimm;
 using DAL.Entities;
@@ -64,6 +66,16 @@ namespace BL.MappingProfiles
             CreateMap<AddVictimDTO, Victim>()
                 .ForMember(dest => dest.Birthdate, opt => opt.MapFrom(src => DateTime.SpecifyKind(src.Birthdate, DateTimeKind.Utc)));
             CreateMap<Victim, ReturnVictimDTO>();
+
+
+            // Question Profile
+            CreateMap<Question, ReturnFullQuestionDTO>();
+
+
+            // Incident Class Type Profile
+            CreateMap<IncidentClassType, ReturnIncidentClassTypeDTO>();
+            
+
 
         }
     }
