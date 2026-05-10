@@ -13,7 +13,6 @@ namespace DAL.Enums
         Killed,
         Injured,
         Arrested,
-        Displaced,
-        None
+        Displaced
     }
 }

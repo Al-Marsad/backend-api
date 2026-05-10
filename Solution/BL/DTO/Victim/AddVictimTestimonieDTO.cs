@@ -11,7 +11,7 @@ namespace BL.DTO.Victim
         public DateTime IssueDate { get; set; }
         public string? PersonalNarrative { get; set; }
         public InjuryStatus InjuryStatus { get; set; }
-        public string? InjuryDescription { get; set; }
+        public string InjuryDescription { get; set; }
 
         // The priority is to NationalId, if both are not provided, we will return validation error
         public string? NationalId { get; set; } // If NationalId provided, there must not be a value in VictimDTO property

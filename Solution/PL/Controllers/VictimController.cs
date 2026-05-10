@@ -20,10 +20,10 @@ namespace PL.Controllers
         }
 
         [Authorize(Roles = RolesSelector.FieldResearcher)]
-        [HttpGet("Exists/{NationalId}")]
-        public async Task<IActionResult> CheckVictimExists([FromRoute] string NationalId)
+        [HttpGet("Exists")]
+        public async Task<IActionResult> CheckVictimExists([FromBody] VictimNationalIdExistsDTO idDTO)
         {
-            var exists = await _victimService.VictimExists(NationalId);
+            var exists = await _victimService.VictimExists(idDTO.NationalId);
             return Ok(new
             {
                 Success = true,
