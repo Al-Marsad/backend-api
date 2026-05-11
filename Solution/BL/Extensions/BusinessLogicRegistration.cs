@@ -36,6 +36,9 @@ namespace BL.Extensions
 
                 return new Cloudinary(account);
             });
+            
+            // Register Audit Log Service
+            services.AddScoped<AuditLogService>();
 
             // Register The Business Services
             services.AddScoped<IInitialIncidentReportService, InitialIncidentReportService>();

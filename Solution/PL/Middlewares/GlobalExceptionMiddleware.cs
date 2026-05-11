@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using PL.Helper;
+using Serilog.Context;
 
 namespace PL.Middlewares
 {
@@ -24,7 +25,17 @@ namespace PL.Middlewares
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                if (ex is not BusinessException && ex is not DbUpdateException)
+                {
+                    using (LogContext.PushProperty("LogType", "Admin"))
+                    using (LogContext.PushProperty("Path", context.Request.Path))
+                    using (LogContext.PushProperty("Method", context.Request.Method))
+                    using (LogContext.PushProperty("UserId", context.User?.Identity?.Name ?? "Anonymous"))
+                    {
+                        _logger.LogError(ex, "Unhandled internal exception");
+                    }
+                }
+
                 await HandleExceptionAsync(context, ex);
             }
         }
@@ -43,7 +54,6 @@ namespace PL.Middlewares
                 fields = bizEx.Fields;
                 message = bizEx.Message;
             }
-
             else if (ex is DbUpdateException dbEx &&
                      dbEx.InnerException is PostgresException pgEx)
             {
@@ -57,7 +67,7 @@ namespace PL.Middlewares
                 {
                     statusCode = StatusCodes.Status409Conflict;
                     code = "CONFLICT";
-                    message = "Related resource is in use";
+                    message = "Related resource is in use or foreign key constraint violation";
                 }
             }
 
