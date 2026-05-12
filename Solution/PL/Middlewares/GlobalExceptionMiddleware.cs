@@ -27,7 +27,6 @@ namespace PL.Middlewares
             {
                 if (ex is not BusinessException && ex is not DbUpdateException)
                 {
-                    using (LogContext.PushProperty("LogType", "Admin"))
                     using (LogContext.PushProperty("Path", context.Request.Path))
                     using (LogContext.PushProperty("Method", context.Request.Method))
                     using (LogContext.PushProperty("UserId", context.User?.Identity?.Name ?? "Anonymous"))

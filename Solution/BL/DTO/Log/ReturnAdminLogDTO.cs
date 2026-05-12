@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAL.Entities
+namespace BL.DTO.Log
 {
-    public class Log
+    public class ReturnAdminLogDTO
     {
         public int Id { get; set; }
         public string? Message { get; set; }

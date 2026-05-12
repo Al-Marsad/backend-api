@@ -4,6 +4,7 @@ using BL.DTO.Classification;
 using BL.DTO.Evidence;
 using BL.DTO.Incident;
 using BL.DTO.InitialIncidentReport;
+using BL.DTO.Log;
 using BL.DTO.Question;
 using BL.DTO.User;
 using BL.DTO.Victim;
@@ -78,10 +79,11 @@ namespace BL.MappingProfiles
 
             // Incident Class Type Profile
             CreateMap<IncidentClassType, ReturnIncidentClassTypeDTO>();
-            
+
 
             // Incident Evidence Profile
             CreateMap<Evidence, ReturnEvidenceDTO>();
+
         }
     }
 }

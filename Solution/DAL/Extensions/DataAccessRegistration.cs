@@ -49,7 +49,6 @@ namespace DAL.Extensions
             services.AddScoped<IQuestionRepository, QuestionRepository>();
 
 
-
             return services;
         }
     }

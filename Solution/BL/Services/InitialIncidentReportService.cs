@@ -15,14 +15,14 @@ namespace BL.Services
     {
         private readonly IInitialIncidentReportRepository _initialReportRepo;
         private readonly IMapper _mapper;
-        private readonly IAuditLogService _auditLogService;
+        //private readonly IAuditLogService _auditLogService;
         public InitialIncidentReportService(IInitialIncidentReportRepository initialReportRepo,
-            IMapper mapper,
-             IAuditLogService auditLogService)
+            IMapper mapper)
+             //IAuditLogService auditLogService)
         {
             this._initialReportRepo = initialReportRepo;
             this._mapper = mapper;
-            this._auditLogService = auditLogService;
+            //this._auditLogService = auditLogService;
         }
         public async Task<ReturnInitialIncidentReportDTO> AddAsync(AddInitialIncidentReportDTO reportDto)
         {
@@ -36,7 +36,7 @@ namespace BL.Services
 
             await _initialReportRepo.SaveAsync();
 
-            _auditLogService.LogAction($"Citizen with id '{reportEntity.CitizenReporterId}' created an initial report with id '{reportEntity.Id}'");
+            //_auditLogService.LogAction($"Citizen with id '{reportEntity.CitizenReporterId}' created an initial report with id '{reportEntity.Id}'");
 
             return  _mapper.Map<ReturnInitialIncidentReportDTO>(reportEntity);
         }
@@ -120,7 +120,7 @@ namespace BL.Services
 
             await _initialReportRepo.SaveAsync();
 
-            _auditLogService.LogAction($"Field Researcher with id '{report.FieldResearcherId}' assign an initial report with id '{report.Id}' to them");
+            //_auditLogService.LogAction($"Field Researcher with id '{report.FieldResearcherId}' assign an initial report with id '{report.Id}' to them");
 
 
             return _mapper.Map<ReturnInitialIncidentReportDTO>(report);
@@ -150,7 +150,7 @@ namespace BL.Services
 
             await _initialReportRepo.SaveAsync();
 
-            _auditLogService.LogAction($"Field Researcher with id '{report.FieldResearcherId}' unassign an initial report with id '{report.Id}' to them");
+            //_auditLogService.LogAction($"Field Researcher with id '{report.FieldResearcherId}' unassign an initial report with id '{report.Id}' to them");
 
 
             return _mapper.Map<ReturnInitialIncidentReportDTO>(report);

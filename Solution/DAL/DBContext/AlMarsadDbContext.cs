@@ -3,8 +3,6 @@ using DAL.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
-using static System.Collections.Specialized.BitVector32;
 
 
 namespace DAL.DBContext
@@ -37,8 +35,6 @@ namespace DAL.DBContext
         public DbSet<IncidentClass> IncidentClasses { get; set; }
         public DbSet<IncidentClassType> IncidentClassTypes { get; set; }
 
-        public DbSet<Log> Logs { get; set; }
-
 
         public AlMarsadDbContext(DbContextOptions<AlMarsadDbContext> options)
         : base(options) { }
@@ -46,18 +42,6 @@ namespace DAL.DBContext
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
-            builder.Entity<Log>(entity =>
-            {
-                entity.ToTable("logs");
-
-                entity.HasKey(x => x.Id);
-
-                entity.Property(x => x.Properties)
-                      .HasColumnType("jsonb");
-
-                entity.Metadata.SetIsTableExcludedFromMigrations(true);
-            });
 
             builder.Entity<AppUserRole>(userRole =>
             {

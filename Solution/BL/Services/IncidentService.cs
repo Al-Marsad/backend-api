@@ -19,21 +19,21 @@ namespace BL.Services
         private readonly IInitialIncidentReportRepository _initialIncidentReportRepo; 
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
-        private readonly IAuditLogService _auditLogService; 
+        //private readonly IAuditLogService _auditLogService; 
 
         public IncidentService(IIncidentRepository incidentRepo,
             IVictimRepository victimRepo,
             IMapper mapper,
             IInitialIncidentReportRepository initialIncidentReportRepo,
-            ICloudinaryService cloudinaryService,
-            IAuditLogService auditLogService)
+            ICloudinaryService cloudinaryService)
+            //IAuditLogService auditLogService)
         {
             _incidentRepo = incidentRepo;
             _victimRepo = victimRepo;
             _mapper = mapper;
             _initialIncidentReportRepo = initialIncidentReportRepo;
             _cloudinaryService = cloudinaryService;
-            _auditLogService = auditLogService;
+            //_auditLogService = auditLogService;
         }
 
         public async Task<ReturnIncidentDTO> GetByIdAsync(int Id)
@@ -164,7 +164,7 @@ namespace BL.Services
 
             var fullLoadedIncident = await _incidentRepo.GetFullByIdAsync(incident.Id);
 
-            _auditLogService.LogAction($"Field Researcher with id '{fullLoadedIncident.FieldResearcherId}' added an incident with id '{fullLoadedIncident.Id}'");
+            //_auditLogService.LogAction($"Field Researcher with id '{fullLoadedIncident.FieldResearcherId}' added an incident with id '{fullLoadedIncident.Id}'");
 
             return _mapper.Map<ReturnFullIncidentDTO>(fullLoadedIncident);
         }
