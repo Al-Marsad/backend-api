@@ -170,10 +170,34 @@ namespace BL.Services
         }
 
         public async Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetFieldResearcherIncidentsByPageAsync(
-         PaginationDTO pageDTO, string userId, string? searchVictimNationalId)
+         PaginationDTO pageDTO, string userId, string? searchVictimNationalId, bool OrderByDateOfOccurence,
+         bool DocumentationConsent, bool PublicationConsent)
         {
             var (incidents, totalItems) = await _incidentRepo.GetFieldResearcherIncidentsByPageAsync((pageDTO.Page - 1) * pageDTO.PageSize,
-                pageDTO.PageSize, userId, searchVictimNationalId);
+                pageDTO.PageSize, userId, searchVictimNationalId, OrderByDateOfOccurence,
+                DocumentationConsent,PublicationConsent);
+
+            var incidentDTOs = _mapper.Map<List<ReturnIncidentDTO>>(incidents);
+
+            return new PagedResultDTO<List<ReturnIncidentDTO>>()
+            {
+                Data = incidentDTOs,
+                Page = pageDTO.Page,
+                PageSize = pageDTO.PageSize,
+                TotalCount = totalItems
+            };
+        }
+
+        public async Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetAllIncidentsByPageAsync(PaginationDTO pageDTO, int? cityId
+          , bool OrderByDateOfOccurence, bool Approved, int? Sensitivity)
+        {
+            if(Sensitivity.HasValue && (Sensitivity < 1 || Sensitivity > 10))
+            {
+                throw new ValidationException("Validation Faild", new { Sensitivity = "Must be between 10 and 1"});
+            }
+
+            var (incidents, totalItems) = await _incidentRepo.GetAllIncidentsByPageAsync((pageDTO.Page - 1) * pageDTO.PageSize,
+                pageDTO.PageSize, cityId, OrderByDateOfOccurence, Approved, Sensitivity);
 
             var incidentDTOs = _mapper.Map<List<ReturnIncidentDTO>>(incidents);
 

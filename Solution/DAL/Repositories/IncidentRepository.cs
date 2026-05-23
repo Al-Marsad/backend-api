@@ -1,7 +1,9 @@
-﻿using DAL.DBContext;
+﻿using System.Linq;
+using DAL.DBContext;
 using DAL.Entities;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DAL.Repositories
 {
@@ -34,7 +36,9 @@ namespace DAL.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<(List<Incident>, int)> GetFieldResearcherIncidentsByPageAsync(int skip, int take, string userId, string? searchVictimNationalId)
+        public async Task<(List<Incident>, int)> GetFieldResearcherIncidentsByPageAsync(int skip, int take, string userId, 
+            string? searchVictimNationalId, bool OrderByDateOfOccurence,
+            bool DocumentationConsent, bool PublicationConsent)
         {
             if (skip < 0 || take < 0)
                 return (new List<Incident>(), 0);
@@ -49,19 +53,75 @@ namespace DAL.Repositories
                         t.Victim.NationalId == searchVictimNationalId.Trim()));
             }
 
+            if (DocumentationConsent)
+            {
+                query = query.Where(i => i.DocumentationConsent == true);
+            }
+
+            if (PublicationConsent)
+            {
+                query = query.Where(i => i.PublicationConsent == true);
+            }
+
+            if (OrderByDateOfOccurence)
+            {
+                query = query.OrderByDescending(i => i.DateOfOccurrence);
+            } else
+            {
+                query = query.OrderByDescending(i => i.CreationDate);
+
+            }
+
             var count = await query.CountAsync();
 
             return (await query
-                .OrderByDescending(x => x.CreationDate)
                 .Skip(skip)
                 .Take(take)
                 .ToListAsync(), count);
         }
 
-        //public async Task<(List<Incident>, int)> GetAllIncidentsByPageAsync(int skip, int take, int cityId)
-        //{
+        public async Task<(List<Incident>, int)> GetAllIncidentsByPageAsync(int skip, int take, int? cityId
+            , bool OrderByDateOfOccurence, bool Approved, int? Sensitivity)
+        {
+            if (skip < 0 || take < 0)
+                return (new List<Incident>(), 0);
 
-        //}
+            var query = _dbContext.Incidents.AsQueryable();
+
+            if(cityId != null)
+            {
+                query = query.Where(i => i.CityId == cityId);
+            }
+
+            if(Approved)
+            {
+                query = query.Where(i => i.DocumentationConsent == true);
+            } else
+            {
+                query = query.Where(i => i.DocumentationConsent == false);
+            }
+
+            if (Sensitivity != null)
+            {
+                query = query.Where(i => i.SensitivityScore == Sensitivity);
+            }
+
+            if (OrderByDateOfOccurence)
+            {
+                query = query.OrderByDescending(i => i.DateOfOccurrence);
+            }
+            else
+            {
+                query = query.OrderByDescending(i => i.CreationDate);
+            }
+
+            var count = await query.CountAsync();
+
+            return (await query
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync(), count);
+        }
 
         public async Task<Incident?> GetByIdAsync(int id)
         {
