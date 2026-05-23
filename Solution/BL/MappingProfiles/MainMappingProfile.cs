@@ -56,6 +56,8 @@ namespace BL.MappingProfiles
             CreateMap<Incident, ReturnIncidentDTO>();
             CreateMap<Incident, ReturnAssignedIncidentDTO>();
             CreateMap<Incident, ReturnUpdatedIncidentDTO>();
+            CreateMap<Incident, ReturnGiveDocumentationConsentDTO>()
+                .ForMember(dest => dest.IncidentId, opt => opt.MapFrom(src => src.Id));
 
 
             // Victim Testimonie Profile

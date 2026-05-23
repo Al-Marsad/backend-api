@@ -387,7 +387,50 @@ namespace BL.Services
             return _mapper.Map<List<ReturnVictimTestimonieDTO>>(testimonies);
         }
 
-        
+        public async Task<ReturnGiveDocumentationConsentDTO> GiveDocumentationConsentAsync(int IncidentId, string userId)
+        {
+            var incident = await _incidentRepo.GetByIdAsync(IncidentId);
+
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id '{IncidentId}' not found");
+
+            if (incident.DocumentationConsent)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' has a documentation consent" +
+                    $"already");
+            }
+
+            if (incident.LegalTeamMemberId == null)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is not assigned " +
+                    $"to you");
+            }
+            else
+            {
+                if (incident.LegalTeamMemberId != userId)
+                {
+                    throw new ForbiddenException($"You are not allowed to give documentation consent to this incident");
+                }
+            }
+
+            incident.DocumentationConsent = true;
+            incident.PreventModification = true;
+
+            if (incident.InitialIncidentReportId != null)
+            {
+                var intitialReport = await _initialIncidentReportRepo.GetByIdAsync(incident.InitialIncidentReportId.Value);
+
+                if (intitialReport == null)
+                    throw new ConflictException($"This incident has intial report id '{incident.InitialIncidentReportId.Value}'" +
+                        $", but there is no intial report entity found with this Id");
+
+                intitialReport.Status = InitialIncidentReportStatus.CLOSED;
+            }
+
+            await _incidentRepo.SaveAsync();
+
+            return _mapper.Map<ReturnGiveDocumentationConsentDTO>(incident);
+        }
 
 
     }
