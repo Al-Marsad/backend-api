@@ -28,6 +28,10 @@ namespace BL.DTO.Incident
         public int? InitialIncidentReportId { get; set; }
         public string? FieldResearcherId { get; set; }
         public string? LegalTeamMemberId { get; set; }
+        public string? AIClassification { get; set; }
+        public bool PreventModification { get; set; }
+
+
 
     }
 }

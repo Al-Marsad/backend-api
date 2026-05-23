@@ -178,7 +178,7 @@ namespace PL.Controllers
         }
 
 
-        [Authorize(Roles = RolesSelector.FieldResearcher)]
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember}")]
         [HttpGet("{incidentId:int}/Testimonies")]
         public async Task<IActionResult> GetTestimoniesAndTheirVictimsByIncidentId([FromRoute] int incidentId)
         {
@@ -246,6 +246,35 @@ namespace PL.Controllers
             {
                 Success = true,
                 Message = "Incident unassigned from legal team member successfully",
+                Data = data
+            });
+        }
+
+
+        [Authorize(Roles = RolesSelector.LegalTeamMember)]
+        [HttpPatch("{Id:int}")]
+        public async Task<IActionResult> UpdateIncident([FromRoute] int Id, [FromBody] UpdateIncidentDTO updateIncidentDTO)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _incidentService.UpdateIncident(updateIncidentDTO, Id, userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Incident updated successfully",
                 Data = data
             });
         }

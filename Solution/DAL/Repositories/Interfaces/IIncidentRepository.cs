@@ -15,6 +15,6 @@ namespace DAL.Repositories.Interfaces
 
         public Task<List<Evidence>> GetEvidencesByIncidentIdAsync(int incidentId);
         public Task<List<PersonalVictimTestimonie>> GetTestimoniesAndTheirVictimsByIncidentIdAsync(int incidentId);
-
+        public Task<Incident?> GetWithTestimoniesOnlyById(int id);
     }
 }

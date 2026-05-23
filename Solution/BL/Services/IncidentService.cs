@@ -227,6 +227,56 @@ namespace BL.Services
             return _mapper.Map<ReturnFullIncidentDTO>(fullLoadedIncident);
         }
 
+        public async Task<ReturnUpdatedIncidentDTO> UpdateIncident(UpdateIncidentDTO updateIncidentDTO, int IncidentId, string userId)
+        {
+            var incident = await _incidentRepo.GetWithTestimoniesOnlyById(IncidentId);
+
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id '{IncidentId}' not found");
+
+            if (incident.PreventModification)
+                throw new ConflictException($"Incident with id '{IncidentId}' cannot be updated, " +
+                    $"You need permission from the manager");
+
+            if (incident.LegalTeamMemberId == null)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is not assigned " +
+                    $"to you");
+            }else
+            {
+                if(incident.LegalTeamMemberId != userId)
+                {
+                    throw new ForbiddenException($"You are not allowed to update this incident");
+                }
+            }
+
+            if (incident.DocumentationConsent)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' has a documentation consent" +
+                    $", you can't update it");
+            }
+
+            incident.DetailedDescription = updateIncidentDTO.DetailedDescription ?? incident.DetailedDescription;
+            incident.AIClassification = updateIncidentDTO.AIClassification ?? incident.AIClassification;
+            incident.PerpetratorDescription = updateIncidentDTO.PerpetratorDescription ?? incident.PerpetratorDescription;
+
+            if(updateIncidentDTO.Testimonies != null)
+            {
+                foreach (var testimonyDTO in updateIncidentDTO.Testimonies)
+                {
+                    var testimony = incident.PersonalVictimTestimonies.FirstOrDefault(t => t.Id == testimonyDTO.Id);
+                    if (testimony == null)
+                        throw new DataNotFoundException($"Testimony with id '{testimonyDTO.Id}' not found in incident with id '{IncidentId}'");
+                    testimony.PersonalNarrative = testimonyDTO.PersonalNarrative ?? testimony.PersonalNarrative;
+                }
+            }
+            incident.PreventModification = true;
+
+            await _incidentRepo.SaveAsync();
+
+            return _mapper.Map<ReturnUpdatedIncidentDTO>(incident);  
+        }
+
         public async Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetFieldResearcherIncidentsByPageAsync(
          PaginationDTO pageDTO, string userId, string? searchVictimNationalId, bool OrderByDateOfOccurence,
          bool DocumentationConsent, bool PublicationConsent)
@@ -336,6 +386,8 @@ namespace BL.Services
             var testimonies = await _incidentRepo.GetTestimoniesAndTheirVictimsByIncidentIdAsync(incidentId);
             return _mapper.Map<List<ReturnVictimTestimonieDTO>>(testimonies);
         }
+
+        
 
 
     }

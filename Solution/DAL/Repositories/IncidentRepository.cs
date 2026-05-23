@@ -128,6 +128,13 @@ namespace DAL.Repositories
             return await _dbContext.Incidents.SingleOrDefaultAsync(i => i.Id == id); 
         }
 
+        public async Task<Incident?> GetWithTestimoniesOnlyById(int id)
+        {
+            return await _dbContext.Incidents
+               .Include(i => i.PersonalVictimTestimonies)
+               .SingleOrDefaultAsync(i => i.Id == id);
+        }
+
         public async Task<Incident?> GetFullByIdAsync(int id)
         {
             return await _dbContext.Incidents

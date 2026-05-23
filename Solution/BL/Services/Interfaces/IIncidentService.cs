@@ -26,5 +26,9 @@ namespace BL.Services.Interfaces
 
         public Task<ReturnAssignedIncidentDTO> AssignToLegalTeamMember(string userId, int IncidentId);
         public Task<ReturnAssignedIncidentDTO> UnassignToLegalTeamMember(string userId, int IncidentId);
+
+        public Task<ReturnUpdatedIncidentDTO> UpdateIncident(UpdateIncidentDTO updateIncidentDTO, int IncidentId, string userId);
+        
+
     }
 }
