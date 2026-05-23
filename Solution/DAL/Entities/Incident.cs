@@ -25,6 +25,7 @@ namespace DAL.Entities
         public string? QuestionnaireJSON { get; set; }
         public bool DocumentationConsent { get; set; }
         public bool PublicationConsent { get; set; }
+        public bool PreventModification { get; set; } 
 
 
         [ForeignKey(nameof(City))]

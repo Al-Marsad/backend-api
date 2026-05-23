@@ -2,6 +2,7 @@
 using BL.DTO.Evidence;
 using BL.DTO.General;
 using BL.DTO.Incident;
+using BL.DTO.InitialIncidentReport;
 using BL.Helper;
 using BL.Services.Interfaces;
 using DAL.Entities;
@@ -189,6 +190,64 @@ namespace PL.Controllers
                 Data = data
             });
 
+        }
+
+
+        [Authorize(Roles = RolesSelector.LegalTeamMember)]
+        [HttpPatch("{Id:int}/AssignToLegalTeamMember")]
+        public async Task<IActionResult> AssignToLegalTeamMember([FromRoute] int Id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _incidentService.AssignToLegalTeamMember(userId, Id);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Incident assigned to legal team member successfully",
+                Data = data
+            });
+        }
+
+
+        [Authorize(Roles = RolesSelector.LegalTeamMember)]
+        [HttpPatch("{Id:int}/UnassignToLegalTeamMember")]
+        public async Task<IActionResult> UnassignToLegalTeamMember([FromRoute] int Id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _incidentService.UnassignToLegalTeamMember(userId, Id);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Incident unassigned from legal team member successfully",
+                Data = data
+            });
         }
     }
 }

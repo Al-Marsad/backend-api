@@ -27,5 +27,7 @@ namespace BL.DTO.Incident
         public bool PublicationConsent { get; set; }
         public int? InitialIncidentReportId { get; set; }
         public string? FieldResearcherId { get; set; }
+        public string? LegalTeamMemberId { get; set; }
+
     }
 }

@@ -46,6 +46,64 @@ namespace BL.Services
             return _mapper.Map<ReturnIncidentDTO>(incident);    
         }
 
+        public async Task<ReturnAssignedIncidentDTO> AssignToLegalTeamMember(string userId, int IncidentId)
+        {
+            var incident = await _incidentRepo.GetByIdAsync(IncidentId);
+
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id '{IncidentId}' not found");
+
+            if(incident.PreventModification)
+                throw new ConflictException($"Incident with id '{IncidentId}' cannot be assigned," +
+                    $"You need permission from the manager");
+
+            if(incident.LegalTeamMemberId != null)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is already assigned " +
+                    $"to legal team member with id '{incident.LegalTeamMemberId}'");
+            }
+
+            if(incident.DocumentationConsent)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is already documented");
+            }
+
+            incident.LegalTeamMemberId = userId;
+
+            await _incidentRepo.SaveAsync();
+
+            return _mapper.Map<ReturnAssignedIncidentDTO>(incident);
+        }
+
+        public async Task<ReturnAssignedIncidentDTO> UnassignToLegalTeamMember(string userId, int IncidentId)
+        {
+            var incident = await _incidentRepo.GetByIdAsync(IncidentId);
+
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id '{IncidentId}' not found");
+
+            if (incident.PreventModification)
+                throw new ConflictException($"Incident with id '{IncidentId}' cannot be unassigned," +
+                    $"You need permission from the manager");
+
+            if (incident.LegalTeamMemberId == null)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is not assigned " +
+                    $"to any legal team member");
+            }
+
+            if (incident.DocumentationConsent)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is already documented");
+            }
+
+            incident.LegalTeamMemberId = null;
+
+            await _incidentRepo.SaveAsync();
+
+            return _mapper.Map<ReturnAssignedIncidentDTO>(incident);
+        }
+
         public async Task<ReturnFullIncidentDTO> AddAsync(AddIncidentDTO incidentDTO)
         {
             InitialIncidentReport? intiaIncident = null;

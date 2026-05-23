@@ -24,6 +24,7 @@ namespace BL.Services.Interfaces
         public Task<ReturnIncidentDTO> GetByIdAsync(int Id);
         public Task<List<ReturnVictimTestimonieDTO>> GetTestimoniesAndTheirVictimsByIncidentIdAsync(int incidentId);
 
-
+        public Task<ReturnAssignedIncidentDTO> AssignToLegalTeamMember(string userId, int IncidentId);
+        public Task<ReturnAssignedIncidentDTO> UnassignToLegalTeamMember(string userId, int IncidentId);
     }
 }
