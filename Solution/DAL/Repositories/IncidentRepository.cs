@@ -34,7 +34,7 @@ namespace DAL.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<(List<Incident>, int)> GetPageAsync(int skip, int take, string userId, string? searchVictimNationalId)
+        public async Task<(List<Incident>, int)> GetFieldResearcherIncidentsByPageAsync(int skip, int take, string userId, string? searchVictimNationalId)
         {
             if (skip < 0 || take < 0)
                 return (new List<Incident>(), 0);
@@ -57,6 +57,11 @@ namespace DAL.Repositories
                 .Take(take)
                 .ToListAsync(), count);
         }
+
+        //public async Task<(List<Incident>, int)> GetAllIncidentsByPageAsync(int skip, int take, int cityId)
+        //{
+
+        //}
 
         public async Task<Incident?> GetByIdAsync(int id)
         {

@@ -81,7 +81,7 @@ namespace PL.Controllers
                 });
             }
 
-            var data = await _incidentService.GetByPageAsync(pageDTO, userId, NationalId);
+            var data = await _incidentService.GetFieldResearcherIncidentsByPageAsync(pageDTO, userId, NationalId);
 
             return Ok(new
             {

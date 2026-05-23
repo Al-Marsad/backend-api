@@ -12,7 +12,7 @@ namespace BL.Services.Interfaces
     public interface IIncidentService
     {
         public Task<ReturnFullIncidentDTO> AddAsync(AddIncidentDTO incidentDTO);
-        public Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetByPageAsync(
+        public Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetFieldResearcherIncidentsByPageAsync(
             PaginationDTO pageDTO, string userId, string? searchVictimNationalId);
 
         public Task<List<ReturnEvidenceDTO>> AddRangeOfRelatedEvidences(List<AddEvidenceDTO> evidenceDTOs, int incidentId);

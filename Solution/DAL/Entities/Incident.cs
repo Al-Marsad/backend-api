@@ -23,6 +23,8 @@ namespace DAL.Entities
         public string? PerpetratorDescription { get; set; }
         public byte SensitivityScore { get; set; }
         public string? QuestionnaireJSON { get; set; }
+        public bool DocumentationConsent { get; set; }
+        public bool PublicationConsent { get; set; }
 
 
         [ForeignKey(nameof(City))]
@@ -37,12 +39,16 @@ namespace DAL.Entities
 
         [ForeignKey(nameof(FieldResearcher))]
         public string FieldResearcherId { get; set; }
-        public virtual AppUser FieldResearcher { get; set; }    
+        public virtual AppUser FieldResearcher { get; set; }
 
 
-        public virtual FinalIncidentReport? FinalIncidentReport { get; set; }
+        [ForeignKey(nameof(LegalTeamMember))]
+        public string? LegalTeamMemberId { get; set; }
+        public virtual AppUser? LegalTeamMember { get; set; }
+        
         public virtual NewsItem? NewsItem { get; set; }
         public virtual List<Evidence> Evidences { get; set; } = new();
+        public virtual List<LegalTeamMemberNote> LegalTeamMemberNotes { get; set; } = new();
         public virtual List<PersonalVictimTestimonie> PersonalVictimTestimonies { get; set; } = new();
     }
 }

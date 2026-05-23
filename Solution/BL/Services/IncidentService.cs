@@ -169,10 +169,10 @@ namespace BL.Services
             return _mapper.Map<ReturnFullIncidentDTO>(fullLoadedIncident);
         }
 
-        public async Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetByPageAsync(
+        public async Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetFieldResearcherIncidentsByPageAsync(
          PaginationDTO pageDTO, string userId, string? searchVictimNationalId)
         {
-            var (incidents, totalItems) = await _incidentRepo.GetPageAsync((pageDTO.Page - 1) * pageDTO.PageSize,
+            var (incidents, totalItems) = await _incidentRepo.GetFieldResearcherIncidentsByPageAsync((pageDTO.Page - 1) * pageDTO.PageSize,
                 pageDTO.PageSize, userId, searchVictimNationalId);
 
             var incidentDTOs = _mapper.Map<List<ReturnIncidentDTO>>(incidents);

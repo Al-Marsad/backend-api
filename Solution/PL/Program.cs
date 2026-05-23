@@ -143,12 +143,12 @@ namespace PL
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
-                .WriteTo.PostgreSQL(
-                    connectionString,
-                    tableName: "logs",
-                    columnOptions: columnWriters,
-                    needAutoCreateTable: true
-                )
+                //.WriteTo.PostgreSQL(
+                //    connectionString,
+                //    tableName: "logs",
+                //    columnOptions: columnWriters,
+                //    needAutoCreateTable: true
+                //)
                 .CreateLogger();
 
             builder.Host.UseSerilog();

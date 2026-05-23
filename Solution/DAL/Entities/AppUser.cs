@@ -33,18 +33,18 @@ namespace DAL.Entities
         
         public DateTime? RefreshTokenExpirationTime { get; set; }
 
+        
         [ForeignKey(nameof(City))]
         public int CityId { get; set; }
         public virtual City City { get; set; }
-        public virtual List<InitialIncidentReport> InitialIncidentReports { get; set; } = new();
-        public virtual List<InitialIncidentReport> AssignedInitialReports { get; set; } = new();
-        public virtual List<LegalReview> LegalReviews { get; set; } = new();
 
+        public virtual List<InitialIncidentReport> InitialIncidentReportsForCitizen { get; set; } = new();
+        public virtual List<InitialIncidentReport> AssignedInitialReportsForFieldResearcher { get; set; } = new();
         public virtual List<NewsItem> News { get; set; } = new();
-
-        public virtual List<Incident> Incidents { get; set; } = new();
-
-        public virtual List<FinalIncidentReport> FinalIncidentReports { get; set; } = new();
+        public virtual List<Incident> IncidentsForFieldResearcher { get; set; } = new();
+        public virtual List<Incident> AssignedIncidentsForLegalTeamMember { get; set; } = new();
+        public virtual List<LegalTeamMemberNote> LegalTeamMemberNotes { get; set; } = new();
         public virtual List<AppUserRole> UserRoles { get; set; } = new();
+        public virtual List<Activity> Activities { get; set; } = new();
     }
 }

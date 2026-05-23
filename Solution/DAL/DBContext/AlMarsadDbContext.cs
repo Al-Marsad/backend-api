@@ -26,14 +26,14 @@ namespace DAL.DBContext
         public DbSet<City> Cities { get; set; } 
         public DbSet<Evidence> Evidences { get; set; }
         public DbSet<Incident> Incidents { get; set; }
-        public DbSet<FinalIncidentReport> FinalIncidentReports { get; set; }
-        public DbSet<LegalReview> LegalReviews { get; set; }
+        public DbSet<LegalTeamMemberNote> LegalTeamMemberNotes { get; set; }
         public DbSet<NewsItem> News { get; set; }
         public DbSet<Victim> Victims { get; set; }
         public DbSet<PersonalVictimTestimonie> PersonalVictimTestimonies { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<IncidentClass> IncidentClasses { get; set; }
         public DbSet<IncidentClassType> IncidentClassTypes { get; set; }
+        public DbSet<Activity> Activities { get; set; }
 
 
         public AlMarsadDbContext(DbContextOptions<AlMarsadDbContext> options)
@@ -58,13 +58,13 @@ namespace DAL.DBContext
 
             builder.Entity<InitialIncidentReport>()
             .HasOne(r => r.CitizenReporter)
-            .WithMany(u => u.InitialIncidentReports)
+            .WithMany(u => u.InitialIncidentReportsForCitizen)
             .HasForeignKey(r => r.CitizenReporterId)
             .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<InitialIncidentReport>()
            .HasOne(r => r.FieldResearcher)
-           .WithMany(u => u.AssignedInitialReports)
+           .WithMany(u => u.AssignedInitialReportsForFieldResearcher)
            .HasForeignKey(r => r.FieldResearcherId)
            .OnDelete(DeleteBehavior.Restrict);
 
@@ -109,10 +109,15 @@ namespace DAL.DBContext
 
             builder.Entity<Incident>()
             .HasOne(i => i.FieldResearcher)
-            .WithMany(f => f.Incidents)
+            .WithMany(f => f.IncidentsForFieldResearcher)
             .HasForeignKey(i => i.FieldResearcherId)
             .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<Incident>()
+            .HasOne(i => i.LegalTeamMember)
+            .WithMany(f => f.AssignedIncidentsForLegalTeamMember)
+            .HasForeignKey(i => i.LegalTeamMemberId)
+            .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Incident>()
             .HasOne(i => i.City)
@@ -124,27 +129,17 @@ namespace DAL.DBContext
                 .Property(i => i.QuestionnaireJSON)
                 .HasColumnType("jsonb");    
 
-            builder.Entity<FinalIncidentReport>()
-            .HasOne(f => f.FieldResearcher)
-            .WithMany(f => f.FinalIncidentReports)
-            .HasForeignKey(f => f.FieldResearcherId)
+
+            builder.Entity<LegalTeamMemberNote>()
+            .HasOne(n => n.Incident)
+            .WithMany(i => i.LegalTeamMemberNotes)
+            .HasForeignKey(n => n.IncidentId)
             .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<FinalIncidentReport>()
-            .HasOne(f => f.Incident)
-            .WithOne(i => i.FinalIncidentReport)
-            .HasForeignKey<FinalIncidentReport>(f => f.IncidentId)
-            .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<LegalReview>()
-            .HasOne(l => l.FinalIncidentReport)
-            .WithOne(f => f.LegalReview)
-            .HasForeignKey<LegalReview>(l => l.FinalIncidentReportId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<LegalReview>()
+            builder.Entity<LegalTeamMemberNote>()
             .HasOne(l => l.LegalTeamMember)
-            .WithMany(u => u.LegalReviews)
+            .WithMany(u => u.LegalTeamMemberNotes)
             .HasForeignKey(l => l.LegalTeamMemberId)
             .OnDelete(DeleteBehavior.Restrict);
 
@@ -172,6 +167,7 @@ namespace DAL.DBContext
             .HasForeignKey(t => t.IncidentId)
             .OnDelete(DeleteBehavior.Restrict);
 
+
             builder.Entity<PersonalVictimTestimonie>()
             .HasOne(t => t.Victim)
             .WithMany(i => i.PersonalVictimTestimonies)
@@ -183,6 +179,12 @@ namespace DAL.DBContext
             .HasOne(e => e.Incident)
             .WithMany(i => i.Evidences)
             .HasForeignKey(e => e.IncidentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Activity>()
+            .HasOne(a => a.MadeBy)
+            .WithMany(i => i.Activities)
+            .HasForeignKey(a => a.MadeById)
             .OnDelete(DeleteBehavior.Restrict);
         }
     }
