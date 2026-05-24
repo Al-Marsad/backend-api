@@ -2,8 +2,10 @@
 using BL.DTO.Evidence;
 using BL.DTO.General;
 using BL.DTO.Incident;
+using BL.DTO.InitialIncidentReport;
 using BL.Helper;
 using BL.Services.Interfaces;
+using DAL.Entities;
 using DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +17,13 @@ namespace PL.Controllers
     public class IncidentController : ControllerBase
     {
         private readonly IIncidentService _incidentService;
+        private readonly ILegalNoteService _legalNoteService;
+
         public IncidentController(IIncidentService incidentService,
-            IIncidentRepository incidentRepository)
+            ILegalNoteService _legalNoteService)
         {
             this._incidentService = incidentService;
+            this._legalNoteService = _legalNoteService;
         }
 
         [Authorize(Roles = RolesSelector.FieldResearcher)]
@@ -65,7 +70,9 @@ namespace PL.Controllers
 
         [Authorize(Roles = RolesSelector.FieldResearcher)]
         [HttpGet("Mine")]
-        public async Task<IActionResult> GetByPage([FromQuery] PaginationDTO pageDTO, [FromQuery] string? NationalId)
+        public async Task<IActionResult> GetFieldReseacherIncidentsByPage([FromQuery] PaginationDTO pageDTO, [FromQuery] string? NationalId,
+            [FromQuery]bool OrderByDateOfOccurence = false, [FromQuery] bool? DocumentationConsent = null,
+            [FromQuery] bool? PublicationConsent = null)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null)
@@ -81,7 +88,51 @@ namespace PL.Controllers
                 });
             }
 
-            var data = await _incidentService.GetByPageAsync(pageDTO, userId, NationalId);
+            var data = await _incidentService.GetFieldResearcherIncidentsByPageAsync(pageDTO, userId, NationalId, OrderByDateOfOccurence
+                , DocumentationConsent, PublicationConsent);
+
+            return Ok(new
+            {
+                Success = true,
+                Data = new
+                {
+                    Items = data.Data,
+                    Pagination = new
+                    {
+                        CurrentPage = data.Page,
+                        CurrentPageItems = data.Data.Count,
+                        PageSize = data.PageSize,
+                        TotalItems = data.TotalCount,
+                    }
+                }
+            });
+        }
+
+        [Authorize(Roles = $"{RolesSelector.LegalTeamMember},{RolesSelector.Manager}")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllIncidentsByPage([FromQuery] PaginationDTO pageDTO, [FromQuery] int? CityId = null,
+            [FromQuery] bool OrderByDateOfOccurence = false, [FromQuery] bool? DocumentationConsent = null,
+            [FromQuery] bool? PublicationConsent = null,
+            [FromQuery] int? Sensitivity = null)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+            CityId ??= Convert.ToInt32(User.FindFirstValue("CityId"));
+            Console.WriteLine(CityId);
+
+            var data = await _incidentService.GetAllIncidentsByPageAsync(pageDTO, CityId, OrderByDateOfOccurence
+                , DocumentationConsent, PublicationConsent, Sensitivity);
 
             return Ok(new
             {
@@ -117,7 +168,7 @@ namespace PL.Controllers
         }
 
 
-        [Authorize(Roles = RolesSelector.FieldResearcher)]
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember}")]
         [HttpGet("{incidentId:int}/Evidences")]
         public async Task<IActionResult> GetEvidencesByIncidentId([FromRoute] int incidentId)
         {
@@ -131,7 +182,7 @@ namespace PL.Controllers
         }
 
 
-        [Authorize(Roles = RolesSelector.FieldResearcher)]
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember},{RolesSelector.LegalTeamMember}")]
         [HttpGet("{incidentId:int}/Testimonies")]
         public async Task<IActionResult> GetTestimoniesAndTheirVictimsByIncidentId([FromRoute] int incidentId)
         {
@@ -143,6 +194,190 @@ namespace PL.Controllers
                 Data = data
             });
 
+        }
+
+
+        [Authorize(Roles = RolesSelector.LegalTeamMember)]
+        [HttpPatch("{Id:int}/AssignToLegalTeamMember")]
+        public async Task<IActionResult> AssignToLegalTeamMember([FromRoute] int Id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _incidentService.AssignToLegalTeamMember(userId, Id);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Incident assigned to legal team member successfully",
+                Data = data
+            });
+        }
+
+
+        [Authorize(Roles = RolesSelector.LegalTeamMember)]
+        [HttpPatch("{Id:int}/UnassignToLegalTeamMember")]
+        public async Task<IActionResult> UnassignToLegalTeamMember([FromRoute] int Id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _incidentService.UnassignToLegalTeamMember(userId, Id);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Incident unassigned from legal team member successfully",
+                Data = data
+            });
+        }
+
+
+        [Authorize(Roles = RolesSelector.LegalTeamMember)]
+        [HttpPatch("{Id:int}")]
+        public async Task<IActionResult> UpdateIncident([FromRoute] int Id, [FromBody] UpdateIncidentDTO updateIncidentDTO)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _incidentService.UpdateIncident(updateIncidentDTO, Id, userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Incident updated successfully",
+                Data = data
+            });
+        }
+
+        [Authorize(Roles = RolesSelector.LegalTeamMember)]
+        [HttpPatch("{Id:int}/GiveDocumentationConsent")]
+        public async Task<IActionResult> GiveDocumentationConsent([FromRoute] int Id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _incidentService.GiveDocumentationConsentAsync(Id, userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Incident had documentation consent successfully",
+                Data = data
+            });
+        }
+
+        [Authorize(Roles = $"{RolesSelector.LegalTeamMember},{RolesSelector.Manager}")]
+        [HttpGet("{IncidentId:int}/LegalNote")]
+        public async Task<IActionResult> GetLegalNoteForIncident([FromRoute] int IncidentId)
+        {
+            var data = await _legalNoteService.GetByIncident(IncidentId);
+
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
+
+        [Authorize(Roles = $"{RolesSelector.LegalTeamMember}")]
+        [HttpPost("{IncidentId:int}/RequestModification")]
+        public async Task<IActionResult> RequestModification([FromRoute] int IncidentId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            await _incidentService.RequestModificationAsync(IncidentId, userId);
+
+            return StatusCode(201, new
+            {
+                Success = true,
+                Message = "Modification request submitted successfully"
+            });
+        }
+
+
+        [Authorize(Roles = $"{RolesSelector.Manager}")]
+        [HttpPatch("{IncidentId:int}/AllowModification")]
+        public async Task<IActionResult> AllowModification([FromRoute] int IncidentId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _incidentService.AllowModificationAsync(IncidentId, userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Modification request submitted successfully",
+                Data = data
+            });
         }
     }
 }

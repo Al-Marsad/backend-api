@@ -7,6 +7,7 @@ using DAL.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using DAL.Enums;
+using DAL.Repositories.Interfaces;
 
 namespace BL.Services
 {
@@ -16,11 +17,12 @@ namespace BL.Services
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IJwtService _jwtService;
         private readonly IMapper _mapper;
+        private readonly IActivityRepositoy _activityRepositoy;
         private IConfiguration _config { get; }
 
         public AuthenticationService(SignInManager<AppUser> signInManager,
             UserManager<AppUser> userManager,
-            IJwtService jwtService, IConfiguration config,
+            IJwtService jwtService, IConfiguration config, IActivityRepositoy activityRepositoy,
             IMapper mapper)
         {
             _userManager = userManager;
@@ -28,6 +30,7 @@ namespace BL.Services
             _config = config;
             _mapper = mapper;
             _signInManager = signInManager;
+            _activityRepositoy = activityRepositoy; 
         }
         public async Task<ReturnRegisteredUserDTO> Regsiter(AddUserDTO userDTO, string RoleName)
         {
@@ -39,6 +42,15 @@ namespace BL.Services
                 IdentityHandler.HandleIdentityErrors(result);
 
             await _userManager.AddToRoleAsync(user, RoleName);
+
+            
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"User with id '{user.Id}' was registered'",
+                MadeById = user.Id,
+                Type = ActivityType.Add,
+
+            });
 
             var returnUser = _mapper.Map<ReturnRegisteredUserDTO>(user);
             returnUser.Role = RoleName;

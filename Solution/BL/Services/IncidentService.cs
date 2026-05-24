@@ -8,6 +8,7 @@ using BL.Services.Interfaces;
 using DAL.Entities;
 using DAL.Enums;
 using DAL.Exceptions;
+using DAL.Repositories;
 using DAL.Repositories.Interfaces;
 
 namespace BL.Services
@@ -19,18 +20,22 @@ namespace BL.Services
         private readonly IInitialIncidentReportRepository _initialIncidentReportRepo; 
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
+        private readonly IActivityRepositoy _activityRepositoy;
 
         public IncidentService(IIncidentRepository incidentRepo,
             IVictimRepository victimRepo,
             IMapper mapper,
             IInitialIncidentReportRepository initialIncidentReportRepo,
-            ICloudinaryService cloudinaryService)
+            ICloudinaryService cloudinaryService,
+            IActivityRepositoy activityRepositoy)
+
         {
             _incidentRepo = incidentRepo;
             _victimRepo = victimRepo;
             _mapper = mapper;
             _initialIncidentReportRepo = initialIncidentReportRepo;
             _cloudinaryService = cloudinaryService;
+            _activityRepositoy = activityRepositoy;
         }
 
         public async Task<ReturnIncidentDTO> GetByIdAsync(int Id)
@@ -41,6 +46,92 @@ namespace BL.Services
                 throw new DataNotFoundException($"Incident with id '{Id}' not found");
 
             return _mapper.Map<ReturnIncidentDTO>(incident);    
+        }
+
+        public async Task<ReturnAssignedIncidentDTO> AssignToLegalTeamMember(string userId, int IncidentId)
+        {
+            var incident = await _incidentRepo.GetByIdAsync(IncidentId);
+
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id '{IncidentId}' not found");
+
+            if(incident.PreventModification)
+                throw new ConflictException($"Incident with id '{IncidentId}' cannot be assigned," +
+                    $"You need permission from the manager");
+
+            if(incident.LegalTeamMemberId != null)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is already assigned " +
+                    $"to legal team member with id '{incident.LegalTeamMemberId}'");
+            }
+
+            if(incident.DocumentationConsent)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is already documented");
+            }
+
+            if (incident.PublicationConsent)
+            {
+                throw new ConflictException($"you can't Modify this incident with id '{IncidentId}', it have been already published");
+            }
+
+            incident.LegalTeamMemberId = userId;
+
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"User with id '{userId}' assigned themselves to incident with id '{IncidentId}'",
+                MadeById = userId,
+                Type = ActivityType.Update,
+
+            }); 
+
+            await _incidentRepo.SaveAsync();
+
+            return _mapper.Map<ReturnAssignedIncidentDTO>(incident);
+        }
+
+        public async Task<ReturnAssignedIncidentDTO> UnassignToLegalTeamMember(string userId, int IncidentId)
+        {
+            var incident = await _incidentRepo.GetByIdAsync(IncidentId);
+
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id '{IncidentId}' not found");
+
+            if (incident.PreventModification)
+                throw new ConflictException($"Incident with id '{IncidentId}' cannot be unassigned," +
+                    $"You need permission from the manager");
+
+            if (incident.LegalTeamMemberId == null)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is not assigned " +
+                    $"to any legal team member");
+            }
+
+            if (incident.DocumentationConsent)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is already documented");
+            }
+
+            if (incident.PublicationConsent)
+            {
+                throw new ConflictException($"you can't Modify this incident with id '{IncidentId}', it have been already published");
+            }
+
+            incident.LegalTeamMemberId = null;
+
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"User with id '{userId}' unassigned themselves from incident with id '{IncidentId}'",
+                MadeById = userId,
+                Type = ActivityType.Update,
+
+            });
+
+            await _incidentRepo.SaveAsync();
+
+            return _mapper.Map<ReturnAssignedIncidentDTO>(incident);
         }
 
         public async Task<ReturnFullIncidentDTO> AddAsync(AddIncidentDTO incidentDTO)
@@ -159,17 +250,114 @@ namespace BL.Services
 
             await _incidentRepo.SaveAsync();
 
-            var fullLoadedIncident = await _incidentRepo.GetFullByIdAsync(incident.Id);
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"User with id '{incidentDTO.FieldResearcherId}' added new incident with id '{incident.Id}'",
+                MadeById = incidentDTO.FieldResearcherId ?? "",
+                Type = ActivityType.Add,
 
+            });
+
+            await _activityRepositoy.SaveAsync();
+
+            var fullLoadedIncident = await _incidentRepo.GetFullByIdAsync(incident.Id);
 
             return _mapper.Map<ReturnFullIncidentDTO>(fullLoadedIncident);
         }
 
-        public async Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetByPageAsync(
-         PaginationDTO pageDTO, string userId, string? searchVictimNationalId)
+        public async Task<ReturnUpdatedIncidentDTO> UpdateIncident(UpdateIncidentDTO updateIncidentDTO, int IncidentId, string userId)
         {
-            var (incidents, totalItems) = await _incidentRepo.GetPageAsync((pageDTO.Page - 1) * pageDTO.PageSize,
-                pageDTO.PageSize, userId, searchVictimNationalId);
+            var incident = await _incidentRepo.GetWithTestimoniesOnlyById(IncidentId);
+
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id '{IncidentId}' not found");
+
+            if (incident.PreventModification)
+                throw new ConflictException($"Incident with id '{IncidentId}' cannot be updated, " +
+                    $"You need permission from the manager");
+
+            if (incident.LegalTeamMemberId == null)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is not assigned " +
+                    $"to you");
+            }else
+            {
+                if(incident.LegalTeamMemberId != userId)
+                {
+                    throw new ForbiddenException($"You are not allowed to update this incident");
+                }
+            }
+
+            if (incident.DocumentationConsent)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' has a documentation consent" +
+                    $", you can't update it");
+            }
+
+            if (incident.PublicationConsent)
+            {
+                throw new ConflictException($"you can't Modify this incident with id '{IncidentId}', it have been already published");
+            }
+
+            incident.DetailedDescription = updateIncidentDTO.DetailedDescription ?? incident.DetailedDescription;
+            incident.AIClassification = updateIncidentDTO.AIClassification ?? incident.AIClassification;
+            incident.PerpetratorDescription = updateIncidentDTO.PerpetratorDescription ?? incident.PerpetratorDescription;
+
+            if(updateIncidentDTO.Testimonies != null)
+            {
+                foreach (var testimonyDTO in updateIncidentDTO.Testimonies)
+                {
+                    var testimony = incident.PersonalVictimTestimonies.FirstOrDefault(t => t.Id == testimonyDTO.Id);
+                    if (testimony == null)
+                        throw new DataNotFoundException($"Testimony with id '{testimonyDTO.Id}' not found in incident with id '{IncidentId}'");
+                    testimony.PersonalNarrative = testimonyDTO.PersonalNarrative ?? testimony.PersonalNarrative;
+                }
+            }
+            incident.PreventModification = true;
+
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"User with id '{userId}' updated incident with id '{incident.Id}'",
+                MadeById = userId,
+                Type = ActivityType.Update,
+
+            });
+
+            await _incidentRepo.SaveAsync();
+
+            return _mapper.Map<ReturnUpdatedIncidentDTO>(incident);  
+        }
+
+        public async Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetFieldResearcherIncidentsByPageAsync(
+         PaginationDTO pageDTO, string userId, string? searchVictimNationalId, bool OrderByDateOfOccurence,
+         bool? DocumentationConsent, bool? PublicationConsent)
+        {
+            var (incidents, totalItems) = await _incidentRepo.GetFieldResearcherIncidentsByPageAsync((pageDTO.Page - 1) * pageDTO.PageSize,
+                pageDTO.PageSize, userId, searchVictimNationalId, OrderByDateOfOccurence,
+                DocumentationConsent,PublicationConsent);
+
+            var incidentDTOs = _mapper.Map<List<ReturnIncidentDTO>>(incidents);
+
+            return new PagedResultDTO<List<ReturnIncidentDTO>>()
+            {
+                Data = incidentDTOs,
+                Page = pageDTO.Page,
+                PageSize = pageDTO.PageSize,
+                TotalCount = totalItems
+            };
+        }
+
+        public async Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetAllIncidentsByPageAsync(PaginationDTO pageDTO, int? cityId
+          , bool OrderByDateOfOccurence, bool? DocumentationConsent, bool? PublicationConsent, int? Sensitivity)
+        {
+            if(Sensitivity.HasValue && (Sensitivity < 1 || Sensitivity > 10))
+            {
+                throw new ValidationException("Validation Faild", new { Sensitivity = "Must be between 10 and 1"});
+            }
+
+            var (incidents, totalItems) = await _incidentRepo.GetAllIncidentsByPageAsync((pageDTO.Page - 1) * pageDTO.PageSize,
+                pageDTO.PageSize, cityId, OrderByDateOfOccurence, DocumentationConsent, PublicationConsent, Sensitivity);
 
             var incidentDTOs = _mapper.Map<List<ReturnIncidentDTO>>(incidents);
 
@@ -251,6 +439,144 @@ namespace BL.Services
             return _mapper.Map<List<ReturnVictimTestimonieDTO>>(testimonies);
         }
 
+        public async Task<ReturnGiveDocumentationConsentDTO> GiveDocumentationConsentAsync(int IncidentId, string userId)
+        {
+            var incident = await _incidentRepo.GetByIdAsync(IncidentId);
+
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id '{IncidentId}' not found");
+
+            if (incident.DocumentationConsent)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' has a documentation consent" +
+                    $"already");
+            }
+
+            if (incident.LegalTeamMemberId == null)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is not assigned " +
+                    $"to you");
+            }
+            else
+            {
+                if (incident.LegalTeamMemberId != userId)
+                {
+                    throw new ForbiddenException($"You are not allowed to give documentation consent to this incident");
+                }
+            }
+
+            incident.DocumentationConsent = true;
+            incident.PreventModification = true;
+
+            if (incident.InitialIncidentReportId != null)
+            {
+                var intitialReport = await _initialIncidentReportRepo.GetByIdAsync(incident.InitialIncidentReportId.Value);
+
+                if (intitialReport == null)
+                    throw new ConflictException($"This incident has intial report id '{incident.InitialIncidentReportId.Value}'" +
+                        $", but there is no intial report entity found with this Id");
+
+                intitialReport.Status = InitialIncidentReportStatus.CLOSED;
+            }
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"User with id '{userId}' give incident with id '{incident.Id} a documentation consent'",
+                MadeById = userId,
+                Type = ActivityType.Update,
+
+            });
+
+            await _incidentRepo.SaveAsync();
+
+            return _mapper.Map<ReturnGiveDocumentationConsentDTO>(incident);
+        }
+
+
+        public async Task RequestModificationAsync(int IncidentId, string userId)
+        {
+            var incident = await _incidentRepo.GetByIdAsync(IncidentId);
+            
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id '{IncidentId}' not found");
+
+            if (!incident.PreventModification)
+            {
+                throw new ConflictException($"Modification request cannot be sent for incident with id '{IncidentId}' " +
+                    $"because it is not locked for modification");
+            }
+
+            if (incident.PublicationConsent)
+            {
+                throw new ConflictException($"you can't Modify this incident with id '{IncidentId}', it has been already published");
+            }
+
+            if (incident.LegalTeamMemberId == null)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is not assigned " +
+                    $"to you, you can't modify it");
+            }
+            else
+            {
+                if (incident.LegalTeamMemberId != userId)
+                {
+                    throw new ForbiddenException($"You are not allowed to request modification for this incident");
+                }
+            }
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"Legal team member with id '{userId}' requested modification for incident with id '{incident.Id}'",
+                MadeById = userId,
+                Type = ActivityType.RequestChange
+            });
+
+            await _activityRepositoy.SaveAsync();
+        }
+
+        public async Task<ReturnGiveDocumentationConsentDTO> AllowModificationAsync(int IncidentId, string userId)
+        {
+            var incident = await _incidentRepo.GetByIdAsync(IncidentId);
+
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id '{IncidentId}' not found");
+
+            if (incident.PreventModification == false)
+            {
+                throw new ConflictException($"Modification on this incident with id '{IncidentId}' was already allowed");
+            }
+
+            if(incident.PublicationConsent)
+            {
+                throw new ConflictException($"you can't Modify this incident with id '{IncidentId}', it has been already published");
+            }
+
+            incident.PreventModification = false;
+            incident.DocumentationConsent = false;
+
+            if (incident.InitialIncidentReportId != null)
+            {
+                var intitialReport = await _initialIncidentReportRepo.GetByIdAsync(incident.InitialIncidentReportId.Value);
+
+                if (intitialReport == null)
+                    throw new ConflictException($"This incident has intial report id '{incident.InitialIncidentReportId.Value}'" +
+                        $", but there is no intial report entity found with this Id");
+
+                intitialReport.Status = InitialIncidentReportStatus.PENDING;
+            }
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"Manager with id '{userId}' allow modification on this incident with id '{incident.Id}'",
+                MadeById = userId,
+                Type = ActivityType.Update,
+
+            });
+
+            await _incidentRepo.SaveAsync();
+
+            return _mapper.Map<ReturnGiveDocumentationConsentDTO>(incident);
+        }
 
     }
 }

@@ -3,6 +3,7 @@ using System;
 using DAL.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AlMarsadDbContext))]
-    partial class AlMarsadDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260523075943_add legal team member notes table and remove final reports and merge its content with incident table")]
+    partial class addlegalteammembernotestableandremovefinalreportsandmergeitscontentwithincidenttable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -327,10 +330,6 @@ namespace DAL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AIClassification")
-                        .HasColumnType("text")
-                        .HasColumnName("ai_classification");
-
                     b.Property<int>("AreaClass")
                         .HasColumnType("integer")
                         .HasColumnName("area_class");
@@ -393,10 +392,6 @@ namespace DAL.Migrations
                     b.Property<string>("PerpetratorDescription")
                         .HasColumnType("text")
                         .HasColumnName("perpetrator_description");
-
-                    b.Property<bool>("PreventModification")
-                        .HasColumnType("boolean")
-                        .HasColumnName("prevent_modification");
 
                     b.Property<bool>("PublicationConsent")
                         .HasColumnType("boolean")

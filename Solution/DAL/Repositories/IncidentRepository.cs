@@ -1,7 +1,9 @@
-﻿using DAL.DBContext;
+﻿using System.Linq;
+using DAL.DBContext;
 using DAL.Entities;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DAL.Repositories
 {
@@ -34,7 +36,9 @@ namespace DAL.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<(List<Incident>, int)> GetPageAsync(int skip, int take, string userId, string? searchVictimNationalId)
+        public async Task<(List<Incident>, int)> GetFieldResearcherIncidentsByPageAsync(int skip, int take, string userId, 
+            string? searchVictimNationalId, bool OrderByDateOfOccurence,
+            bool? DocumentationConsent, bool? PublicationConsent)
         {
             if (skip < 0 || take < 0)
                 return (new List<Incident>(), 0);
@@ -49,10 +53,75 @@ namespace DAL.Repositories
                         t.Victim.NationalId == searchVictimNationalId.Trim()));
             }
 
+            if (DocumentationConsent != null)
+            {
+                query = query.Where(i => i.DocumentationConsent == DocumentationConsent.Value);
+            }
+
+            if (PublicationConsent != null)
+            {
+                query = query.Where(i => i.PublicationConsent == PublicationConsent.Value);
+            }
+
+            if (OrderByDateOfOccurence)
+            {
+                query = query.OrderByDescending(i => i.DateOfOccurrence);
+            } else
+            {
+                query = query.OrderByDescending(i => i.CreationDate);
+
+            }
+
             var count = await query.CountAsync();
 
             return (await query
-                .OrderByDescending(x => x.CreationDate)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync(), count);
+        }
+
+        public async Task<(List<Incident>, int)> GetAllIncidentsByPageAsync(int skip, int take, int? cityId
+            , bool OrderByDateOfOccurence, bool? DocumentationConsent, bool? PublicationConsent, int? Sensitivity)
+        {
+            if (skip < 0 || take < 0)
+                return (new List<Incident>(), 0);
+
+            var query = _dbContext.Incidents.AsQueryable();
+
+            if(cityId != null)
+            {
+                query = query.Where(i => i.CityId == cityId);
+            }
+
+            if (DocumentationConsent != null)
+            {
+                query = query.Where(i => i.DocumentationConsent == DocumentationConsent.Value);
+
+            }
+
+            if (PublicationConsent != null)
+            {
+                query = query.Where(i => i.PublicationConsent == PublicationConsent.Value);
+
+            }
+
+            if (Sensitivity != null)
+            {
+                query = query.Where(i => i.SensitivityScore == Sensitivity);
+            }
+
+            if (OrderByDateOfOccurence)
+            {
+                query = query.OrderByDescending(i => i.DateOfOccurrence);
+            }
+            else
+            {
+                query = query.OrderByDescending(i => i.CreationDate);
+            }
+
+            var count = await query.CountAsync();
+
+            return (await query
                 .Skip(skip)
                 .Take(take)
                 .ToListAsync(), count);
@@ -61,6 +130,13 @@ namespace DAL.Repositories
         public async Task<Incident?> GetByIdAsync(int id)
         {
             return await _dbContext.Incidents.SingleOrDefaultAsync(i => i.Id == id); 
+        }
+
+        public async Task<Incident?> GetWithTestimoniesOnlyById(int id)
+        {
+            return await _dbContext.Incidents
+               .Include(i => i.PersonalVictimTestimonies)
+               .SingleOrDefaultAsync(i => i.Id == id);
         }
 
         public async Task<Incident?> GetFullByIdAsync(int id)

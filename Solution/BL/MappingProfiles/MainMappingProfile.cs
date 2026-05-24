@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
+using BL.DTO.Activity;
 using BL.DTO.City;
 using BL.DTO.Classification;
 using BL.DTO.Evidence;
 using BL.DTO.Incident;
 using BL.DTO.InitialIncidentReport;
+using BL.DTO.LegalNote;
+using BL.DTO.Log;
 using BL.DTO.Question;
 using BL.DTO.User;
 using BL.DTO.Victim;
@@ -53,6 +56,10 @@ namespace BL.MappingProfiles
             CreateMap<Incident, ReturnFullIncidentDTO>()
                 .ForMember(dest => dest.PersonalVictimTestimonies, opt => opt.MapFrom(src => src.PersonalVictimTestimonies));
             CreateMap<Incident, ReturnIncidentDTO>();
+            CreateMap<Incident, ReturnAssignedIncidentDTO>();
+            CreateMap<Incident, ReturnUpdatedIncidentDTO>();
+            CreateMap<Incident, ReturnGiveDocumentationConsentDTO>()
+                .ForMember(dest => dest.IncidentId, opt => opt.MapFrom(src => src.Id));
 
 
             // Victim Testimonie Profile
@@ -63,6 +70,7 @@ namespace BL.MappingProfiles
                     .ForMember(dest => dest.Victim, opt => opt.MapFrom(src => src.Victim));
             CreateMap<PersonalVictimTestimonie, ReturnVictimTestimonieDTO>()
             .ForMember(dest => dest.Victim, opt => opt.MapFrom(src => src.Victim));
+            CreateMap<PersonalVictimTestimonie, ReturnUpdatedTestimonyDTO>();
 
 
             // Victim Profile
@@ -78,10 +86,21 @@ namespace BL.MappingProfiles
 
             // Incident Class Type Profile
             CreateMap<IncidentClassType, ReturnIncidentClassTypeDTO>();
-            
+
 
             // Incident Evidence Profile
             CreateMap<Evidence, ReturnEvidenceDTO>();
+
+
+            //Legal Note Profile
+            CreateMap<AddLegalNoteDTO, LegalTeamMemberNote>();
+            CreateMap<UpdateLegalNoteDTO, LegalTeamMemberNote>();
+            CreateMap<LegalTeamMemberNote, ReturnLegalNoteDTO>();
+
+
+            //Activity Profile
+            CreateMap<Activity, ReturnActivityDTO>();
+
         }
     }
 }

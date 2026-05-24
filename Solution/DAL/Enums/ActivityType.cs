@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace DAL.Enums
 {
-    public enum InitialIncidentReportStatus
+    public enum ActivityType
     {
-        UNASSIGNED,
-        ASSIGNED,
-        PENDING,
-        CLOSED    
+        Other,
+        Add,
+        Delete,
+        Update,
+        RequestChange
     }
 }

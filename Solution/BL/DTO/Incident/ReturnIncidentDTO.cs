@@ -23,7 +23,15 @@ namespace BL.DTO.Incident
         public byte SensitivityScore { get; set; }
         public string? QuestionnaireJSON { get; set; }
         public int CityId { get; set; }
+        public bool DocumentationConsent { get; set; }
+        public bool PublicationConsent { get; set; }
         public int? InitialIncidentReportId { get; set; }
         public string? FieldResearcherId { get; set; }
+        public string? LegalTeamMemberId { get; set; }
+        public string? AIClassification { get; set; }
+        public bool PreventModification { get; set; }
+
+
+
     }
 }

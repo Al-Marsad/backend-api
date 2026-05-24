@@ -9,9 +9,11 @@ namespace PL.Controllers
     [ApiController]
     public class TestController : ControllerBase
     {
-        [HttpGet]
-        public async Task<IActionResult> AddAsync()
+        [HttpGet("{id}")]
+        public async Task<IActionResult> AddAsync(int id)
         {
+            if(id == 1)
+                throw new Exception("This is a test exception for error handling.");
             return Ok();
         }
     }

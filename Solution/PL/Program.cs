@@ -1,15 +1,17 @@
-
 using System.Text;
 using BL.Extensions;
 using DAL.DBContext;
-using DAL.Entities;
 using DAL.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using NpgsqlTypes;
 using PL.Middlewares;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.PostgreSQL;
 
 namespace PL
 {
@@ -122,6 +124,34 @@ namespace PL
                           .AllowAnyMethod();
                 });
             });
+
+            // Register Serilog
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            
+            var columnWriters = new Dictionary<string, ColumnWriterBase>
+            {
+                { "message", new RenderedMessageColumnWriter() },
+                { "message_template", new MessageTemplateColumnWriter() },
+                { "level", new LevelColumnWriter(true, NpgsqlDbType.Varchar) },
+                { "time_stamp", new TimestampColumnWriter() },
+                { "exception", new ExceptionColumnWriter() },
+                { "properties", new LogEventSerializedColumnWriter(NpgsqlDbType.Jsonb) }
+            };
+
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                //.WriteTo.PostgreSQL(
+                //    connectionString,
+                //    tableName: "logs",
+                //    columnOptions: columnWriters,
+                //    needAutoCreateTable: true
+                //)
+                .CreateLogger();
+
+            builder.Host.UseSerilog();
 
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -4,6 +4,8 @@ using BL.MappingProfiles;
 using BL.Services;
 using BL.Services.Interfaces;
 using CloudinaryDotNet;
+using DAL.Repositories;
+using DAL.Repositories.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -36,6 +38,7 @@ namespace BL.Extensions
 
                 return new Cloudinary(account);
             });
+            
 
             // Register The Business Services
             services.AddScoped<IInitialIncidentReportService, InitialIncidentReportService>();
@@ -47,6 +50,11 @@ namespace BL.Extensions
             services.AddScoped<IVictimService, VictimService>();
             services.AddScoped<IQuestionService, QuestionService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
+            services.AddScoped<ILegalNoteService, LegalNoteService>();
+            services.AddScoped<IActivityService, ActivityService>();
+
+
+
 
             services.AddScoped<DTOBuilder>();
 

@@ -15,11 +15,14 @@ namespace BL.Services
     {
         private readonly IInitialIncidentReportRepository _initialReportRepo;
         private readonly IMapper _mapper;
+        private readonly IActivityRepositoy _activityRepositoy;
+
         public InitialIncidentReportService(IInitialIncidentReportRepository initialReportRepo,
-            IMapper mapper)
+            IMapper mapper, IActivityRepositoy activityRepositoy)
         {
             this._initialReportRepo = initialReportRepo;
             this._mapper = mapper;
+            this._activityRepositoy = activityRepositoy;
         }
         public async Task<ReturnInitialIncidentReportDTO> AddAsync(AddInitialIncidentReportDTO reportDto)
         {
@@ -30,6 +33,14 @@ namespace BL.Services
             }
 
             await _initialReportRepo.AddAsync(reportEntity);
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"Citizen with id '{reportEntity.CitizenReporterId}' created initial report with id '{reportEntity.Id}'",
+                MadeById = reportEntity.CitizenReporterId,
+                Type = ActivityType.Add,
+
+            });
 
             await _initialReportRepo.SaveAsync();
 
@@ -113,6 +124,14 @@ namespace BL.Services
             report.FieldResearcherId = data.FieldResearcherId;
             report.Status = InitialIncidentReportStatus.ASSIGNED;
 
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"Field Researcher with id '{report.FieldResearcherId}' assign an initial report with id '{report.Id}' to them'",
+                MadeById = report.FieldResearcherId ?? "",
+                Type = ActivityType.Update,
+
+            });
+
             await _initialReportRepo.SaveAsync();
 
             return _mapper.Map<ReturnInitialIncidentReportDTO>(report);
@@ -139,6 +158,14 @@ namespace BL.Services
 
             report.FieldResearcherId = null;
             report.Status = InitialIncidentReportStatus.UNASSIGNED;
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"Field Researcher with id '{report.FieldResearcherId}' unassign an initial report with id '{report.Id}' to them'",
+                MadeById = report.FieldResearcherId ?? "",
+                Type = ActivityType.Update,
+
+            });
 
             await _initialReportRepo.SaveAsync();
 
