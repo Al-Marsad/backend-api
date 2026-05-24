@@ -6,7 +6,7 @@ namespace DAL.Entities
     public class LegalTeamMemberNote
     {
         public int Id { get; set; }
-        public DateTime CreationDate { get; set; }        
+        public DateTime CreationDate { get; set; } = DateTime.UtcNow;
         public string Content { get; set; }
 
         

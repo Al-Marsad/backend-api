@@ -4,6 +4,7 @@ using BL.DTO.Classification;
 using BL.DTO.Evidence;
 using BL.DTO.Incident;
 using BL.DTO.InitialIncidentReport;
+using BL.DTO.LegalNote;
 using BL.DTO.Log;
 using BL.DTO.Question;
 using BL.DTO.User;
@@ -88,6 +89,12 @@ namespace BL.MappingProfiles
 
             // Incident Evidence Profile
             CreateMap<Evidence, ReturnEvidenceDTO>();
+
+            //Legal Note Profile
+            CreateMap<AddLegalNoteDTO, LegalTeamMemberNote>();
+            CreateMap<UpdateLegalNoteDTO, LegalTeamMemberNote>();
+            CreateMap<LegalTeamMemberNote, ReturnLegalNoteDTO>();
+
 
         }
     }

@@ -17,10 +17,13 @@ namespace PL.Controllers
     public class IncidentController : ControllerBase
     {
         private readonly IIncidentService _incidentService;
+        private readonly ILegalNoteService _legalNoteService;
+
         public IncidentController(IIncidentService incidentService,
-            IIncidentRepository incidentRepository)
+            ILegalNoteService _legalNoteService)
         {
             this._incidentService = incidentService;
+            this._legalNoteService = _legalNoteService;
         }
 
         [Authorize(Roles = RolesSelector.FieldResearcher)]
@@ -303,6 +306,19 @@ namespace PL.Controllers
             {
                 Success = true,
                 Message = "Incident had documentation consent successfully",
+                Data = data
+            });
+        }
+
+        [Authorize(Roles = $"{RolesSelector.LegalTeamMember},{RolesSelector.Manager}")]
+        [HttpGet("{IncidentId:int}/LegalNote")]
+        public async Task<IActionResult> GetLegalNoteForIncident([FromRoute] int IncidentId)
+        {
+            var data = await _legalNoteService.GetByIncident(IncidentId);
+
+            return Ok(new
+            {
+                Success = true,
                 Data = data
             });
         }
