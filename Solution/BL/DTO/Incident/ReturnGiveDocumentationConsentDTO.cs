@@ -10,6 +10,7 @@ namespace BL.DTO.Incident
     {
         public int IncidentId { get; set; }
         public bool DocumentationConsent { get; set; }
+        public bool PublicationConsent { get; set; }
         public bool PreventModification { get; set; }
     }
 }

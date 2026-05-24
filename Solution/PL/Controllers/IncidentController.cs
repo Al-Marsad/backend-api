@@ -323,5 +323,61 @@ namespace PL.Controllers
                 Data = data
             });
         }
+
+        [Authorize(Roles = $"{RolesSelector.LegalTeamMember}")]
+        [HttpPost("{IncidentId:int}/RequestModification")]
+        public async Task<IActionResult> RequestModification([FromRoute] int IncidentId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            await _incidentService.RequestModificationAsync(IncidentId, userId);
+
+            return StatusCode(201, new
+            {
+                Success = true,
+                Message = "Modification request submitted successfully"
+            });
+        }
+
+
+        [Authorize(Roles = $"{RolesSelector.Manager}")]
+        [HttpPatch("{IncidentId:int}/AllowModification")]
+        public async Task<IActionResult> AllowModification([FromRoute] int IncidentId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _incidentService.AllowModificationAsync(IncidentId, userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Modification request submitted successfully",
+                Data = data
+            });
+        }
     }
 }

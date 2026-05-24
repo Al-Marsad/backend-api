@@ -70,6 +70,11 @@ namespace BL.Services
                 throw new ConflictException($"Incident with id '{IncidentId}' is already documented");
             }
 
+            if (incident.PublicationConsent)
+            {
+                throw new ConflictException($"you can't Modify this incident with id '{IncidentId}', it have been already published");
+            }
+
             incident.LegalTeamMemberId = userId;
 
 
@@ -106,6 +111,11 @@ namespace BL.Services
             if (incident.DocumentationConsent)
             {
                 throw new ConflictException($"Incident with id '{IncidentId}' is already documented");
+            }
+
+            if (incident.PublicationConsent)
+            {
+                throw new ConflictException($"you can't Modify this incident with id '{IncidentId}', it have been already published");
             }
 
             incident.LegalTeamMemberId = null;
@@ -282,6 +292,11 @@ namespace BL.Services
             {
                 throw new ConflictException($"Incident with id '{IncidentId}' has a documentation consent" +
                     $", you can't update it");
+            }
+
+            if (incident.PublicationConsent)
+            {
+                throw new ConflictException($"you can't Modify this incident with id '{IncidentId}', it have been already published");
             }
 
             incident.DetailedDescription = updateIncidentDTO.DetailedDescription ?? incident.DetailedDescription;
@@ -477,6 +492,91 @@ namespace BL.Services
             return _mapper.Map<ReturnGiveDocumentationConsentDTO>(incident);
         }
 
+
+        public async Task RequestModificationAsync(int IncidentId, string userId)
+        {
+            var incident = await _incidentRepo.GetByIdAsync(IncidentId);
+            
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id '{IncidentId}' not found");
+
+            if (!incident.PreventModification)
+            {
+                throw new ConflictException($"Modification request cannot be sent for incident with id '{IncidentId}' " +
+                    $"because it is not locked for modification");
+            }
+
+            if (incident.PublicationConsent)
+            {
+                throw new ConflictException($"you can't Modify this incident with id '{IncidentId}', it has been already published");
+            }
+
+            if (incident.LegalTeamMemberId == null)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is not assigned " +
+                    $"to you, you can't modify it");
+            }
+            else
+            {
+                if (incident.LegalTeamMemberId != userId)
+                {
+                    throw new ForbiddenException($"You are not allowed to request modification for this incident");
+                }
+            }
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"Legal team member with id '{userId}' requested modification for incident with id '{incident.Id}'",
+                MadeById = userId,
+                Type = ActivityType.RequestChange
+            });
+
+            await _activityRepositoy.SaveAsync();
+        }
+
+        public async Task<ReturnGiveDocumentationConsentDTO> AllowModificationAsync(int IncidentId, string userId)
+        {
+            var incident = await _incidentRepo.GetByIdAsync(IncidentId);
+
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id '{IncidentId}' not found");
+
+            if (incident.PreventModification == false)
+            {
+                throw new ConflictException($"Modification on this incident with id '{IncidentId}' was already allowed");
+            }
+
+            if(incident.PublicationConsent)
+            {
+                throw new ConflictException($"you can't Modify this incident with id '{IncidentId}', it has been already published");
+            }
+
+            incident.PreventModification = false;
+            incident.DocumentationConsent = false;
+
+            if (incident.InitialIncidentReportId != null)
+            {
+                var intitialReport = await _initialIncidentReportRepo.GetByIdAsync(incident.InitialIncidentReportId.Value);
+
+                if (intitialReport == null)
+                    throw new ConflictException($"This incident has intial report id '{incident.InitialIncidentReportId.Value}'" +
+                        $", but there is no intial report entity found with this Id");
+
+                intitialReport.Status = InitialIncidentReportStatus.PENDING;
+            }
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"Manager with id '{userId}' allow modification on this incident with id '{incident.Id}'",
+                MadeById = userId,
+                Type = ActivityType.Update,
+
+            });
+
+            await _incidentRepo.SaveAsync();
+
+            return _mapper.Map<ReturnGiveDocumentationConsentDTO>(incident);
+        }
 
     }
 }
