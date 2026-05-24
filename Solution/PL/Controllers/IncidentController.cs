@@ -71,8 +71,8 @@ namespace PL.Controllers
         [Authorize(Roles = RolesSelector.FieldResearcher)]
         [HttpGet("Mine")]
         public async Task<IActionResult> GetFieldReseacherIncidentsByPage([FromQuery] PaginationDTO pageDTO, [FromQuery] string? NationalId,
-            [FromQuery]bool OrderByDateOfOccurence = false, [FromQuery] bool DocumentationConsent = false,
-            [FromQuery] bool PublicationConsent = false)
+            [FromQuery]bool OrderByDateOfOccurence = false, [FromQuery] bool? DocumentationConsent = null,
+            [FromQuery] bool? PublicationConsent = null)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null)
@@ -109,9 +109,10 @@ namespace PL.Controllers
         }
 
         [Authorize(Roles = $"{RolesSelector.LegalTeamMember},{RolesSelector.Manager}")]
-        [HttpGet()]
+        [HttpGet]
         public async Task<IActionResult> GetAllIncidentsByPage([FromQuery] PaginationDTO pageDTO, [FromQuery] int? CityId = null,
-            [FromQuery] bool OrderByDateOfOccurence = false, [FromQuery]bool Approved = false,
+            [FromQuery] bool OrderByDateOfOccurence = false, [FromQuery] bool? DocumentationConsent = null,
+            [FromQuery] bool? PublicationConsent = null,
             [FromQuery] int? Sensitivity = null)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -131,7 +132,7 @@ namespace PL.Controllers
             Console.WriteLine(CityId);
 
             var data = await _incidentService.GetAllIncidentsByPageAsync(pageDTO, CityId, OrderByDateOfOccurence
-                , Approved, Sensitivity);
+                , DocumentationConsent, PublicationConsent, Sensitivity);
 
             return Ok(new
             {
@@ -167,7 +168,7 @@ namespace PL.Controllers
         }
 
 
-        [Authorize(Roles = RolesSelector.FieldResearcher)]
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember}")]
         [HttpGet("{incidentId:int}/Evidences")]
         public async Task<IActionResult> GetEvidencesByIncidentId([FromRoute] int incidentId)
         {
@@ -181,7 +182,7 @@ namespace PL.Controllers
         }
 
 
-        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember}")]
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember},{RolesSelector.LegalTeamMember}")]
         [HttpGet("{incidentId:int}/Testimonies")]
         public async Task<IActionResult> GetTestimoniesAndTheirVictimsByIncidentId([FromRoute] int incidentId)
         {

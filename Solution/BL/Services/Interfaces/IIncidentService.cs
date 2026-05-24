@@ -14,9 +14,9 @@ namespace BL.Services.Interfaces
         public Task<ReturnFullIncidentDTO> AddAsync(AddIncidentDTO incidentDTO);
         public Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetFieldResearcherIncidentsByPageAsync(
             PaginationDTO pageDTO, string userId, string? searchVictimNationalId, bool OrderByDateOfOccurence,
-            bool DocumentationConsent, bool PublicationConsent);
+            bool? DocumentationConsent, bool? PublicationConsent);
         public Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetAllIncidentsByPageAsync(PaginationDTO pageDTO, int? cityId
-            ,bool OrderByDateOfOccurence, bool Approved, int? Sensitivity);
+            ,bool OrderByDateOfOccurence, bool? DocumentationConsent, bool? PublicationConsent, int? Sensitivity);
 
         public Task<List<ReturnEvidenceDTO>> AddRangeOfRelatedEvidences(List<AddEvidenceDTO> evidenceDTOs, int incidentId);
         public Task<List<ReturnEvidenceDTO>> GetEvidencesByIncidentIdAsync(int incidentId);

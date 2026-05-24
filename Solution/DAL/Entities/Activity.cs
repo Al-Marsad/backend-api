@@ -12,7 +12,7 @@ namespace DAL.Entities
         public DateTime CreationDate { get; set; }
         public ActivityType Type { get; set; }
 
-        
+
         [ForeignKey(nameof(MadeBy))]
         public string MadeById { get; set; }
         public AppUser MadeBy { get; set; }

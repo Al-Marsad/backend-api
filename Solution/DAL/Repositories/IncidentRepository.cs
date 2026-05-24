@@ -38,7 +38,7 @@ namespace DAL.Repositories
 
         public async Task<(List<Incident>, int)> GetFieldResearcherIncidentsByPageAsync(int skip, int take, string userId, 
             string? searchVictimNationalId, bool OrderByDateOfOccurence,
-            bool DocumentationConsent, bool PublicationConsent)
+            bool? DocumentationConsent, bool? PublicationConsent)
         {
             if (skip < 0 || take < 0)
                 return (new List<Incident>(), 0);
@@ -53,14 +53,14 @@ namespace DAL.Repositories
                         t.Victim.NationalId == searchVictimNationalId.Trim()));
             }
 
-            if (DocumentationConsent)
+            if (DocumentationConsent != null)
             {
-                query = query.Where(i => i.DocumentationConsent == true);
+                query = query.Where(i => i.DocumentationConsent == DocumentationConsent.Value);
             }
 
-            if (PublicationConsent)
+            if (PublicationConsent != null)
             {
-                query = query.Where(i => i.PublicationConsent == true);
+                query = query.Where(i => i.PublicationConsent == PublicationConsent.Value);
             }
 
             if (OrderByDateOfOccurence)
@@ -81,7 +81,7 @@ namespace DAL.Repositories
         }
 
         public async Task<(List<Incident>, int)> GetAllIncidentsByPageAsync(int skip, int take, int? cityId
-            , bool OrderByDateOfOccurence, bool Approved, int? Sensitivity)
+            , bool OrderByDateOfOccurence, bool? DocumentationConsent, bool? PublicationConsent, int? Sensitivity)
         {
             if (skip < 0 || take < 0)
                 return (new List<Incident>(), 0);
@@ -93,12 +93,16 @@ namespace DAL.Repositories
                 query = query.Where(i => i.CityId == cityId);
             }
 
-            if(Approved)
+            if (DocumentationConsent != null)
             {
-                query = query.Where(i => i.DocumentationConsent == true);
-            } else
+                query = query.Where(i => i.DocumentationConsent == DocumentationConsent.Value);
+
+            }
+
+            if (PublicationConsent != null)
             {
-                query = query.Where(i => i.DocumentationConsent == false);
+                query = query.Where(i => i.PublicationConsent == PublicationConsent.Value);
+
             }
 
             if (Sensitivity != null)

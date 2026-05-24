@@ -8,8 +8,10 @@ namespace DAL.Enums
 {
     public enum ActivityType
     {
+        Other,
         Add,
         Delete,
         Update,
+        RequestChange
     }
 }

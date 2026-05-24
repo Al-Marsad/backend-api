@@ -279,7 +279,7 @@ namespace BL.Services
 
         public async Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetFieldResearcherIncidentsByPageAsync(
          PaginationDTO pageDTO, string userId, string? searchVictimNationalId, bool OrderByDateOfOccurence,
-         bool DocumentationConsent, bool PublicationConsent)
+         bool? DocumentationConsent, bool? PublicationConsent)
         {
             var (incidents, totalItems) = await _incidentRepo.GetFieldResearcherIncidentsByPageAsync((pageDTO.Page - 1) * pageDTO.PageSize,
                 pageDTO.PageSize, userId, searchVictimNationalId, OrderByDateOfOccurence,
@@ -297,7 +297,7 @@ namespace BL.Services
         }
 
         public async Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetAllIncidentsByPageAsync(PaginationDTO pageDTO, int? cityId
-          , bool OrderByDateOfOccurence, bool Approved, int? Sensitivity)
+          , bool OrderByDateOfOccurence, bool? DocumentationConsent, bool? PublicationConsent, int? Sensitivity)
         {
             if(Sensitivity.HasValue && (Sensitivity < 1 || Sensitivity > 10))
             {
@@ -305,7 +305,7 @@ namespace BL.Services
             }
 
             var (incidents, totalItems) = await _incidentRepo.GetAllIncidentsByPageAsync((pageDTO.Page - 1) * pageDTO.PageSize,
-                pageDTO.PageSize, cityId, OrderByDateOfOccurence, Approved, Sensitivity);
+                pageDTO.PageSize, cityId, OrderByDateOfOccurence, DocumentationConsent, PublicationConsent, Sensitivity);
 
             var incidentDTOs = _mapper.Map<List<ReturnIncidentDTO>>(incidents);
 
