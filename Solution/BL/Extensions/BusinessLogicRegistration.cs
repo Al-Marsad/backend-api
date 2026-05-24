@@ -51,6 +51,8 @@ namespace BL.Extensions
             services.AddScoped<IQuestionService, QuestionService>();
             services.AddScoped<ICloudinaryService, CloudinaryService>();
             services.AddScoped<ILegalNoteService, LegalNoteService>();
+            services.AddScoped<IActivityService, ActivityService>();
+
 
 
 

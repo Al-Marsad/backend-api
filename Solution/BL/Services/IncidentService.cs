@@ -8,6 +8,7 @@ using BL.Services.Interfaces;
 using DAL.Entities;
 using DAL.Enums;
 using DAL.Exceptions;
+using DAL.Repositories;
 using DAL.Repositories.Interfaces;
 
 namespace BL.Services
@@ -19,21 +20,22 @@ namespace BL.Services
         private readonly IInitialIncidentReportRepository _initialIncidentReportRepo; 
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
-        //private readonly IAuditLogService _auditLogService; 
+        private readonly IActivityRepositoy _activityRepositoy;
 
         public IncidentService(IIncidentRepository incidentRepo,
             IVictimRepository victimRepo,
             IMapper mapper,
             IInitialIncidentReportRepository initialIncidentReportRepo,
-            ICloudinaryService cloudinaryService)
-            //IAuditLogService auditLogService)
+            ICloudinaryService cloudinaryService,
+            IActivityRepositoy activityRepositoy)
+
         {
             _incidentRepo = incidentRepo;
             _victimRepo = victimRepo;
             _mapper = mapper;
             _initialIncidentReportRepo = initialIncidentReportRepo;
             _cloudinaryService = cloudinaryService;
-            //_auditLogService = auditLogService;
+            _activityRepositoy = activityRepositoy;
         }
 
         public async Task<ReturnIncidentDTO> GetByIdAsync(int Id)
@@ -70,6 +72,15 @@ namespace BL.Services
 
             incident.LegalTeamMemberId = userId;
 
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"User with id '{userId}' assigned themselves to incident with id '{IncidentId}'",
+                MadeById = userId,
+                Type = ActivityType.Update,
+
+            }); 
+
             await _incidentRepo.SaveAsync();
 
             return _mapper.Map<ReturnAssignedIncidentDTO>(incident);
@@ -98,6 +109,15 @@ namespace BL.Services
             }
 
             incident.LegalTeamMemberId = null;
+
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"User with id '{userId}' unassigned themselves from incident with id '{IncidentId}'",
+                MadeById = userId,
+                Type = ActivityType.Update,
+
+            });
 
             await _incidentRepo.SaveAsync();
 
@@ -220,9 +240,17 @@ namespace BL.Services
 
             await _incidentRepo.SaveAsync();
 
-            var fullLoadedIncident = await _incidentRepo.GetFullByIdAsync(incident.Id);
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"User with id '{incidentDTO.FieldResearcherId}' added new incident with id '{incident.Id}'",
+                MadeById = incidentDTO.FieldResearcherId ?? "",
+                Type = ActivityType.Add,
 
-            //_auditLogService.LogAction($"Field Researcher with id '{fullLoadedIncident.FieldResearcherId}' added an incident with id '{fullLoadedIncident.Id}'");
+            });
+
+            await _activityRepositoy.SaveAsync();
+
+            var fullLoadedIncident = await _incidentRepo.GetFullByIdAsync(incident.Id);
 
             return _mapper.Map<ReturnFullIncidentDTO>(fullLoadedIncident);
         }
@@ -271,6 +299,15 @@ namespace BL.Services
                 }
             }
             incident.PreventModification = true;
+
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"User with id '{userId}' updated incident with id '{incident.Id}'",
+                MadeById = userId,
+                Type = ActivityType.Update,
+
+            });
 
             await _incidentRepo.SaveAsync();
 
@@ -426,6 +463,14 @@ namespace BL.Services
 
                 intitialReport.Status = InitialIncidentReportStatus.CLOSED;
             }
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"User with id '{userId}' give incident with id '{incident.Id} a documentation consent'",
+                MadeById = userId,
+                Type = ActivityType.Update,
+
+            });
 
             await _incidentRepo.SaveAsync();
 

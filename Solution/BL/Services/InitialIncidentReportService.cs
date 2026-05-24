@@ -15,14 +15,14 @@ namespace BL.Services
     {
         private readonly IInitialIncidentReportRepository _initialReportRepo;
         private readonly IMapper _mapper;
-        //private readonly IAuditLogService _auditLogService;
+        private readonly IActivityRepositoy _activityRepositoy;
+
         public InitialIncidentReportService(IInitialIncidentReportRepository initialReportRepo,
-            IMapper mapper)
-             //IAuditLogService auditLogService)
+            IMapper mapper, IActivityRepositoy activityRepositoy)
         {
             this._initialReportRepo = initialReportRepo;
             this._mapper = mapper;
-            //this._auditLogService = auditLogService;
+            this._activityRepositoy = activityRepositoy;
         }
         public async Task<ReturnInitialIncidentReportDTO> AddAsync(AddInitialIncidentReportDTO reportDto)
         {
@@ -34,9 +34,15 @@ namespace BL.Services
 
             await _initialReportRepo.AddAsync(reportEntity);
 
-            await _initialReportRepo.SaveAsync();
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"Citizen with id '{reportEntity.CitizenReporterId}' created initial report with id '{reportEntity.Id}'",
+                MadeById = reportEntity.CitizenReporterId,
+                Type = ActivityType.Add,
 
-            //_auditLogService.LogAction($"Citizen with id '{reportEntity.CitizenReporterId}' created an initial report with id '{reportEntity.Id}'");
+            });
+
+            await _initialReportRepo.SaveAsync();
 
             return  _mapper.Map<ReturnInitialIncidentReportDTO>(reportEntity);
         }
@@ -118,10 +124,15 @@ namespace BL.Services
             report.FieldResearcherId = data.FieldResearcherId;
             report.Status = InitialIncidentReportStatus.ASSIGNED;
 
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"Field Researcher with id '{report.FieldResearcherId}' assign an initial report with id '{report.Id}' to them'",
+                MadeById = report.FieldResearcherId ?? "",
+                Type = ActivityType.Update,
+
+            });
+
             await _initialReportRepo.SaveAsync();
-
-            //_auditLogService.LogAction($"Field Researcher with id '{report.FieldResearcherId}' assign an initial report with id '{report.Id}' to them");
-
 
             return _mapper.Map<ReturnInitialIncidentReportDTO>(report);
         }
@@ -148,10 +159,15 @@ namespace BL.Services
             report.FieldResearcherId = null;
             report.Status = InitialIncidentReportStatus.UNASSIGNED;
 
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"Field Researcher with id '{report.FieldResearcherId}' unassign an initial report with id '{report.Id}' to them'",
+                MadeById = report.FieldResearcherId ?? "",
+                Type = ActivityType.Update,
+
+            });
+
             await _initialReportRepo.SaveAsync();
-
-            //_auditLogService.LogAction($"Field Researcher with id '{report.FieldResearcherId}' unassign an initial report with id '{report.Id}' to them");
-
 
             return _mapper.Map<ReturnInitialIncidentReportDTO>(report);
         }

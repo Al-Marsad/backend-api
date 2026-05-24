@@ -10,6 +10,7 @@ using DAL.DBContext;
 using DAL.Entities;
 using DAL.Enums;
 using DAL.Exceptions;
+using DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,16 +22,19 @@ namespace BL.Services
         private readonly AlMarsadDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly DTOBuilder _dtoBuilder;
+        private readonly IActivityRepositoy _activityRepositoy;
 
         public UserService(UserManager<AppUser> userManager,
             IMapper mapper,
             AlMarsadDbContext dbContext,
-             DTOBuilder dtoBuilder)
+             DTOBuilder dtoBuilder,
+             IActivityRepositoy activityRepositoy)
         {
             this._userManager = userManager;
             this._mapper = mapper;
             this._dbContext = dbContext;
             this._dtoBuilder = dtoBuilder;
+            this._activityRepositoy = activityRepositoy;
         }
         public async Task<GetUserPorfileDTO> GetProfileAsync(string userId)
         {
@@ -131,6 +135,14 @@ namespace BL.Services
 
                 await transaction.CommitAsync();
 
+                await _activityRepositoy.AddAsync(new Activity
+                {
+                    Description = $"User with id '{userId}' update information profile of user with id '{user.Id}'",
+                    MadeById = userId,
+                    Type = ActivityType.Update,
+
+                });
+
                 return await _dtoBuilder.BuildUserProfileDTO(user);
             }
             catch
@@ -158,6 +170,7 @@ namespace BL.Services
 
             if (!result.Succeeded)
                 IdentityHandler.HandleIdentityErrors(result);
+  
         }
 
         public async Task ChangeAccountStatus(ChangeAccountStatusDTO statusDTO, string userId)

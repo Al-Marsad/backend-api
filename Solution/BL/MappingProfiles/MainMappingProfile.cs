@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BL.DTO.Activity;
 using BL.DTO.City;
 using BL.DTO.Classification;
 using BL.DTO.Evidence;
@@ -90,11 +91,15 @@ namespace BL.MappingProfiles
             // Incident Evidence Profile
             CreateMap<Evidence, ReturnEvidenceDTO>();
 
+
             //Legal Note Profile
             CreateMap<AddLegalNoteDTO, LegalTeamMemberNote>();
             CreateMap<UpdateLegalNoteDTO, LegalTeamMemberNote>();
             CreateMap<LegalTeamMemberNote, ReturnLegalNoteDTO>();
 
+
+            //Activity Profile
+            CreateMap<Activity, ReturnActivityDTO>();
 
         }
     }
