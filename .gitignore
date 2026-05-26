@@ -23,3 +23,8 @@ appsettings*.json
 
 # Test
 TestProject/
+!Solution/TestProject/
+!Solution/TestProject/**/*.cs
+!Solution/TestProject/*.csproj
+Solution/TestProject/bin/
+Solution/TestProject/obj/
