@@ -51,4 +51,48 @@ public class CityServiceTests
         await Assert.ThrowsAsync<DataNotFoundException>(() => service.DeleteAsync(404));
         repo.Verify(x => x.SaveAsync(), Times.Never);
     }
+
+    [Fact]
+    public async Task CityService_GetAllAsync_ReturnsMappedCities()
+    {
+        var repo = new Mock<ICityRepository>();
+        repo.Setup(x => x.GetAllAsync("ram")).ReturnsAsync(
+        [
+            new City { Id = 1, ArabicName = "Arabic", EnglishName = "Ramallah" }
+        ]);
+        var service = new CityService(repo.Object, TestMapper.Create());
+
+        var result = await service.GetAllAsync("ram");
+
+        Assert.Single(result);
+        Assert.Equal("Ramallah", result[0].EnglishName);
+    }
+
+    [Fact]
+    public async Task CityService_UpdateAsync_WhenCityExists_UpdatesNamesAndSaves()
+    {
+        var city = new City { Id = 1, ArabicName = "Old Arabic", EnglishName = "Old English" };
+        var repo = new Mock<ICityRepository>();
+        repo.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(city);
+        var service = new CityService(repo.Object, TestMapper.Create());
+
+        await service.UpdateAsync(1, new AddCityDTO { ArabicName = "New Arabic", EnglishName = "New English" });
+
+        Assert.Equal("New Arabic", city.ArabicName);
+        Assert.Equal("New English", city.EnglishName);
+        repo.Verify(x => x.Update(city), Times.Once);
+        repo.Verify(x => x.SaveAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task CityService_CountAsync_ReturnsRepositoryCount()
+    {
+        var repo = new Mock<ICityRepository>();
+        repo.Setup(x => x.CountAsync()).ReturnsAsync(4);
+        var service = new CityService(repo.Object, TestMapper.Create());
+
+        var result = await service.CountAsync();
+
+        Assert.Equal(4, result);
+    }
 }
