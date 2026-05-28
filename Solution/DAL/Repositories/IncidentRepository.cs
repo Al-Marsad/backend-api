@@ -38,7 +38,7 @@ namespace DAL.Repositories
 
         public async Task<(List<Incident>, int)> GetIncidentsByPageAndUserIdAsync(int skip, int take, string userId, string role,
             int? cityId, string? searchVictimNationalId, bool OrderByDateOfOccurence,
-            bool? DocumentationConsent, bool? PublicationConsent, int? Sensitivity)
+            bool? DocumentationConsent, bool? PublicationConsent, bool? PreventModification, int? Sensitivity)
         {
             if (skip < 0 || take < 0)
                 return (new List<Incident>(), 0);
@@ -65,6 +65,12 @@ namespace DAL.Repositories
             if (PublicationConsent != null)
             {
                 query = query.Where(i => i.PublicationConsent == PublicationConsent.Value);
+            }
+
+            if (PreventModification != null)
+            {
+                query = query.Where(i => i.PreventModification == PreventModification.Value);
+
             }
 
             if (Sensitivity != null)
@@ -96,8 +102,8 @@ namespace DAL.Repositories
                 .ToListAsync(), count);
         }
 
-        public async Task<(List<Incident>, int)> GetAllIncidentsByPageAsync(int skip, int take, int? cityId
-            , bool OrderByDateOfOccurence, bool? DocumentationConsent, bool? PublicationConsent, int? Sensitivity)
+        public async Task<(List<Incident>, int)> GetAllIncidentsByPageAsync(int skip, int take, int? cityId, string? searchVictimNationalId
+            , bool OrderByDateOfOccurence, bool? DocumentationConsent, bool? PublicationConsent, bool? PreventModification, int? Sensitivity)
         {
             if (skip < 0 || take < 0)
                 return (new List<Incident>(), 0);
@@ -121,9 +127,22 @@ namespace DAL.Repositories
 
             }
 
+            if (PreventModification != null)
+            {
+                query = query.Where(i => i.PreventModification == PreventModification.Value);
+
+            }
+
             if (Sensitivity != null)
             {
                 query = query.Where(i => i.SensitivityScore == Sensitivity);
+            }
+
+            if (!string.IsNullOrEmpty(searchVictimNationalId))
+            {
+                query = query.Where(i =>
+                    i.PersonalVictimTestimonies.Any(t =>
+                        t.Victim.NationalId == searchVictimNationalId.Trim()));
             }
 
             if (OrderByDateOfOccurence)

@@ -331,7 +331,7 @@ namespace BL.Services
 
         public async Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetIncidentsByPageAndUserIdAsync(
          PaginationDTO pageDTO, CurrentUser user, int? cityId, string? searchVictimNationalId, bool OrderByDateOfOccurence,
-         bool? DocumentationConsent, bool? PublicationConsent, int? Sensitivity)
+         bool? DocumentationConsent, bool? PublicationConsent, bool? PreventModification, int? Sensitivity)
         {
             if (Sensitivity.HasValue && (Sensitivity < 1 || Sensitivity > 10))
             {
@@ -340,7 +340,7 @@ namespace BL.Services
 
             var (incidents, totalItems) = await _incidentRepo.GetIncidentsByPageAndUserIdAsync((pageDTO.Page - 1) * pageDTO.PageSize,
                 pageDTO.PageSize, user.UserId, user.Role, cityId, searchVictimNationalId, OrderByDateOfOccurence,
-                DocumentationConsent,PublicationConsent, Sensitivity);
+                DocumentationConsent,PublicationConsent, PreventModification, Sensitivity);
 
             var incidentDTOs = _mapper.Map<List<ReturnIncidentDTO>>(incidents);
 
@@ -354,7 +354,8 @@ namespace BL.Services
         }
 
         public async Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetAllIncidentsByPageAsync(PaginationDTO pageDTO, int? cityId
-          , bool OrderByDateOfOccurence, bool? DocumentationConsent, bool? PublicationConsent, int? Sensitivity)
+          , string? searchVictimNationalId, bool OrderByDateOfOccurence, bool? DocumentationConsent, bool? PublicationConsent, 
+            bool? PreventModification, int? Sensitivity)
         {
             if(Sensitivity.HasValue && (Sensitivity < 1 || Sensitivity > 10))
             {
@@ -362,7 +363,8 @@ namespace BL.Services
             }
 
             var (incidents, totalItems) = await _incidentRepo.GetAllIncidentsByPageAsync((pageDTO.Page - 1) * pageDTO.PageSize,
-                pageDTO.PageSize, cityId, OrderByDateOfOccurence, DocumentationConsent, PublicationConsent, Sensitivity);
+                pageDTO.PageSize, cityId, searchVictimNationalId, OrderByDateOfOccurence, DocumentationConsent, PublicationConsent, 
+                PreventModification, Sensitivity);
 
             var incidentDTOs = _mapper.Map<List<ReturnIncidentDTO>>(incidents);
 

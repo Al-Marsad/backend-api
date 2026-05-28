@@ -71,8 +71,8 @@ namespace PL.Controllers
         [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember}")]
         [HttpGet("Mine")]
         public async Task<IActionResult> GetIncidentsByPageByUser([FromQuery] PaginationDTO pageDTO, [FromQuery]int? CityId 
-            ,[FromQuery] string? NationalId, [FromQuery]bool OrderByDateOfOccurence = false, [FromQuery] bool? DocumentationConsent = null,
-            [FromQuery] bool? PublicationConsent = null, [FromQuery]int? Sensitivity = null)
+            ,[FromQuery] string? NationalId = null, [FromQuery]bool OrderByDateOfOccurence = false, [FromQuery] bool? DocumentationConsent = null,
+            [FromQuery] bool? PublicationConsent = null, [FromQuery] bool? PreventModification = null, [FromQuery]int? Sensitivity = null)
         {
             var currentUser = new CurrentUser
             {
@@ -97,7 +97,7 @@ namespace PL.Controllers
             }
 
             var data = await _incidentService.GetIncidentsByPageAndUserIdAsync(pageDTO, currentUser, CityId, NationalId, OrderByDateOfOccurence
-                , DocumentationConsent, PublicationConsent, Sensitivity);
+                , DocumentationConsent, PublicationConsent, PreventModification, Sensitivity);
 
             return Ok(new
             {
@@ -120,15 +120,15 @@ namespace PL.Controllers
         [Authorize(Roles = $"{RolesSelector.LegalTeamMember},{RolesSelector.Manager}")]
         [HttpGet]
         public async Task<IActionResult> GetAllIncidentsByPage([FromQuery] PaginationDTO pageDTO, [FromQuery] int? CityId = null,
-            [FromQuery] bool OrderByDateOfOccurence = false, [FromQuery] bool? DocumentationConsent = null,
+            [FromQuery] string? NationalId = null, [FromQuery] bool OrderByDateOfOccurence = false, [FromQuery] bool? DocumentationConsent = null,
             [FromQuery] bool? PublicationConsent = null,
-            [FromQuery] int? Sensitivity = null)
+            [FromQuery] bool? PreventModification = null, [FromQuery]int? Sensitivity = null)
         {
             CityId ??= Convert.ToInt32(User.FindFirstValue("CityId"));
             Console.WriteLine(CityId);
 
-            var data = await _incidentService.GetAllIncidentsByPageAsync(pageDTO, CityId, OrderByDateOfOccurence
-                , DocumentationConsent, PublicationConsent, Sensitivity);
+            var data = await _incidentService.GetAllIncidentsByPageAsync(pageDTO, CityId,NationalId, OrderByDateOfOccurence
+                , DocumentationConsent, PublicationConsent,PreventModification, Sensitivity);
 
             return Ok(new
             {
