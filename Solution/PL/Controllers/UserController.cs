@@ -90,23 +90,32 @@ namespace PL.Controllers
         }
 
         [Authorize(Roles = RolesSelector.Admin)]
-        [HttpPut("{userId}")]
+        [HttpPut("{userId:required}")]
         public async Task<IActionResult> UpdateFullUserAccount(string userId, UpdateFullUserAccountDTO userDTO)
         {
-            if (string.IsNullOrWhiteSpace(userId))
+            var currentUser = new CurrentUser
             {
-                return BadRequest(new
+                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                Role = User.FindFirstValue(ClaimTypes.Role),
+                CityId = User.FindFirstValue("CityId")
+            };
+
+            if (currentUser.UserId == null ||
+                currentUser.CityId == null ||
+                currentUser.Role == null)
+            {
+                return Unauthorized(new
                 {
                     Success = false,
                     Error = new
                     {
-                        Code = "BAD_REQUEST",
-                        Message = "User ID is required in the route."
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
                     }
                 });
             }
 
-            var data = await _userService.AdminUpdateUserAsync(userDTO, userId);
+            var data = await _userService.AdminUpdateUserAsync(userDTO, userId, currentUser);
 
             return Ok(new
             {
@@ -144,23 +153,32 @@ namespace PL.Controllers
         }
 
         [Authorize(Roles = RolesSelector.Admin)]
-        [HttpPatch("AccountStatus/{userId}")]
+        [HttpPatch("AccountStatus/{userId:required}")]
         public async Task<IActionResult> ChangeAccountStatus(string userId, ChangeAccountStatusDTO StatusDTO)
         {
-            if (string.IsNullOrWhiteSpace(userId))
+            var currentUser = new CurrentUser
             {
-                return BadRequest(new
+                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                Role = User.FindFirstValue(ClaimTypes.Role),
+                CityId = User.FindFirstValue("CityId")
+            };
+
+            if (currentUser.UserId == null ||
+                currentUser.CityId == null ||
+                currentUser.Role == null)
+            {
+                return Unauthorized(new
                 {
                     Success = false,
                     Error = new
                     {
-                        Code = "BAD_REQUEST",
-                        Message = "User ID is required in the route."
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
                     }
                 });
             }
 
-            await _userService.ChangeAccountStatus(StatusDTO, userId);
+            await _userService.ChangeAccountStatus(StatusDTO, userId, currentUser);
 
             return Ok(new
             {

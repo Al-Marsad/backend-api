@@ -307,6 +307,34 @@ namespace PL.Controllers
             });
         }
 
+        [Authorize(Roles = RolesSelector.Manager)]
+        [HttpPatch("{Id:int}/GivePublicationConsent")]
+        public async Task<IActionResult> GivePublicationConsent([FromRoute] int Id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _incidentService.GivePublicationConsentAsync(Id, userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Incident had publication consent successfully",
+                Data = data
+            });
+        }
+
         [Authorize(Roles = $"{RolesSelector.LegalTeamMember},{RolesSelector.Manager}")]
         [HttpGet("{IncidentId:int}/LegalNote")]
         public async Task<IActionResult> GetLegalNoteForIncident([FromRoute] int IncidentId)

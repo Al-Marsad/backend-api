@@ -58,7 +58,7 @@ namespace BL.MappingProfiles
             CreateMap<Incident, ReturnIncidentDTO>();
             CreateMap<Incident, ReturnAssignedIncidentDTO>();
             CreateMap<Incident, ReturnUpdatedIncidentDTO>();
-            CreateMap<Incident, ReturnGiveDocumentationConsentDTO>()
+            CreateMap<Incident, ReturnGiveConsentDTO>()
                 .ForMember(dest => dest.IncidentId, opt => opt.MapFrom(src => src.Id));
 
 

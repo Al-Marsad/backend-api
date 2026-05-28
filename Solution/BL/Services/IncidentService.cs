@@ -80,7 +80,7 @@ namespace BL.Services
 
             await _activityRepositoy.AddAsync(new Activity
             {
-                Description = $"User with id '{userId}' assigned themselves to incident with id '{IncidentId}'",
+                Description = $"Legal team member with id '{userId}' assigned themselves to incident with id '{IncidentId}'",
                 MadeById = userId,
                 Type = ActivityType.Update,
 
@@ -123,7 +123,7 @@ namespace BL.Services
 
             await _activityRepositoy.AddAsync(new Activity
             {
-                Description = $"User with id '{userId}' unassigned themselves from incident with id '{IncidentId}'",
+                Description = $"Legal team member with id '{userId}' unassigned themselves from incident with id '{IncidentId}'",
                 MadeById = userId,
                 Type = ActivityType.Update,
 
@@ -252,7 +252,7 @@ namespace BL.Services
 
             await _activityRepositoy.AddAsync(new Activity
             {
-                Description = $"User with id '{incidentDTO.FieldResearcherId}' added new incident with id '{incident.Id}'",
+                Description = $"Field researcher with id '{incidentDTO.FieldResearcherId}' added new incident with id '{incident.Id}'",
                 MadeById = incidentDTO.FieldResearcherId ?? "",
                 Type = ActivityType.Add,
 
@@ -318,7 +318,7 @@ namespace BL.Services
 
             await _activityRepositoy.AddAsync(new Activity
             {
-                Description = $"User with id '{userId}' updated incident with id '{incident.Id}'",
+                Description = $"Legal team member with id '{userId}' updated incident with id '{incident.Id}'",
                 MadeById = userId,
                 Type = ActivityType.Update,
 
@@ -446,7 +446,7 @@ namespace BL.Services
             return _mapper.Map<List<ReturnVictimTestimonieDTO>>(testimonies);
         }
 
-        public async Task<ReturnGiveDocumentationConsentDTO> GiveDocumentationConsentAsync(int IncidentId, string userId)
+        public async Task<ReturnGiveConsentDTO> GiveDocumentationConsentAsync(int IncidentId, string userId)
         {
             var incident = await _incidentRepo.GetByIdAsync(IncidentId);
 
@@ -488,7 +488,7 @@ namespace BL.Services
 
             await _activityRepositoy.AddAsync(new Activity
             {
-                Description = $"User with id '{userId}' give incident with id '{incident.Id} a documentation consent'",
+                Description = $"Legal team member with id '{userId}' give incident with id '{incident.Id} a documentation consent'",
                 MadeById = userId,
                 Type = ActivityType.Update,
 
@@ -496,7 +496,53 @@ namespace BL.Services
 
             await _incidentRepo.SaveAsync();
 
-            return _mapper.Map<ReturnGiveDocumentationConsentDTO>(incident);
+            return _mapper.Map<ReturnGiveConsentDTO>(incident);
+        }
+
+        public async Task<ReturnGiveConsentDTO> GivePublicationConsentAsync(int IncidentId, string userId)
+        {
+            var incident = await _incidentRepo.GetByIdAsync(IncidentId);
+
+            if (incident == null)
+                throw new DataNotFoundException($"Incident with id '{IncidentId}' not found");
+
+            if (incident.PublicationConsent)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' has a publication consent" +
+                    $"already");
+            }
+
+            if (!incident.DocumentationConsent)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' does not have a documentation consent" +
+                    $"yet");
+            }
+
+            if (!incident.PreventModification)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is not modification prevented, " +
+                    $"there is a problem in the system consistency");
+            }
+
+            if (incident.LegalTeamMemberId == null)
+            {
+                throw new ConflictException($"Incident with id '{IncidentId}' is not assigned " +
+                    $"to a legal team member, there is a problem in the system consistency");
+            }
+
+            incident.PublicationConsent = true;
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"Manager with id '{userId}' give incident with id '{incident.Id}' a publication consent",
+                MadeById = userId,
+                Type = ActivityType.Update,
+
+            });
+
+            await _incidentRepo.SaveAsync();
+
+            return _mapper.Map<ReturnGiveConsentDTO>(incident);
         }
 
 
@@ -541,7 +587,7 @@ namespace BL.Services
             await _activityRepositoy.SaveAsync();
         }
 
-        public async Task<ReturnGiveDocumentationConsentDTO> AllowModificationAsync(int IncidentId, string userId)
+        public async Task<ReturnGiveConsentDTO> AllowModificationAsync(int IncidentId, string userId)
         {
             var incident = await _incidentRepo.GetByIdAsync(IncidentId);
 
@@ -582,7 +628,7 @@ namespace BL.Services
 
             await _incidentRepo.SaveAsync();
 
-            return _mapper.Map<ReturnGiveDocumentationConsentDTO>(incident);
+            return _mapper.Map<ReturnGiveConsentDTO>(incident);
         }
 
     }

@@ -29,10 +29,12 @@ namespace BL.Services.Interfaces
         public Task<ReturnAssignedIncidentDTO> UnassignToLegalTeamMember(string userId, int IncidentId);
 
         public Task<ReturnUpdatedIncidentDTO> UpdateIncident(UpdateIncidentDTO updateIncidentDTO, int IncidentId, string userId);
-        public Task<ReturnGiveDocumentationConsentDTO> GiveDocumentationConsentAsync(int IncidentId, string userId);
+        public Task<ReturnGiveConsentDTO> GiveDocumentationConsentAsync(int IncidentId, string userId);
+        public Task<ReturnGiveConsentDTO> GivePublicationConsentAsync(int IncidentId, string userId);
+
         public Task RequestModificationAsync(int IncidentId, string userId);
 
-        public Task<ReturnGiveDocumentationConsentDTO> AllowModificationAsync(int IncidentId, string userId);
+        public Task<ReturnGiveConsentDTO> AllowModificationAsync(int IncidentId, string userId);
 
     }
 }
