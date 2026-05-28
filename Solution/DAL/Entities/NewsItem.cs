@@ -13,10 +13,11 @@ namespace DAL.Entities
         public int Id { get; set; }
         public string Title { get; set; }
         public string Body { get; set; }
-        public DateTime PublishDate { get; set; }
+        public DateTime? PublishDate { get; set; }
         public DateTime WritingDate { get; set; } = DateTime.UtcNow;
         public string Summary { get; set; }
-        public bool IsPublished { get; set; }
+        public string ImageUrl { get; set; }
+        public bool IsPublished { get; set; } = false;
 
 
         [ForeignKey(nameof(WrittenBy))]

@@ -49,6 +49,7 @@ namespace DAL.Extensions
             services.AddScoped<IQuestionRepository, QuestionRepository>();
             services.AddScoped<ILegalNotesRepository, LegalNotesRepository>();
             services.AddScoped<IActivityRepositoy, ActivityRepository>();
+            services.AddScoped<INewsItemRepository, NewsItemRepository>();
 
 
             return services;

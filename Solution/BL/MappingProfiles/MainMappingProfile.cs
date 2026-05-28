@@ -7,6 +7,7 @@ using BL.DTO.Incident;
 using BL.DTO.InitialIncidentReport;
 using BL.DTO.LegalNote;
 using BL.DTO.Log;
+using BL.DTO.News;
 using BL.DTO.Question;
 using BL.DTO.User;
 using BL.DTO.Victim;
@@ -96,6 +97,24 @@ namespace BL.MappingProfiles
             CreateMap<AddLegalNoteDTO, LegalTeamMemberNote>();
             CreateMap<UpdateLegalNoteDTO, LegalTeamMemberNote>();
             CreateMap<LegalTeamMemberNote, ReturnLegalNoteDTO>();
+
+            //News Item Profile
+            CreateMap<AddNewsItemDTO, NewsItem>();
+            CreateMap<NewsItem, ReturnNewsItemDTO>()
+                .ForMember(dest => dest.WrittenByName, opt => opt.MapFrom(src =>
+                    src.WrittenBy.FirstName + " " + src.WrittenBy.LastName))
+                .ForMember(dest => dest.IncidentLocation, opt => opt.MapFrom(src => src.Incident));
+            CreateMap<NewsItem, ReturnAbbreviatedNewsItemDTO>()
+                .ForMember(dest => dest.CityId, opt => opt.MapFrom(src => src.Incident.CityId));
+            CreateMap<NewsItem, ReturnNewsMapPointDTO>()
+                .ForMember(dest => dest.NewsId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.CityId, opt => opt.MapFrom(src => src.Incident.CityId))
+                .ForMember(dest => dest.LocationLat, opt => opt.MapFrom(src => src.Incident.LocationLat))
+                .ForMember(dest => dest.LocationLng, opt => opt.MapFrom(src => src.Incident.LocationLng));
+            CreateMap<Incident, ReturnNewsIncidentLocationDTO>()
+                .ForMember(dest => dest.IncidentId, opt => opt.MapFrom(src => src.Id));
+            CreateMap<NewsItem, ReturnUpdatedNewsItemDTO>();
+            CreateMap<NewsItem, ReturnTinyNewsItemDTO>();
 
 
             //Activity Profile
