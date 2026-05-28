@@ -47,6 +47,20 @@ namespace PL.Controllers
             });
         }
 
+
+        [Authorize(Roles = RolesSelector.Manager)]
+        [HttpGet("Profile/{userId:required}")]
+        public async Task<IActionResult> GetProfileByManager(string userId)
+        {
+            var data = await _userService.GetProfileAsync(userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
+
         [Authorize]
         [HttpPut("Profile")]
         public async Task<IActionResult> UpdateProfile(UpdateUserProfileDTO profileDTO)
@@ -76,23 +90,32 @@ namespace PL.Controllers
         }
 
         [Authorize(Roles = RolesSelector.Admin)]
-        [HttpPut("{userId}")]
+        [HttpPut("{userId:required}")]
         public async Task<IActionResult> UpdateFullUserAccount(string userId, UpdateFullUserAccountDTO userDTO)
         {
-            if (string.IsNullOrWhiteSpace(userId))
+            var currentUser = new CurrentUser
             {
-                return BadRequest(new
+                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                Role = User.FindFirstValue(ClaimTypes.Role),
+                CityId = User.FindFirstValue("CityId")
+            };
+
+            if (currentUser.UserId == null ||
+                currentUser.CityId == null ||
+                currentUser.Role == null)
+            {
+                return Unauthorized(new
                 {
                     Success = false,
                     Error = new
                     {
-                        Code = "BAD_REQUEST",
-                        Message = "User ID is required in the route."
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
                     }
                 });
             }
 
-            var data = await _userService.AdminUpdateUserAsync(userDTO, userId);
+            var data = await _userService.AdminUpdateUserAsync(userDTO, userId, currentUser);
 
             return Ok(new
             {
@@ -130,7 +153,7 @@ namespace PL.Controllers
         }
 
         [Authorize(Roles = RolesSelector.Admin)]
-        [HttpPatch("AccountStatus/{userId}")]
+        [HttpPatch("AccountStatus/{userId:required}")]
         public async Task<IActionResult> ChangeAccountStatus(string userId, ChangeAccountStatusDTO StatusDTO)
         {
             if (string.IsNullOrWhiteSpace(userId))
@@ -141,12 +164,34 @@ namespace PL.Controllers
                     Error = new
                     {
                         Code = "BAD_REQUEST",
-                        Message = "User ID is required in the route."
+                        Message = "User id is required"
                     }
                 });
             }
 
-            await _userService.ChangeAccountStatus(StatusDTO, userId);
+            var currentUser = new CurrentUser
+            {
+                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                Role = User.FindFirstValue(ClaimTypes.Role),
+                CityId = User.FindFirstValue("CityId")
+            };
+
+            if (currentUser.UserId == null ||
+                currentUser.CityId == null ||
+                currentUser.Role == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            await _userService.ChangeAccountStatus(StatusDTO, userId, currentUser);
 
             return Ok(new
             {

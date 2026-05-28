@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BL.DTO.Incident
 {
-    public class ReturnGiveDocumentationConsentDTO
+    public class ReturnGiveConsentDTO
     {
         public int IncidentId { get; set; }
         public bool DocumentationConsent { get; set; }

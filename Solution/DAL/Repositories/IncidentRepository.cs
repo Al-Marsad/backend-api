@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using DAL.DBContext;
 using DAL.Entities;
+using DAL.Enums;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -36,21 +37,25 @@ namespace DAL.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<(List<Incident>, int)> GetFieldResearcherIncidentsByPageAsync(int skip, int take, string userId, 
-            string? searchVictimNationalId, bool OrderByDateOfOccurence,
-            bool? DocumentationConsent, bool? PublicationConsent)
+        public async Task<(List<Incident>, int)> GetIncidentsByPageAndUserIdAsync(int skip, int take, string userId, string role,
+            int? cityId, string? searchVictimNationalId, bool OrderByDateOfOccurence,
+            bool? DocumentationConsent, bool? PublicationConsent, bool? PreventModification, int? Sensitivity)
         {
             if (skip < 0 || take < 0)
                 return (new List<Incident>(), 0);
 
-            var query = _dbContext.Incidents
-                .Where(i => i.FieldResearcherId == userId);
-
-            if (!string.IsNullOrEmpty(searchVictimNationalId))
+            var query = _dbContext.Incidents.AsQueryable();
+            
+            if (role == "FIELD_RESEARCHER") {
+                    query = query.Where(i => i.FieldResearcherId == userId); 
+            } else if (role == "LEGAL_TEAM_MEMBER")
             {
-                query = query.Where(i =>
-                    i.PersonalVictimTestimonies.Any(t =>
-                        t.Victim.NationalId == searchVictimNationalId.Trim()));
+                query = query.Where(i => i.LegalTeamMemberId == userId);
+            }
+
+            if (cityId != null)
+            {
+                query = query.Where(i => i.CityId == cityId);
             }
 
             if (DocumentationConsent != null)
@@ -61,6 +66,24 @@ namespace DAL.Repositories
             if (PublicationConsent != null)
             {
                 query = query.Where(i => i.PublicationConsent == PublicationConsent.Value);
+            }
+
+            if (PreventModification != null)
+            {
+                query = query.Where(i => i.PreventModification == PreventModification.Value);
+
+            }
+
+            if (Sensitivity != null)
+            {
+                query = query.Where(i => i.SensitivityScore == Sensitivity);
+            }
+
+            if (!string.IsNullOrEmpty(searchVictimNationalId))
+            {
+                query = query.Where(i =>
+                    i.PersonalVictimTestimonies.Any(t =>
+                        t.Victim.NationalId == searchVictimNationalId.Trim()));
             }
 
             if (OrderByDateOfOccurence)
@@ -80,8 +103,8 @@ namespace DAL.Repositories
                 .ToListAsync(), count);
         }
 
-        public async Task<(List<Incident>, int)> GetAllIncidentsByPageAsync(int skip, int take, int? cityId
-            , bool OrderByDateOfOccurence, bool? DocumentationConsent, bool? PublicationConsent, int? Sensitivity)
+        public async Task<(List<Incident>, int)> GetAllIncidentsByPageAsync(int skip, int take, int? cityId, string? searchVictimNationalId
+            , bool OrderByDateOfOccurence, bool? DocumentationConsent, bool? PublicationConsent, bool? PreventModification, int? Sensitivity)
         {
             if (skip < 0 || take < 0)
                 return (new List<Incident>(), 0);
@@ -105,9 +128,22 @@ namespace DAL.Repositories
 
             }
 
+            if (PreventModification != null)
+            {
+                query = query.Where(i => i.PreventModification == PreventModification.Value);
+
+            }
+
             if (Sensitivity != null)
             {
                 query = query.Where(i => i.SensitivityScore == Sensitivity);
+            }
+
+            if (!string.IsNullOrEmpty(searchVictimNationalId))
+            {
+                query = query.Where(i =>
+                    i.PersonalVictimTestimonies.Any(t =>
+                        t.Victim.NationalId == searchVictimNationalId.Trim()));
             }
 
             if (OrderByDateOfOccurence)
@@ -186,9 +222,16 @@ namespace DAL.Repositories
             await _dbContext.Evidences.AddRangeAsync(evidences);
         }
 
-        public async Task<List<Evidence>> GetEvidencesByIncidentIdAsync(int incidentId)
+        public async Task<List<Evidence>> GetEvidencesByIncidentIdAsync(int incidentId, EvidenceType? type)
         {
-            return await _dbContext.Evidences.Where(e => e.IncidentId == incidentId).ToListAsync();
+            var query = _dbContext.Evidences.Where(e => e.IncidentId == incidentId);
+            
+            if (type != null)
+            {
+                query = query.Where(e => e.Type == type.Value);
+            }
+            
+            return await query.ToListAsync();
         }
 
         public async Task<List<PersonalVictimTestimonie>> GetTestimoniesAndTheirVictimsByIncidentIdAsync(int incidentId)

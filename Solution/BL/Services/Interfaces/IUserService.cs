@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using BL.DTO.General;
 using BL.DTO.InitialIncidentReport;
 using BL.DTO.User;
+using BL.Helper;
 
 namespace BL.Services.Interfaces
 {
@@ -13,11 +14,11 @@ namespace BL.Services.Interfaces
     {
         public Task<GetUserPorfileDTO> GetProfileAsync(string userId);
         public Task<GetUserPorfileDTO> UpdateProfileAsync(UpdateUserProfileDTO profileDTO, string userId);
-        public Task<GetUserPorfileDTO> AdminUpdateUserAsync(UpdateFullUserAccountDTO dto, string userId);
+        public Task<GetUserPorfileDTO> AdminUpdateUserAsync(UpdateFullUserAccountDTO dto, string userId, CurrentUser user);
         public Task<PagedResultDTO<List<GetUserPorfileDTO>>> GetUsersByPageAsync(PaginationDTO pageDTO,
             UserNamesSearchDTO searchDTO, string? excludedUserId = null);
         public Task ChangePasswordAsync(ChangePasswordDTO passwordDTO, string userId);
-        public Task ChangeAccountStatus(ChangeAccountStatusDTO statusDTO, string userId);
+        public Task ChangeAccountStatus(ChangeAccountStatusDTO statusDTO, string userId, CurrentUser currentUser);
         public List<StatusValuesDTO> GetAccountStatusValues();
 
         public Task<UserCountsDTO> GetUserCountsAsync();

@@ -73,7 +73,7 @@ namespace BL.Services
             return await _dtoBuilder.BuildUserProfileDTO(user);
         }
 
-        public async Task<GetUserPorfileDTO> AdminUpdateUserAsync(UpdateFullUserAccountDTO dto, string userId)
+        public async Task<GetUserPorfileDTO> AdminUpdateUserAsync(UpdateFullUserAccountDTO dto, string userId, CurrentUser currentUser)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
@@ -137,11 +137,13 @@ namespace BL.Services
 
                 await _activityRepositoy.AddAsync(new Activity
                 {
-                    Description = $"User with id '{userId}' update information profile of user with id '{user.Id}'",
-                    MadeById = userId,
+                    Description = $"Admin with id '{currentUser.UserId}' update information profile of user with id '{user.Id}'",
+                    MadeById = currentUser.UserId,
                     Type = ActivityType.Update,
 
                 });
+
+                await _activityRepositoy.SaveAsync();
 
                 return await _dtoBuilder.BuildUserProfileDTO(user);
             }
@@ -173,7 +175,7 @@ namespace BL.Services
   
         }
 
-        public async Task ChangeAccountStatus(ChangeAccountStatusDTO statusDTO, string userId)
+        public async Task ChangeAccountStatus(ChangeAccountStatusDTO statusDTO, string userId, CurrentUser currentUser)
         {
 
             if (statusDTO.Status.HasValue && !Enum.IsDefined(typeof(AccountStatus), statusDTO.Status.Value))
@@ -188,6 +190,16 @@ namespace BL.Services
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
                 IdentityHandler.HandleIdentityErrors(result);
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"Admin with id '{currentUser.UserId}' change account status of user with id '{user.Id}'",
+                MadeById = currentUser.UserId,
+                Type = ActivityType.Update,
+
+            });
+
+            await _activityRepositoy.SaveAsync();
         }
 
         public async Task<PagedResultDTO<List<GetUserPorfileDTO>>> GetUsersByPageAsync(PaginationDTO pageDTO, 

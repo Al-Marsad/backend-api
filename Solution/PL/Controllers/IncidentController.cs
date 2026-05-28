@@ -6,6 +6,7 @@ using BL.DTO.InitialIncidentReport;
 using BL.Helper;
 using BL.Services.Interfaces;
 using DAL.Entities;
+using DAL.Enums;
 using DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -68,14 +69,22 @@ namespace PL.Controllers
             });
         }
 
-        [Authorize(Roles = RolesSelector.FieldResearcher)]
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember}")]
         [HttpGet("Mine")]
-        public async Task<IActionResult> GetFieldReseacherIncidentsByPage([FromQuery] PaginationDTO pageDTO, [FromQuery] string? NationalId,
-            [FromQuery]bool OrderByDateOfOccurence = false, [FromQuery] bool? DocumentationConsent = null,
-            [FromQuery] bool? PublicationConsent = null)
+        public async Task<IActionResult> GetIncidentsByPageByUser([FromQuery] PaginationDTO pageDTO, [FromQuery]int? CityId 
+            ,[FromQuery] string? NationalId = null, [FromQuery]bool OrderByDateOfOccurence = false, [FromQuery] bool? DocumentationConsent = null,
+            [FromQuery] bool? PublicationConsent = null, [FromQuery] bool? PreventModification = null, [FromQuery]int? Sensitivity = null)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
+            var currentUser = new CurrentUser
+            {
+                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                Role = User.FindFirstValue(ClaimTypes.Role),
+                CityId = User.FindFirstValue("CityId")
+            };
+
+            if (currentUser.UserId == null ||
+                currentUser.CityId == null ||
+                currentUser.Role == null)
             {
                 return Unauthorized(new
                 {
@@ -88,8 +97,8 @@ namespace PL.Controllers
                 });
             }
 
-            var data = await _incidentService.GetFieldResearcherIncidentsByPageAsync(pageDTO, userId, NationalId, OrderByDateOfOccurence
-                , DocumentationConsent, PublicationConsent);
+            var data = await _incidentService.GetIncidentsByPageAndUserIdAsync(pageDTO, currentUser, CityId, NationalId, OrderByDateOfOccurence
+                , DocumentationConsent, PublicationConsent, PreventModification, Sensitivity);
 
             return Ok(new
             {
@@ -108,31 +117,19 @@ namespace PL.Controllers
             });
         }
 
+
         [Authorize(Roles = $"{RolesSelector.LegalTeamMember},{RolesSelector.Manager}")]
         [HttpGet]
         public async Task<IActionResult> GetAllIncidentsByPage([FromQuery] PaginationDTO pageDTO, [FromQuery] int? CityId = null,
-            [FromQuery] bool OrderByDateOfOccurence = false, [FromQuery] bool? DocumentationConsent = null,
+            [FromQuery] string? NationalId = null, [FromQuery] bool OrderByDateOfOccurence = false, [FromQuery] bool? DocumentationConsent = null,
             [FromQuery] bool? PublicationConsent = null,
-            [FromQuery] int? Sensitivity = null)
+            [FromQuery] bool? PreventModification = null, [FromQuery]int? Sensitivity = null)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-            {
-                return Unauthorized(new
-                {
-                    Success = false,
-                    Error = new
-                    {
-                        Code = "UNAUTHORIZED",
-                        Message = "JWT missing or expired !!"
-                    }
-                });
-            }
             CityId ??= Convert.ToInt32(User.FindFirstValue("CityId"));
             Console.WriteLine(CityId);
 
-            var data = await _incidentService.GetAllIncidentsByPageAsync(pageDTO, CityId, OrderByDateOfOccurence
-                , DocumentationConsent, PublicationConsent, Sensitivity);
+            var data = await _incidentService.GetAllIncidentsByPageAsync(pageDTO, CityId,NationalId, OrderByDateOfOccurence
+                , DocumentationConsent, PublicationConsent,PreventModification, Sensitivity);
 
             return Ok(new
             {
@@ -168,11 +165,11 @@ namespace PL.Controllers
         }
 
 
-        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember}")]
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember},{RolesSelector.Manager}")]
         [HttpGet("{incidentId:int}/Evidences")]
-        public async Task<IActionResult> GetEvidencesByIncidentId([FromRoute] int incidentId)
+        public async Task<IActionResult> GetEvidencesByIncidentId([FromRoute] int incidentId, [FromQuery]EvidenceType? Type = null)
         {
-            var data = await _incidentService.GetEvidencesByIncidentIdAsync(incidentId);
+            var data = await _incidentService.GetEvidencesByIncidentIdAsync(incidentId, Type);
             
             return Ok(new
             {
@@ -182,7 +179,7 @@ namespace PL.Controllers
         }
 
 
-        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember},{RolesSelector.LegalTeamMember}")]
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember},{RolesSelector.Manager}")]
         [HttpGet("{incidentId:int}/Testimonies")]
         public async Task<IActionResult> GetTestimoniesAndTheirVictimsByIncidentId([FromRoute] int incidentId)
         {
@@ -307,6 +304,34 @@ namespace PL.Controllers
             {
                 Success = true,
                 Message = "Incident had documentation consent successfully",
+                Data = data
+            });
+        }
+
+        [Authorize(Roles = RolesSelector.Manager)]
+        [HttpPatch("{Id:int}/GivePublicationConsent")]
+        public async Task<IActionResult> GivePublicationConsent([FromRoute] int Id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _incidentService.GivePublicationConsentAsync(Id, userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Incident had publication consent successfully",
                 Data = data
             });
         }

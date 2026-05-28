@@ -3,6 +3,7 @@ using System;
 using DAL.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DAL.Migrations
 {
     [DbContext(typeof(AlMarsadDbContext))]
-    partial class AlMarsadDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260528090312_update news table")]
+    partial class updatenewstable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -617,11 +620,6 @@ namespace DAL.Migrations
                         .HasColumnType("text")
                         .HasColumnName("body");
 
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("image_url");
-
                     b.Property<int>("IncidentId")
                         .HasColumnType("integer")
                         .HasColumnName("incident_id");
@@ -630,7 +628,7 @@ namespace DAL.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_published");
 
-                    b.Property<DateTime?>("PublishDate")
+                    b.Property<DateTime>("PublishDate")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("publish_date");
 
