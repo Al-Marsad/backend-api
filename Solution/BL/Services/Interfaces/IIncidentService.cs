@@ -12,9 +12,9 @@ namespace BL.Services.Interfaces
     public interface IIncidentService
     {
         public Task<ReturnFullIncidentDTO> AddAsync(AddIncidentDTO incidentDTO);
-        public Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetFieldResearcherIncidentsByPageAsync(
-            PaginationDTO pageDTO, string userId, string? searchVictimNationalId, bool OrderByDateOfOccurence,
-            bool? DocumentationConsent, bool? PublicationConsent);
+        public Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetIncidentsByPageAndUserIdAsync(
+            PaginationDTO pageDTO, CurrentUser user, int? cityId, string? searchVictimNationalId, bool OrderByDateOfOccurence,
+            bool? DocumentationConsent, bool? PublicationConsent, int? Sensitivity);
         public Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetAllIncidentsByPageAsync(PaginationDTO pageDTO, int? cityId
             ,bool OrderByDateOfOccurence, bool? DocumentationConsent, bool? PublicationConsent, int? Sensitivity);
 

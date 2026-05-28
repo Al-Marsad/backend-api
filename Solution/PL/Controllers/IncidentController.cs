@@ -68,14 +68,22 @@ namespace PL.Controllers
             });
         }
 
-        [Authorize(Roles = RolesSelector.FieldResearcher)]
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember}")]
         [HttpGet("Mine")]
-        public async Task<IActionResult> GetFieldReseacherIncidentsByPage([FromQuery] PaginationDTO pageDTO, [FromQuery] string? NationalId,
-            [FromQuery]bool OrderByDateOfOccurence = false, [FromQuery] bool? DocumentationConsent = null,
-            [FromQuery] bool? PublicationConsent = null)
+        public async Task<IActionResult> GetIncidentsByPageByUser([FromQuery] PaginationDTO pageDTO, [FromQuery]int? CityId 
+            ,[FromQuery] string? NationalId, [FromQuery]bool OrderByDateOfOccurence = false, [FromQuery] bool? DocumentationConsent = null,
+            [FromQuery] bool? PublicationConsent = null, [FromQuery]int? Sensitivity = null)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
+            var currentUser = new CurrentUser
+            {
+                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),
+                Role = User.FindFirstValue(ClaimTypes.Role),
+                CityId = User.FindFirstValue("CityId")
+            };
+
+            if (currentUser.UserId == null ||
+                currentUser.CityId == null ||
+                currentUser.Role == null)
             {
                 return Unauthorized(new
                 {
@@ -88,8 +96,8 @@ namespace PL.Controllers
                 });
             }
 
-            var data = await _incidentService.GetFieldResearcherIncidentsByPageAsync(pageDTO, userId, NationalId, OrderByDateOfOccurence
-                , DocumentationConsent, PublicationConsent);
+            var data = await _incidentService.GetIncidentsByPageAndUserIdAsync(pageDTO, currentUser, CityId, NationalId, OrderByDateOfOccurence
+                , DocumentationConsent, PublicationConsent, Sensitivity);
 
             return Ok(new
             {
@@ -108,6 +116,7 @@ namespace PL.Controllers
             });
         }
 
+
         [Authorize(Roles = $"{RolesSelector.LegalTeamMember},{RolesSelector.Manager}")]
         [HttpGet]
         public async Task<IActionResult> GetAllIncidentsByPage([FromQuery] PaginationDTO pageDTO, [FromQuery] int? CityId = null,
@@ -115,19 +124,6 @@ namespace PL.Controllers
             [FromQuery] bool? PublicationConsent = null,
             [FromQuery] int? Sensitivity = null)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null)
-            {
-                return Unauthorized(new
-                {
-                    Success = false,
-                    Error = new
-                    {
-                        Code = "UNAUTHORIZED",
-                        Message = "JWT missing or expired !!"
-                    }
-                });
-            }
             CityId ??= Convert.ToInt32(User.FindFirstValue("CityId"));
             Console.WriteLine(CityId);
 

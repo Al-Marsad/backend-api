@@ -329,13 +329,18 @@ namespace BL.Services
             return _mapper.Map<ReturnUpdatedIncidentDTO>(incident);  
         }
 
-        public async Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetFieldResearcherIncidentsByPageAsync(
-         PaginationDTO pageDTO, string userId, string? searchVictimNationalId, bool OrderByDateOfOccurence,
-         bool? DocumentationConsent, bool? PublicationConsent)
+        public async Task<PagedResultDTO<List<ReturnIncidentDTO>>> GetIncidentsByPageAndUserIdAsync(
+         PaginationDTO pageDTO, CurrentUser user, int? cityId, string? searchVictimNationalId, bool OrderByDateOfOccurence,
+         bool? DocumentationConsent, bool? PublicationConsent, int? Sensitivity)
         {
-            var (incidents, totalItems) = await _incidentRepo.GetFieldResearcherIncidentsByPageAsync((pageDTO.Page - 1) * pageDTO.PageSize,
-                pageDTO.PageSize, userId, searchVictimNationalId, OrderByDateOfOccurence,
-                DocumentationConsent,PublicationConsent);
+            if (Sensitivity.HasValue && (Sensitivity < 1 || Sensitivity > 10))
+            {
+                throw new ValidationException("Validation Faild", new { Sensitivity = "Must be between 10 and 1" });
+            }
+
+            var (incidents, totalItems) = await _incidentRepo.GetIncidentsByPageAndUserIdAsync((pageDTO.Page - 1) * pageDTO.PageSize,
+                pageDTO.PageSize, user.UserId, user.Role, cityId, searchVictimNationalId, OrderByDateOfOccurence,
+                DocumentationConsent,PublicationConsent, Sensitivity);
 
             var incidentDTOs = _mapper.Map<List<ReturnIncidentDTO>>(incidents);
 

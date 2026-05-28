@@ -105,7 +105,8 @@ public class IncidentServiceTests
 
         Assert.Equal(10, result.Id);
         Assert.Equal(InitialIncidentReportStatus.PENDING, initialReport.Status);
-        incidentRepo.Verify(x => x.AddAsync(It.Is<Incident>(i => i.FieldResearcherId == "researcher-1" && i.InitialIncidentReportId == 5)), Times.Once);
+        incidentRepo.Verify(x => x.AddAsync(It.Is<Incident>(i => i.FieldResearcherId == "researcher-1" && i.InitialIncidentReportId == 5)), 
+            Times.Once);
         incidentRepo.Verify(x => x.SaveAsync(), Times.Once);
         activityRepo.Verify(x => x.AddAsync(It.Is<Activity>(a => a.Type == ActivityType.Add)), Times.Once);
         activityRepo.Verify(x => x.SaveAsync(), Times.Once);
