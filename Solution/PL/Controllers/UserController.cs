@@ -47,6 +47,20 @@ namespace PL.Controllers
             });
         }
 
+
+        [Authorize(Roles = RolesSelector.Manager)]
+        [HttpGet("Profile/{userId:required}")]
+        public async Task<IActionResult> GetProfileByManager(string userId)
+        {
+            var data = await _userService.GetProfileAsync(userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
+
         [Authorize]
         [HttpPut("Profile")]
         public async Task<IActionResult> UpdateProfile(UpdateUserProfileDTO profileDTO)
