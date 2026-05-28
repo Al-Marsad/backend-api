@@ -42,7 +42,7 @@ public class IncidentControllerTests
     public async Task IncidentController_GetAllIncidents_UsesCityClaimWhenCityIdMissing()
     {
         var service = new Mock<IIncidentService>();
-        service.Setup(x => x.GetAllIncidentsByPageAsync(It.IsAny<PaginationDTO>(), 7, false, null, null, null))
+        service.Setup(x => x.GetAllIncidentsByPageAsync(It.IsAny<PaginationDTO>(), 7, null, false, null, null, null, null))
             .ReturnsAsync(new PagedResultDTO<List<ReturnIncidentDTO>> { Data = [], Page = 1, PageSize = 20 });
 
         var controller = new IncidentController(service.Object, Mock.Of<ILegalNoteService>());
@@ -51,7 +51,7 @@ public class IncidentControllerTests
         var result = await controller.GetAllIncidentsByPage(new PaginationDTO());
 
         Assert.IsType<OkObjectResult>(result);
-        service.Verify(x => x.GetAllIncidentsByPageAsync(It.IsAny<PaginationDTO>(), 7, false, null, null, null), Times.Once);
+        service.Verify(x => x.GetAllIncidentsByPageAsync(It.IsAny<PaginationDTO>(), 7, null, false, null, null, null, null), Times.Once);
     }
 
     [Fact]

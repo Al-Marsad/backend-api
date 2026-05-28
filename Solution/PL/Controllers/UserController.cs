@@ -156,6 +156,19 @@ namespace PL.Controllers
         [HttpPatch("AccountStatus/{userId:required}")]
         public async Task<IActionResult> ChangeAccountStatus(string userId, ChangeAccountStatusDTO StatusDTO)
         {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "BAD_REQUEST",
+                        Message = "User id is required"
+                    }
+                });
+            }
+
             var currentUser = new CurrentUser
             {
                 UserId = User.FindFirstValue(ClaimTypes.NameIdentifier),

@@ -11,22 +11,21 @@ namespace DAL.Entities
     public class NewsItem
     {
         public int Id { get; set; }
-        
         public string Title { get; set; }
-
         public string Body { get; set; }
-        public DateTime? PublishDate { get; set; }
-
+        public DateTime PublishDate { get; set; }
+        public DateTime WritingDate { get; set; } = DateTime.UtcNow;
         public string Summary { get; set; }
         public bool IsPublished { get; set; }
 
+
         [ForeignKey(nameof(WrittenBy))]
         public string WrittenById { get; set; }
+        public virtual AppUser WrittenBy { get; set; }
         
+       
         [ForeignKey(nameof(Incident))]
         public int IncidentId { get; set; }
-
-        public virtual AppUser WrittenBy { get; set; }
         public virtual Incident Incident { get; set; }
     }
 }

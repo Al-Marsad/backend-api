@@ -113,7 +113,7 @@ public class UserServiceTests
         var service = ServiceTestFactory.CreateUserService(IdentityMockFactory.CreateUserManager(), TestDbContextFactory.Create());
 
         await Assert.ThrowsAsync<ValidationException>(() => service.ChangeAccountStatus(
-            new ChangeAccountStatusDTO { Status = (AccountStatus)999 }, "user-1"));
+            new ChangeAccountStatusDTO { Status = (AccountStatus)999 }, "user-1", CreateCurrentUser()));
     }
 
     [Fact]
@@ -125,7 +125,7 @@ public class UserServiceTests
         userManager.Setup(x => x.UpdateAsync(user)).ReturnsAsync(Microsoft.AspNetCore.Identity.IdentityResult.Success);
         var service = ServiceTestFactory.CreateUserService(userManager, TestDbContextFactory.Create());
 
-        await service.ChangeAccountStatus(new ChangeAccountStatusDTO { Status = AccountStatus.Inactive }, "user-1");
+        await service.ChangeAccountStatus(new ChangeAccountStatusDTO { Status = AccountStatus.Inactive }, "user-1", CreateCurrentUser());
 
         Assert.Equal(AccountStatus.Inactive, user.AccountStatus);
         userManager.Verify(x => x.UpdateAsync(user), Times.Once);
@@ -157,6 +157,16 @@ public class UserServiceTests
             Birthdate = DateTime.UtcNow.AddYears(-25),
             CityId = 1,
             AccountStatus = AccountStatus.Active
+        };
+    }
+
+    private static CurrentUser CreateCurrentUser()
+    {
+        return new CurrentUser
+        {
+            UserId = "admin-1",
+            Role = RolesSelector.Admin,
+            CityId = "1"
         };
     }
 }

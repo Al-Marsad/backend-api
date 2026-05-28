@@ -167,7 +167,7 @@ public class IncidentServiceTests
         var service = ServiceTestFactory.CreateIncidentService(new Mock<IIncidentRepository>());
 
         await Assert.ThrowsAsync<ValidationException>(() =>
-            service.GetAllIncidentsByPageAsync(new PaginationDTO(), null, false, null, null, 11));
+            service.GetAllIncidentsByPageAsync(new PaginationDTO(), null, null, false, null, null, null, 11));
     }
 
     [Fact]

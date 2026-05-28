@@ -1,6 +1,7 @@
 using DAL.Entities;
 using DAL.Enums;
 using DAL.Repositories;
+using BL.Helper;
 using TestProject.Support;
 
 namespace TestProject.Repositories;
@@ -37,7 +38,8 @@ public class IncidentRepositoryTests
         await db.SaveChangesAsync();
         var repo = new IncidentRepository(db);
 
-        var (items, total) = await repo.GetFieldResearcherIncidentsByPageAsync(0, 10, "r1", "123", false, true, null);
+        var (items, total) = await repo.GetIncidentsByPageAndUserIdAsync(
+            0, 10, "r1", RolesSelector.FieldResearcher, null, "123", false, true, null, null, null);
 
         Assert.Equal(1, total);
         Assert.Single(items);
@@ -55,7 +57,7 @@ public class IncidentRepositoryTests
         await db.SaveChangesAsync();
         var repo = new IncidentRepository(db);
 
-        var (items, total) = await repo.GetAllIncidentsByPageAsync(0, 10, 3, false, null, null, 8);
+        var (items, total) = await repo.GetAllIncidentsByPageAsync(0, 10, 3, null, false, null, null, null, 8);
 
         Assert.Equal(1, total);
         Assert.Single(items);
