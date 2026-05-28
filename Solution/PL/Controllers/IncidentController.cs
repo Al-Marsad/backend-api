@@ -6,6 +6,7 @@ using BL.DTO.InitialIncidentReport;
 using BL.Helper;
 using BL.Services.Interfaces;
 using DAL.Entities;
+using DAL.Enums;
 using DAL.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -164,11 +165,11 @@ namespace PL.Controllers
         }
 
 
-        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember}")]
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember},{RolesSelector.Manager}")]
         [HttpGet("{incidentId:int}/Evidences")]
-        public async Task<IActionResult> GetEvidencesByIncidentId([FromRoute] int incidentId)
+        public async Task<IActionResult> GetEvidencesByIncidentId([FromRoute] int incidentId, [FromQuery]EvidenceType? Type = null)
         {
-            var data = await _incidentService.GetEvidencesByIncidentIdAsync(incidentId);
+            var data = await _incidentService.GetEvidencesByIncidentIdAsync(incidentId, Type);
             
             return Ok(new
             {
@@ -178,7 +179,7 @@ namespace PL.Controllers
         }
 
 
-        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember},{RolesSelector.LegalTeamMember}")]
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember},{RolesSelector.Manager}")]
         [HttpGet("{incidentId:int}/Testimonies")]
         public async Task<IActionResult> GetTestimoniesAndTheirVictimsByIncidentId([FromRoute] int incidentId)
         {

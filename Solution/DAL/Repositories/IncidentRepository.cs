@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using DAL.DBContext;
 using DAL.Entities;
+using DAL.Enums;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -221,9 +222,16 @@ namespace DAL.Repositories
             await _dbContext.Evidences.AddRangeAsync(evidences);
         }
 
-        public async Task<List<Evidence>> GetEvidencesByIncidentIdAsync(int incidentId)
+        public async Task<List<Evidence>> GetEvidencesByIncidentIdAsync(int incidentId, EvidenceType? type)
         {
-            return await _dbContext.Evidences.Where(e => e.IncidentId == incidentId).ToListAsync();
+            var query = _dbContext.Evidences.Where(e => e.IncidentId == incidentId);
+            
+            if (type != null)
+            {
+                query = query.Where(e => e.Type == type.Value);
+            }
+            
+            return await query.ToListAsync();
         }
 
         public async Task<List<PersonalVictimTestimonie>> GetTestimoniesAndTheirVictimsByIncidentIdAsync(int incidentId)

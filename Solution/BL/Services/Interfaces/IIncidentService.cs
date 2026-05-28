@@ -6,6 +6,7 @@ using BL.DTO.InitialIncidentReport;
 using BL.DTO.Victim;
 using BL.Helper;
 using DAL.Entities;
+using DAL.Enums;
 
 namespace BL.Services.Interfaces
 {
@@ -20,7 +21,7 @@ namespace BL.Services.Interfaces
             bool? PreventModification, int? Sensitivity);
 
         public Task<List<ReturnEvidenceDTO>> AddRangeOfRelatedEvidences(List<AddEvidenceDTO> evidenceDTOs, int incidentId);
-        public Task<List<ReturnEvidenceDTO>> GetEvidencesByIncidentIdAsync(int incidentId);
+        public Task<List<ReturnEvidenceDTO>> GetEvidencesByIncidentIdAsync(int incidentId, EvidenceType? type);
 
         public Task<ReturnIncidentDTO> GetByIdAsync(int Id);
         public Task<List<ReturnVictimTestimonieDTO>> GetTestimoniesAndTheirVictimsByIncidentIdAsync(int incidentId);

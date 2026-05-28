@@ -1,4 +1,5 @@
 ﻿using DAL.Entities;
+using DAL.Enums;
 using DAL.Repositories.Interfaces.Basic;
 
 namespace DAL.Repositories.Interfaces
@@ -14,7 +15,7 @@ namespace DAL.Repositories.Interfaces
         public Task<Incident?> GetFullByIdAsync(int id);
         public Task AddRangeOfEvidencesAsync(List<Evidence> evidences);
 
-        public Task<List<Evidence>> GetEvidencesByIncidentIdAsync(int incidentId);
+        public Task<List<Evidence>> GetEvidencesByIncidentIdAsync(int incidentId, EvidenceType? type);
         public Task<List<PersonalVictimTestimonie>> GetTestimoniesAndTheirVictimsByIncidentIdAsync(int incidentId);
         public Task<Incident?> GetWithTestimoniesOnlyById(int id);
     }

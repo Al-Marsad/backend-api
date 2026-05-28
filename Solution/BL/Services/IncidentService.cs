@@ -424,13 +424,18 @@ namespace BL.Services
             return _mapper.Map<List<ReturnEvidenceDTO>>(evidenceEntities);  
         }
 
-        public async Task<List<ReturnEvidenceDTO>> GetEvidencesByIncidentIdAsync(int incidentId)
+        public async Task<List<ReturnEvidenceDTO>> GetEvidencesByIncidentIdAsync(int incidentId, EvidenceType? type)
         {
             var incident = await _incidentRepo.GetByIdAsync(incidentId);
             if (incident == null)
                 throw new DataNotFoundException($"Incident with id '{incidentId}' not found");
 
-            var evidences = await _incidentRepo.GetEvidencesByIncidentIdAsync(incidentId);
+            if(type.HasValue && !Enum.IsDefined(typeof(EvidenceType), type.Value))
+            {
+                throw new ValidationException($"Validation Failed", new { Type = "The value is not defined on this enum"});
+            }
+
+            var evidences = await _incidentRepo.GetEvidencesByIncidentIdAsync(incidentId, type);
             
             return _mapper.Map<List<ReturnEvidenceDTO>>(evidences);
         }
