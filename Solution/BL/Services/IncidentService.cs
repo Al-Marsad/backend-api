@@ -4,11 +4,12 @@ using BL.DTO.General;
 using BL.DTO.Incident;
 using BL.DTO.Victim;
 using BL.Helper;
+using BL.Models;
+using BL.Queue.Interfaces;
 using BL.Services.Interfaces;
 using DAL.Entities;
 using DAL.Enums;
 using DAL.Exceptions;
-using DAL.Repositories;
 using DAL.Repositories.Interfaces;
 
 namespace BL.Services
@@ -21,13 +22,16 @@ namespace BL.Services
         private readonly IMapper _mapper;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IActivityRepositoy _activityRepositoy;
+        private readonly IIncidentClassificationQueue _queue;
+
 
         public IncidentService(IIncidentRepository incidentRepo,
             IVictimRepository victimRepo,
             IMapper mapper,
             IInitialIncidentReportRepository initialIncidentReportRepo,
             ICloudinaryService cloudinaryService,
-            IActivityRepositoy activityRepositoy)
+            IActivityRepositoy activityRepositoy,
+            IIncidentClassificationQueue queue)
 
         {
             _incidentRepo = incidentRepo;
@@ -36,6 +40,7 @@ namespace BL.Services
             _initialIncidentReportRepo = initialIncidentReportRepo;
             _cloudinaryService = cloudinaryService;
             _activityRepositoy = activityRepositoy;
+            _queue = queue;
         }
 
         public async Task<ReturnIncidentDTO> GetByIdAsync(int Id)
@@ -261,6 +266,8 @@ namespace BL.Services
             await _activityRepositoy.SaveAsync();
 
             var fullLoadedIncident = await _incidentRepo.GetFullByIdAsync(incident.Id);
+
+            _queue.Enqueue(incident.Id.ToString());
 
             return _mapper.Map<ReturnFullIncidentDTO>(fullLoadedIncident);
         }
