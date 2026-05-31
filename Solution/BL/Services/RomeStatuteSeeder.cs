@@ -36,7 +36,7 @@ public class RomeStatuteSeeder : ISeeder<RomeStatuteArticle>
                 var embedding = await _embeddings.EmbedAsync(article.TextToVectorize);
                 await _vectorStore.UpsertArticleAsync(article, embedding);
 
-                _logger.LogInformation("[{Id}/{Total}] ✓ {Title}",
+                _logger.LogInformation("[{count}/{Total}] ✓ {Title}",
                     count++, articles.Count, article.Title);
 
                 success++;
@@ -46,7 +46,7 @@ public class RomeStatuteSeeder : ISeeder<RomeStatuteArticle>
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{Id}] ✗ Failed to seed: {Title}",
+                _logger.LogError(ex, "[{count}] ✗ Failed to seed: {Title}",
                     count, article.Title);
                 failed++;
             }

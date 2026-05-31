@@ -26,7 +26,7 @@ namespace DAL.Entities
         public bool DocumentationConsent { get; set; }
         public bool PublicationConsent { get; set; }
         public bool PreventModification { get; set; }
-        public string? AIClassification { get; set; }
+        public string? AIClassification { get; set; } = "جاري انشاء التحليل القانوني";
 
 
         [ForeignKey(nameof(City))]

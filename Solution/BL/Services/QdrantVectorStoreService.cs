@@ -88,7 +88,7 @@ namespace BL.Services
                 CollectionName,
                 queryEmbedding,
                 limit: (ulong)topK,
-                scoreThreshold: 0.45f       // ignore weak matches
+                scoreThreshold: 0.55f       // ignore weak matches
             );
 
             return results.Select(r => new MatchedArticle

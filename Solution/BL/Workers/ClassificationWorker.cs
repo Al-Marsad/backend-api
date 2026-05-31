@@ -123,7 +123,7 @@ public class ClassificationWorker : BackgroundService
 
             if (incident is not null)
             {
-                incident.AIClassification = "فشل التحليل القانوني";
+                incident.AIClassification = "فشل انشاء التحليل القانوني";
                 await db.SaveChangesAsync(ct);
             }
         }
