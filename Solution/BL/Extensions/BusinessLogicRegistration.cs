@@ -1,14 +1,18 @@
-﻿using AutoMapper;
+﻿using System;
 using BL.Helper;
 using BL.MappingProfiles;
+using BL.Models;
+using BL.Queue;
+using BL.Queue.Interfaces;
 using BL.Services;
 using BL.Services.Interfaces;
+using BL.Workers;
 using CloudinaryDotNet;
-using DAL.Repositories;
-using DAL.Repositories.Interfaces;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+
 
 namespace BL.Extensions
 {
@@ -55,6 +59,18 @@ namespace BL.Extensions
             services.AddScoped<INewsItemService, NewsItemService>();
 
 
+            // Register Services used By Classifier
+            services.AddSingleton<IIncidentClassificationQueue, IncidentClassificationQueue>();
+
+            services.AddHttpClient<IEmbeddingService, GeminiEmbeddingService>();
+            services.AddHttpClient<IClassificationService<IncidentClassificationInput, MatchedArticle, ClassificationResult>
+                , GroqClassificationService>();
+            services.AddScoped<IVectorStoreService<RomeStatuteArticle, MatchedArticle>, QdrantVectorStoreService>();
+            services.AddScoped<ISeeder<RomeStatuteArticle>, RomeStatuteSeeder>();
+
+            services.AddHostedService<ClassificationWorker>();
+
+           
 
 
             services.AddScoped<DTOBuilder>();
