@@ -76,7 +76,7 @@ public class ClassificationWorker : BackgroundService
                                                 .ToList()!
                 };
 
-               
+
                 var embedding = await embeddings.EmbedAsync(
                     classificationInput.BuildFullContext());
 
@@ -102,6 +102,13 @@ public class ClassificationWorker : BackgroundService
 
                 await Task.Delay(delay, ct);
             }
+            catch (FormatException ex)
+            {
+                _logger.LogError(ex,
+                    $"Groq failed for incident = {incidentId}. Becuase it has not returned valid JSON.",
+                    incidentId);
+                await MarkAsFailedAsync(incidentId, ct);
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex,
@@ -123,7 +130,7 @@ public class ClassificationWorker : BackgroundService
 
             if (incident is not null)
             {
-                incident.AIClassification = "فشل انشاء التحليل القانوني";
+                incident.AIClassification = """{ RulesViolated: "فشل انشاء التحليل القانوني", LegalReasoning: "فشل انشاء التحليل القانوني" }""";
                 await db.SaveChangesAsync(ct);
             }
         }

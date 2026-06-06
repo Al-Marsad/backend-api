@@ -62,7 +62,7 @@ namespace BL.Services
             await _newsItemRepository.SaveAsync();
 
             await AddActivityAsync(currentUser.UserId,
-                $"User with id '{currentUser.UserId}' added draft news item with id '{news.Id}' for incident with id '{incident.Id}'",
+                $"Manager with id '{currentUser.UserId}' added draft news item with id '{news.Id}' for incident with id '{incident.Id}'",
                 ActivityType.Add);
 
             var loadedNews = await _newsItemRepository.GetByIdAsync(news.Id);
@@ -81,7 +81,7 @@ namespace BL.Services
             await _newsItemRepository.SaveAsync();
 
             await AddActivityAsync(currentUser.UserId,
-                $"User with id '{currentUser.UserId}' updated news item with id '{news.Id}'",
+                $"Manager with id '{currentUser.UserId}' updated news item with id '{news.Id}'",
                 ActivityType.Update);
 
             return _mapper.Map<ReturnUpdatedNewsItemDTO>(news);
@@ -100,7 +100,7 @@ namespace BL.Services
             await _newsItemRepository.SaveAsync();
 
             await AddActivityAsync(currentUser.UserId,
-                $"User with id '{currentUser.UserId}' published news item with id '{news.Id}'",
+                $"Manager with id '{currentUser.UserId}' published news item with id '{news.Id}'",
                 ActivityType.Update);
 
             return _mapper.Map<ReturnTinyNewsItemDTO>(news);
@@ -119,7 +119,7 @@ namespace BL.Services
             await _newsItemRepository.SaveAsync();
 
             await AddActivityAsync(currentUser.UserId,
-                $"User with id '{currentUser.UserId}' unpublished news item with id '{news.Id}'",
+                $"Manager with id '{currentUser.UserId}' unpublished news item with id '{news.Id}'",
                 ActivityType.Update);
 
             return _mapper.Map<ReturnTinyNewsItemDTO>(news);

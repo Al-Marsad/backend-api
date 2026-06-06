@@ -8,5 +8,8 @@ namespace BL.Services.Interfaces
         public Task<TResult> ClassifyAsync(
             TInput input,
             List<TMatchedArticle> matchedArticles);
+
+        public Task<string> SendRequestAsync(string systemPrompt, string userPrompt);
+
     }
 }
