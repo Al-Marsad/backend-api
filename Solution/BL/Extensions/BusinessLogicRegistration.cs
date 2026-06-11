@@ -57,6 +57,7 @@ namespace BL.Extensions
             services.AddScoped<ILegalNoteService, LegalNoteService>();
             services.AddScoped<IActivityService, ActivityService>();
             services.AddScoped<INewsItemService, NewsItemService>();
+            services.AddScoped<IStatsService, StatsService>();
 
 
             // Register Services used By Classifier
@@ -65,8 +66,8 @@ namespace BL.Extensions
             services.AddHttpClient<IEmbeddingService, GeminiEmbeddingService>();
             services.AddHttpClient<IClassificationService<IncidentClassificationInput, MatchedArticle, ClassificationResult>
                 , GroqClassificationService>();
-            services.AddScoped<IVectorStoreService<RomeStatuteArticle, MatchedArticle>, QdrantVectorStoreService>();
-            services.AddScoped<ISeeder<RomeStatuteArticle>, RomeStatuteSeeder>();
+            services.AddScoped<IVectorStoreService<LegalLawItem, MatchedArticle>, QdrantVectorStoreService>();
+            services.AddScoped<ISeeder<LegalLawItem>, RomeStatuteSeeder>();
 
             services.AddHostedService<ClassificationWorker>();
 

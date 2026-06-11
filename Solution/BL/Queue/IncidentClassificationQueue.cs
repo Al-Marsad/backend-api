@@ -5,13 +5,12 @@ namespace BL.Queue
 {
     public class IncidentClassificationQueue : IIncidentClassificationQueue
     {
-        // BoundedChannel = backpressure protection (won't grow unbounded)
         private readonly Channel<string> _channel = Channel.CreateBounded<string>(
             new BoundedChannelOptions(capacity: 500)
             {
-                FullMode = BoundedChannelFullMode.Wait,  // block writer if full
-                SingleReader = true,                         // only the worker reads
-                SingleWriter = false                         // multiple controllers can write
+                FullMode = BoundedChannelFullMode.Wait,
+                SingleReader = true,
+                SingleWriter = false
             });
 
         public void Enqueue(string incidentId)
@@ -21,7 +20,6 @@ namespace BL.Queue
                     $"Classification queue is full. Could not enqueue incident {incidentId}.");
         }
 
-        // Worker iterates this — it awaits automatically when queue is empty
         public IAsyncEnumerable<string> ReadAllAsync(CancellationToken ct) =>
             _channel.Reader.ReadAllAsync(ct);
     }

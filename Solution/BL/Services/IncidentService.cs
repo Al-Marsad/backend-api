@@ -2,6 +2,7 @@
 using BL.DTO.Evidence;
 using BL.DTO.General;
 using BL.DTO.Incident;
+using BL.DTO.Stats;
 using BL.DTO.Victim;
 using BL.Helper;
 using BL.Models;
@@ -431,7 +432,7 @@ namespace BL.Services
             return _mapper.Map<List<ReturnEvidenceDTO>>(evidenceEntities);  
         }
 
-        public async Task<List<ReturnEvidenceDTO>> GetEvidencesByIncidentIdAsync(int incidentId, EvidenceType? type)
+        public async Task<List<ReturnEvidenceDTO>> GetEvidencesByIncidentIdAsync(int incidentId, EvidenceType? type = null)
         {
             var incident = await _incidentRepo.GetByIdAsync(incidentId);
             if (incident == null)
@@ -641,6 +642,32 @@ namespace BL.Services
             await _incidentRepo.SaveAsync();
 
             return _mapper.Map<ReturnGiveConsentDTO>(incident);
+        }
+
+        public async Task<IncidentStatsDTO> GetStatsAsync()
+        {
+            var stats = await _incidentRepo.GetStatsAsync();
+
+            return new IncidentStatsDTO
+            {
+                PendingPublicationCount = stats.PendingPublicationCount,
+                PublishedCount = stats.PublishedCount,
+                LockedUnpublishedCount = stats.LockedUnpublishedCount,
+                TotalCount = stats.TotalCount
+            };
+        }
+
+        public async Task<MyIncidentStatsDTO> GetMyStatsAsync(string userId)
+        {
+            var stats = await _incidentRepo.GetMyStatsAsync(userId);
+
+            return new MyIncidentStatsDTO
+            {
+                PendingReviewCount = stats.PendingReviewCount,
+                UnderReviewCount = stats.UnderReviewCount,
+                ReviewedCount = stats.ReviewedCount,
+                SentToManagerCount = stats.SentToManagerCount
+            };
         }
 
     }

@@ -11,6 +11,7 @@ namespace DAL.Enums
         UNASSIGNED,
         ASSIGNED,
         PENDING,
-        CLOSED    
+        CLOSED,
+        REJECTED
     }
 }

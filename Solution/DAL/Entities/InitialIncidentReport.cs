@@ -31,9 +31,6 @@ namespace DAL.Entities
         public string? FieldResearcherId { get; set; }
         public virtual AppUser? FieldResearcher { get; set; }
 
-
-        [ForeignKey(nameof(Incident))]
-        public int? IncidentId { get; set; }
         public virtual Incident? Incident { get; set; }
     }
 }

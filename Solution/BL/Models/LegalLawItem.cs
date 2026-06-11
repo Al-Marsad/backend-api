@@ -1,7 +1,7 @@
 ﻿namespace BL.Models
 {
 
-    public class RomeStatuteArticle
+    public class LegalLawItem
     {
         public string Category { get; set; } = "";
         public string ArticleNumber { get; set; } = "";

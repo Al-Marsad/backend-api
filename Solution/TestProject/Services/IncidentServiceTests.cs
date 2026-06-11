@@ -13,6 +13,7 @@ using DAL.DBContext;
 using DAL.Entities;
 using DAL.Enums;
 using DAL.Exceptions;
+using DAL.Models;
 using DAL.Repositories.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -302,6 +303,50 @@ public class IncidentServiceTests
         Assert.False(result.PreventModification);
         incidentRepo.Verify(x => x.SaveAsync(), Times.Once);
         activityRepo.Verify(x => x.AddAsync(It.Is<Activity>(a => a.Type == ActivityType.Update)), Times.Once);
+    }
+
+    [Fact]
+    public async Task IncidentService_GetStatsAsync_ReturnsRepositoryCounts()
+    {
+        var incidentRepo = new Mock<IIncidentRepository>();
+        incidentRepo.Setup(x => x.GetStatsAsync())
+            .ReturnsAsync(new IncidentStatsModel
+            {
+                PendingPublicationCount = 1,
+                PublishedCount = 2,
+                LockedUnpublishedCount = 3,
+                TotalCount = 4
+            });
+        var service = ServiceTestFactory.CreateIncidentService(incidentRepo);
+
+        var result = await service.GetStatsAsync();
+
+        Assert.Equal(1, result.PendingPublicationCount);
+        Assert.Equal(2, result.PublishedCount);
+        Assert.Equal(3, result.LockedUnpublishedCount);
+        Assert.Equal(4, result.TotalCount);
+    }
+
+    [Fact]
+    public async Task IncidentService_GetMyStatsAsync_ReturnsRepositoryCounts()
+    {
+        var incidentRepo = new Mock<IIncidentRepository>();
+        incidentRepo.Setup(x => x.GetMyStatsAsync("legal-1"))
+            .ReturnsAsync(new MyIncidentStatsModel
+            {
+                PendingReviewCount = 1,
+                UnderReviewCount = 2,
+                ReviewedCount = 3,
+                SentToManagerCount = 4
+            });
+        var service = ServiceTestFactory.CreateIncidentService(incidentRepo);
+
+        var result = await service.GetMyStatsAsync("legal-1");
+
+        Assert.Equal(1, result.PendingReviewCount);
+        Assert.Equal(2, result.UnderReviewCount);
+        Assert.Equal(3, result.ReviewedCount);
+        Assert.Equal(4, result.SentToManagerCount);
     }
 
     private static Incident CreateIncident()

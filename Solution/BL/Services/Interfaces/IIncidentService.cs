@@ -3,6 +3,7 @@ using BL.DTO.Evidence;
 using BL.DTO.General;
 using BL.DTO.Incident;
 using BL.DTO.InitialIncidentReport;
+using BL.DTO.Stats;
 using BL.DTO.Victim;
 using BL.Helper;
 using DAL.Entities;
@@ -21,7 +22,7 @@ namespace BL.Services.Interfaces
             bool? PreventModification, int? Sensitivity);
 
         public Task<List<ReturnEvidenceDTO>> AddRangeOfRelatedEvidences(List<AddEvidenceDTO> evidenceDTOs, int incidentId);
-        public Task<List<ReturnEvidenceDTO>> GetEvidencesByIncidentIdAsync(int incidentId, EvidenceType? type);
+        public Task<List<ReturnEvidenceDTO>> GetEvidencesByIncidentIdAsync(int incidentId, EvidenceType? type = null);
 
         public Task<ReturnIncidentDTO> GetByIdAsync(int Id);
         public Task<List<ReturnVictimTestimonieDTO>> GetTestimoniesAndTheirVictimsByIncidentIdAsync(int incidentId);
@@ -36,6 +37,8 @@ namespace BL.Services.Interfaces
         public Task RequestModificationAsync(int IncidentId, string userId);
 
         public Task<ReturnGiveConsentDTO> AllowModificationAsync(int IncidentId, string userId);
+        public Task<IncidentStatsDTO> GetStatsAsync();
+        public Task<MyIncidentStatsDTO> GetMyStatsAsync(string userId);
 
     }
 }

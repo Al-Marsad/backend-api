@@ -7,6 +7,6 @@ namespace BL.DTO.General
     public class SeedVectorDatabaseDTO
     {
         [Required]
-        public List<RomeStatuteArticle> Articles { get; set; }
+        public List<LegalLawItem> Articles { get; set; }
     }
 }
