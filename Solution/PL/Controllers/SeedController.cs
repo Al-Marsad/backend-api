@@ -9,9 +9,9 @@ namespace PL.Controllers
     [Route("api/[controller]")]
     public class SeedController : ControllerBase
     {
-        private readonly ISeeder<RomeStatuteArticle> _seeder;
+        private readonly ISeeder<LegalLawItem> _seeder;
 
-        public SeedController(ISeeder<RomeStatuteArticle> seeder) => _seeder = seeder;
+        public SeedController(ISeeder<LegalLawItem> seeder) => _seeder = seeder;
 
         [HttpPost("RomeStatute")]
         public async Task<IActionResult> Seed([FromBody]SeedVectorDatabaseDTO data)

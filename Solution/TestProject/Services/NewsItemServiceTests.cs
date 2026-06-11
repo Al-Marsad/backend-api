@@ -39,7 +39,7 @@ public class NewsItemServiceTests
     }
 
     [Fact]
-    public async Task NewsItemService_PublishAsync_WhenIncidentLacksPublicationConsent_ThrowsConflict()
+    public async Task NewsItemService_AddAsync_WhenIncidentLacksPublicationConsent_ThrowsConflict()
     {
         var newsRepo = new Mock<INewsItemRepository>();
         newsRepo.Setup(x => x.GetByIdAsync(7)).ReturnsAsync(CreateNewsItem());
@@ -48,7 +48,7 @@ public class NewsItemServiceTests
             .ReturnsAsync(CreateIncident(documentationConsent: true, publicationConsent: false));
         var service = CreateService(newsRepo, incidentRepo);
 
-        await Assert.ThrowsAsync<ConflictException>(() => service.PublishAsync(7, CreateCurrentUser()));
+        await Assert.ThrowsAsync<ConflictException>(() => service.AddAsync(CreateAddDto(), CreateCurrentUser()));
     }
 
     [Fact]
@@ -74,8 +74,8 @@ public class NewsItemServiceTests
     public async Task NewsItemService_GetWebsiteAbbreviatedNewsAsync_ReturnsCardData()
     {
         var newsRepo = new Mock<INewsItemRepository>();
-        newsRepo.Setup(x => x.GetByPageAsync(0, 20, null, null, 1, null, true))
-            .ReturnsAsync(([CreateNewsItem(isPublished: true)], 1));
+        newsRepo.Setup(x => x.GetByPageAsync(0, 20, null, null, 1, true))
+            .ReturnsAsync((new List<NewsItem> { CreateNewsItem(isPublished: true) }, 1));
         var service = CreateService(newsRepo, new Mock<IIncidentRepository>());
 
         var result = await service.GetWebsiteAbbreviatedNewsAsync(new PaginationDTO(), cityId: 1);

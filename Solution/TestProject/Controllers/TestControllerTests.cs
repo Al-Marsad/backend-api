@@ -14,22 +14,30 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using PL.Controllers;
 using TestProject.Support;
+using BL.Queue.Interfaces;
 
 namespace TestProject.Controllers;
 
 public class TestControllerTests
 {
     [Fact]
-    public async Task TestController_AddAsync_WhenIdIsOne_ThrowsTestException()
+    public async Task TestController_AddAsync_EnqueuesIncidentId()
     {
-        await Assert.ThrowsAsync<Exception>(() => new TestController().AddAsync(1));
+        var queue = new Mock<IIncidentClassificationQueue>();
+        var controller = new TestController(queue.Object);
+
+        await controller.AddAsync(1);
+
+        queue.Verify(x => x.Enqueue("1"), Times.Once);
     }
 
     [Fact]
-    public async Task TestController_AddAsync_WhenIdIsNotOne_ReturnsOk()
+    public async Task TestController_AddAsync_ReturnsOk()
     {
-        var result = await new TestController().AddAsync(2);
+        var controller = new TestController(Mock.Of<IIncidentClassificationQueue>());
 
-        Assert.IsType<OkResult>(result);
+        var result = await controller.AddAsync(2);
+
+        Assert.IsType<OkObjectResult>(result);
     }
 }

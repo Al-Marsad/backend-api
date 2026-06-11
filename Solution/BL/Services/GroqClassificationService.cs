@@ -4,7 +4,9 @@ using System.Text.Json.Serialization;
 using BL.Helper;
 using BL.Models;
 using BL.Services.Interfaces;
+using DAL.Entities;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace BL.Services
 {
@@ -14,15 +16,17 @@ namespace BL.Services
         private readonly string _apiKey;
         private const string Model = "llama-3.3-70b-versatile";
         private readonly byte AttemptNum = 2;
+        private readonly ILogger<GroqClassificationService> _logger;
 
         public string ModelName => Model;
 
-        public GroqClassificationService(HttpClient http, IConfiguration config)
+        public GroqClassificationService(HttpClient http, IConfiguration config,
+            ILogger<GroqClassificationService> logger)
         {
             _http = http;
             _apiKey = config["Groq:ApiKey"] ??
                 throw new InvalidOperationException("Groq ApiKey is not configured. add it to appsettings.json");
-
+            _logger = logger;
         }
 
         public async Task<ClassificationResult> ClassifyAsync(
@@ -98,6 +102,8 @@ namespace BL.Services
 
             while (!result && currentAttempt < AttemptNum)
             {
+                _logger.LogWarning("Json validation failed in attempt {Attempt}/{AttemptNum}. Retrying...", currentAttempt, AttemptNum);
+
                 currentAttempt++;
                 
                 analysis = await SendRequestAsync(systemPrompt, userPrompt);
@@ -108,6 +114,7 @@ namespace BL.Services
             {
                 throw new FormatException("Invalid JSON format in Groq response.");
             }
+            _logger.LogInformation("Json is valid, incident was successfully classified");
 
             return new ClassificationResult { Analysis = analysis }
                 ?? throw new InvalidOperationException("Failed to deserialize Groq response.");

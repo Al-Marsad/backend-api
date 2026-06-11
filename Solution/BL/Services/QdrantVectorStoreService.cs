@@ -6,7 +6,7 @@ using Qdrant.Client.Grpc;
 
 namespace BL.Services
 {
-    public class QdrantVectorStoreService : IVectorStoreService<RomeStatuteArticle, MatchedArticle>
+    public class QdrantVectorStoreService : IVectorStoreService<LegalLawItem, MatchedArticle>
     {
         private readonly QdrantClient _client;
         private const string CollectionName = "rome_statute";
@@ -55,7 +55,7 @@ namespace BL.Services
             }
         }
 
-        public async Task UpsertArticleAsync(RomeStatuteArticle article, float[] embedding)
+        public async Task UpsertArticleAsync(LegalLawItem article, float[] embedding)
         {
             var id = Guid.NewGuid().ToString();
             var point = new PointStruct

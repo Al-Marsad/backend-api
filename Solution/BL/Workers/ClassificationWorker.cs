@@ -50,7 +50,7 @@ public class ClassificationWorker : BackgroundService
 
                 var db = scope.ServiceProvider.GetRequiredService<AlMarsadDbContext>();
                 var embeddings = scope.ServiceProvider.GetRequiredService<IEmbeddingService>();
-                var vectorStore = scope.ServiceProvider.GetRequiredService<IVectorStoreService<RomeStatuteArticle, MatchedArticle>>();
+                var vectorStore = scope.ServiceProvider.GetRequiredService<IVectorStoreService<LegalLawItem, MatchedArticle>>();
                 var classifier = scope.ServiceProvider.GetRequiredService<
                     IClassificationService<IncidentClassificationInput, MatchedArticle, ClassificationResult>>();
 
@@ -105,7 +105,7 @@ public class ClassificationWorker : BackgroundService
             catch (FormatException ex)
             {
                 _logger.LogError(ex,
-                    $"Groq failed for incident = {incidentId}. Becuase it has not returned valid JSON.",
+                    $"Groq failed for incident = {incidentId} after 3 attempts. Becuase it has not returned valid JSON.",
                     incidentId);
                 await MarkAsFailedAsync(incidentId, ct);
             }

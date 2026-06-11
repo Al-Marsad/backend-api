@@ -64,4 +64,44 @@ public class IncidentControllerTests
 
         Assert.IsType<UnauthorizedObjectResult>(result);
     }
+
+    [Fact]
+    public async Task IncidentController_GetStats_ReturnsServiceData()
+    {
+        var service = new Mock<IIncidentService>();
+        service.Setup(x => x.GetStatsAsync())
+            .ReturnsAsync(new BL.DTO.Stats.IncidentStatsDTO { TotalCount = 4 });
+        var controller = new IncidentController(service.Object, Mock.Of<ILegalNoteService>());
+
+        var result = await controller.GetStats();
+
+        Assert.IsType<OkObjectResult>(result);
+        service.Verify(x => x.GetStatsAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task IncidentController_GetMyStats_WithoutUser_ReturnsUnauthorized()
+    {
+        var controller = new IncidentController(Mock.Of<IIncidentService>(), Mock.Of<ILegalNoteService>());
+        controller.SetUser(userId: null);
+
+        var result = await controller.GetMyStats();
+
+        Assert.IsType<UnauthorizedObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task IncidentController_GetMyStats_UsesCurrentUser()
+    {
+        var service = new Mock<IIncidentService>();
+        service.Setup(x => x.GetMyStatsAsync("legal-1"))
+            .ReturnsAsync(new BL.DTO.Stats.MyIncidentStatsDTO { UnderReviewCount = 2 });
+        var controller = new IncidentController(service.Object, Mock.Of<ILegalNoteService>());
+        controller.SetUser("legal-1");
+
+        var result = await controller.GetMyStats();
+
+        Assert.IsType<OkObjectResult>(result);
+        service.Verify(x => x.GetMyStatsAsync("legal-1"), Times.Once);
+    }
 }

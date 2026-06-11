@@ -4,14 +4,14 @@ using Microsoft.Extensions.Logging;
 
 namespace BL.Services;
 
-public class RomeStatuteSeeder : ISeeder<RomeStatuteArticle>
+public class RomeStatuteSeeder : ISeeder<LegalLawItem>
 {
-    private readonly IVectorStoreService<RomeStatuteArticle, MatchedArticle> _vectorStore;
+    private readonly IVectorStoreService<LegalLawItem, MatchedArticle> _vectorStore;
     private readonly IEmbeddingService _embeddings;
     private readonly ILogger<RomeStatuteSeeder> _logger;
 
     public RomeStatuteSeeder(
-        IVectorStoreService<RomeStatuteArticle, MatchedArticle> vectorStore,
+        IVectorStoreService<LegalLawItem, MatchedArticle> vectorStore,
         IEmbeddingService embeddings,
         ILogger<RomeStatuteSeeder> logger)
     {
@@ -20,7 +20,7 @@ public class RomeStatuteSeeder : ISeeder<RomeStatuteArticle>
         _logger = logger;
     }
 
-    public async Task<SeedResult> SeedAsync(List<RomeStatuteArticle> articles)
+    public async Task<SeedResult> SeedAsync(List<LegalLawItem> articles)
     {
         await _vectorStore.EnsureCollectionAsync();
 

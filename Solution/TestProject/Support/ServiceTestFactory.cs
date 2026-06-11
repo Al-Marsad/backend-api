@@ -1,6 +1,7 @@
 using BL.Helper;
 using BL.Services;
 using BL.Services.Interfaces;
+using BL.Queue.Interfaces;
 using DAL.DBContext;
 using DAL.Entities;
 using DAL.Repositories.Interfaces;
@@ -36,7 +37,8 @@ internal static class ServiceTestFactory
             TestMapper.Create(),
             initialReportRepo?.Object ?? Mock.Of<IInitialIncidentReportRepository>(),
             cloudinaryService?.Object ?? Mock.Of<ICloudinaryService>(),
-            activityRepo?.Object ?? Mock.Of<IActivityRepositoy>());
+            activityRepo?.Object ?? Mock.Of<IActivityRepositoy>(),
+            Mock.Of<IIncidentClassificationQueue>());
     }
 
     public static UserService CreateUserService(Mock<Microsoft.AspNetCore.Identity.UserManager<AppUser>> userManager, AlMarsadDbContext dbContext)

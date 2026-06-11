@@ -27,6 +27,46 @@ namespace PL.Controllers
             this._legalNoteService = _legalNoteService;
         }
 
+        [Authorize(Roles = RolesSelector.Manager)]
+        [HttpGet("Stats")]
+        public async Task<IActionResult> GetStats()
+        {
+            var data = await _incidentService.GetStatsAsync();
+
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
+
+        [Authorize(Roles = RolesSelector.LegalTeamMember)]
+        [HttpGet("MyStats")]
+        public async Task<IActionResult> GetMyStats()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            var data = await _incidentService.GetMyStatsAsync(userId);
+
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
+
         [Authorize(Roles = RolesSelector.FieldResearcher)]
         [HttpGet("{Id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int Id)

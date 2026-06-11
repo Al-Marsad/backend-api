@@ -110,4 +110,112 @@ public class IncidentRepositoryTests
         Assert.Single(testimonies);
         Assert.Equal("456", testimonies[0].Victim.NationalId);
     }
+
+    [Fact]
+    public async Task IncidentRepository_GetStatsAsync_ReturnsManagerBuckets()
+    {
+        await using var db = TestDbContextFactory.Create();
+        db.Incidents.AddRange(
+            new Incident { FieldResearcherId = "r1", DetailedDescription = "pending publication", AreaName = "area", DocumentationConsent = true, PreventModification = true },
+            new Incident { FieldResearcherId = "r2", DetailedDescription = "published", AreaName = "area", DocumentationConsent = true, PublicationConsent = true, PreventModification = true },
+            new Incident { FieldResearcherId = "r3", DetailedDescription = "locked", AreaName = "area", PreventModification = true },
+            new Incident { FieldResearcherId = "r4", DetailedDescription = "open", AreaName = "area" });
+        await db.SaveChangesAsync();
+        var repo = new IncidentRepository(db);
+
+        var stats = await repo.GetStatsAsync();
+
+        Assert.Equal(1, stats.PendingPublicationCount);
+        Assert.Equal(1, stats.PublishedCount);
+        Assert.Equal(2, stats.LockedUnpublishedCount);
+        Assert.Equal(4, stats.TotalCount);
+    }
+
+    [Fact]
+    public async Task IncidentRepository_GetMyStatsAsync_ReturnsLegalTeamBuckets()
+    {
+        await using var db = TestDbContextFactory.Create();
+        db.Incidents.AddRange(
+            new Incident { FieldResearcherId = "r1", DetailedDescription = "pending", AreaName = "area" },
+            new Incident { FieldResearcherId = "r2", LegalTeamMemberId = "legal-1", DetailedDescription = "under review", AreaName = "area" },
+            new Incident { FieldResearcherId = "r3", LegalTeamMemberId = "legal-1", DetailedDescription = "reviewed", AreaName = "area", PreventModification = true },
+            new Incident { FieldResearcherId = "r4", LegalTeamMemberId = "legal-1", DetailedDescription = "sent", AreaName = "area", DocumentationConsent = true, PreventModification = true },
+            new Incident { FieldResearcherId = "r5", LegalTeamMemberId = "legal-2", DetailedDescription = "other", AreaName = "area" });
+        await db.SaveChangesAsync();
+        var repo = new IncidentRepository(db);
+
+        var stats = await repo.GetMyStatsAsync("legal-1");
+
+        Assert.Equal(1, stats.PendingReviewCount);
+        Assert.Equal(1, stats.UnderReviewCount);
+        Assert.Equal(1, stats.ReviewedCount);
+        Assert.Equal(1, stats.SentToManagerCount);
+    }
+
+    [Fact]
+    public async Task IncidentRepository_GetPublicStatsAsync_CountsPublishedAndPendingReview()
+    {
+        await using var db = TestDbContextFactory.Create();
+        var now = DateTime.UtcNow;
+        db.Incidents.AddRange(
+            new Incident { FieldResearcherId = "r1", DetailedDescription = "published this month", AreaName = "area", CityId = 1, PublicationConsent = true, CreationDate = now },
+            new Incident { FieldResearcherId = "r2", DetailedDescription = "published old", AreaName = "area", CityId = 2, PublicationConsent = true, CreationDate = now.AddMonths(-2) },
+            new Incident { FieldResearcherId = "r3", DetailedDescription = "pending", AreaName = "area", CityId = 2 });
+        await db.SaveChangesAsync();
+        var repo = new IncidentRepository(db);
+
+        var stats = await repo.GetPublicStatsAsync();
+
+        Assert.Equal(2, stats.TotalIncidents);
+        Assert.Equal(2, stats.RegionsAffected);
+        Assert.Equal(1, stats.ReportsThisMonth);
+        Assert.Equal(1, stats.PendingReview);
+    }
+
+    [Fact]
+    public async Task IncidentRepository_GetAnalyticsAsync_GroupsPublishedIncidents()
+    {
+        await using var db = TestDbContextFactory.Create();
+        var city = new City { Id = 9, ArabicName = "City AR", EnglishName = "City EN" };
+        db.Cities.Add(city);
+        db.Incidents.AddRange(
+            new Incident
+            {
+                FieldResearcherId = "r1",
+                DetailedDescription = "published one",
+                AreaName = "area",
+                City = city,
+                PublicationConsent = true,
+                CreationDate = new DateTime(2026, 5, 1, 0, 0, 0, DateTimeKind.Utc)
+            },
+            new Incident
+            {
+                FieldResearcherId = "r2",
+                DetailedDescription = "published two",
+                AreaName = "area",
+                City = city,
+                PublicationConsent = true,
+                CreationDate = new DateTime(2026, 5, 10, 0, 0, 0, DateTimeKind.Utc)
+            },
+            new Incident
+            {
+                FieldResearcherId = "r3",
+                DetailedDescription = "draft",
+                AreaName = "area",
+                City = city,
+                CreationDate = new DateTime(2026, 5, 15, 0, 0, 0, DateTimeKind.Utc)
+            });
+        await db.SaveChangesAsync();
+        var repo = new IncidentRepository(db);
+
+        var analytics = await repo.GetAnalyticsAsync();
+
+        Assert.Single(analytics.ByMonth);
+        Assert.Equal(2, analytics.ByMonth[0].Count);
+        Assert.Single(analytics.ByYear);
+        Assert.Equal(2026, analytics.ByYear[0].Year);
+        Assert.Single(analytics.ByCity);
+        Assert.Equal("City EN", analytics.ByCity[0].EnglishName);
+        Assert.Equal(2, analytics.ByCity[0].Count);
+    }
 }

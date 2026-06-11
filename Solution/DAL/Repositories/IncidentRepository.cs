@@ -2,6 +2,7 @@
 using DAL.DBContext;
 using DAL.Entities;
 using DAL.Enums;
+using DAL.Models;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -222,7 +223,7 @@ namespace DAL.Repositories
             await _dbContext.Evidences.AddRangeAsync(evidences);
         }
 
-        public async Task<List<Evidence>> GetEvidencesByIncidentIdAsync(int incidentId, EvidenceType? type)
+        public async Task<List<Evidence>> GetEvidencesByIncidentIdAsync(int incidentId, EvidenceType? type = null)
         {
             var query = _dbContext.Evidences.Where(e => e.IncidentId == incidentId);
             
@@ -240,6 +241,109 @@ namespace DAL.Repositories
                 .Where(t => t.IncidentId == incidentId)
                 .Include(t => t.Victim)
                 .ToListAsync(); 
+        }
+
+        public async Task<IncidentStatsModel> GetStatsAsync()
+        {
+            return new IncidentStatsModel
+            {
+                PendingPublicationCount = await _dbContext.Incidents
+                    .CountAsync(i => i.DocumentationConsent && !i.PublicationConsent),
+                PublishedCount = await _dbContext.Incidents
+                    .CountAsync(i => i.PublicationConsent),
+                LockedUnpublishedCount = await _dbContext.Incidents
+                    .CountAsync(i => i.PreventModification && !i.PublicationConsent),
+                TotalCount = await _dbContext.Incidents.CountAsync()
+            };
+        }
+
+        public async Task<MyIncidentStatsModel> GetMyStatsAsync(string userId)
+        {
+            return new MyIncidentStatsModel
+            {
+                PendingReviewCount = await _dbContext.Incidents
+                    .CountAsync(i => i.LegalTeamMemberId == null &&
+                                     !i.DocumentationConsent &&
+                                     !i.PublicationConsent),
+                UnderReviewCount = await _dbContext.Incidents
+                    .CountAsync(i => i.LegalTeamMemberId == userId &&
+                                     !i.DocumentationConsent &&
+                                     !i.PublicationConsent),
+                ReviewedCount = await _dbContext.Incidents
+                    .CountAsync(i => i.LegalTeamMemberId == userId &&
+                                     i.PreventModification &&
+                                     !i.DocumentationConsent &&
+                                     !i.PublicationConsent),
+                SentToManagerCount = await _dbContext.Incidents
+                    .CountAsync(i => i.LegalTeamMemberId == userId &&
+                                     i.DocumentationConsent &&
+                                     !i.PublicationConsent)
+            };
+        }
+
+        public async Task<PublicStatsModel> GetPublicStatsAsync()
+        {
+            var now = DateTime.UtcNow;
+
+            return new PublicStatsModel
+            {
+                TotalIncidents = await _dbContext.Incidents
+                    .CountAsync(),
+                RegionsAffected = await _dbContext.Incidents
+                    .Select(i => i.CityId)
+                    .Distinct()
+                    .CountAsync(),
+                ReportsThisMonth = await _dbContext.Incidents
+                    .CountAsync(i => i.CreationDate.Year == now.Year &&
+                                     i.CreationDate.Month == now.Month),
+                PendingReview = await _dbContext.Incidents
+                    .CountAsync(i => !i.DocumentationConsent &&
+                                     !i.PublicationConsent)
+            };
+        }
+
+        public async Task<AnalyticsModel> GetAnalyticsAsync()
+        {
+            var publishedIncidents = _dbContext.Incidents.AsQueryable();
+
+            return new AnalyticsModel
+            {
+                ByMonth = await publishedIncidents
+                    .GroupBy(i => new { i.CreationDate.Year, i.CreationDate.Month })
+                    .Select(g => new CountByMonthModel
+                    {
+                        Year = g.Key.Year,
+                        Month = g.Key.Month,
+                        Count = g.Count()
+                    })
+                    .OrderByDescending(i => i.Count)
+                    .ToListAsync(),
+                ByYear = await publishedIncidents
+                    .GroupBy(i => i.CreationDate.Year)
+                    .Select(g => new CountByYearModel
+                    {
+                        Year = g.Key,
+                        Count = g.Count()
+                    })
+                    .OrderByDescending(i => i.Count)
+                    .ToListAsync(),
+                ByCity = await publishedIncidents
+                    .GroupBy(i => new
+                    {
+                        i.CityId,
+                        i.City.ArabicName,
+                        i.City.EnglishName
+                    })
+                    .Select(g => new CountByCityModel
+                    {
+                        CityId = g.Key.CityId,
+                        ArabicName = g.Key.ArabicName,
+                        EnglishName = g.Key.EnglishName,
+                        Count = g.Count()
+                    })
+                    .OrderByDescending(i => i.Count)
+                    .ToListAsync()
+            };
         }
 
     }
