@@ -16,6 +16,8 @@ namespace BL.Services.Interfaces
         PaginationDTO paginationDTO, string? search);
         public Task<ReturnInitialIncidentReportDTO> AssignToFieldResearcher(AssignToFieldResearcherDTO data);
         public Task<ReturnInitialIncidentReportDTO> UnassignToFieldResearcher(AssignToFieldResearcherDTO data);
+        public Task RejectInitialReportAsync(int InitialIncidentId, string UserId, string Reason);
+
 
     }
 }

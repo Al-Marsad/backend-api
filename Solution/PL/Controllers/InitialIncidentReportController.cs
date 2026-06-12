@@ -123,7 +123,7 @@ namespace PL.Controllers
         }
 
         [Authorize(Roles = RolesSelector.FieldResearcher)]
-        [HttpPut("AssignToFieldResearcher/{Id:int}")]
+        [HttpPatch("AssignToFieldResearcher/{Id:int}")]
         public async Task<IActionResult> AssignToFieldResearcher([FromRoute] int Id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -157,7 +157,7 @@ namespace PL.Controllers
         }
 
         [Authorize(Roles = RolesSelector.FieldResearcher)]
-        [HttpPut("UnassignToFieldResearcher/{Id:int}")]
+        [HttpPatch("UnassignToFieldResearcher/{Id:int}")]
         public async Task<IActionResult> UnassignToFieldResearcher([FromRoute] int Id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -225,6 +225,33 @@ namespace PL.Controllers
                         TotalItems = data.TotalCount,
                     }
                 }
+            });
+        }
+
+        [Authorize(Roles = RolesSelector.FieldResearcher)]
+        [HttpPatch("{ReportId:int}/Reject")]
+        public async Task<IActionResult> RejectInitialReport([FromRoute] int ReportId, [FromBody] RejectInitialReportDTO rejectDTO)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    Success = false,
+                    Error = new
+                    {
+                        Code = "UNAUTHORIZED",
+                        Message = "JWT missing or expired !!"
+                    }
+                });
+            }
+
+            await _initialReportService.RejectInitialReportAsync(ReportId, userId , rejectDTO.Reason);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = "Initial report rejected successfully"
             });
         }
     }
