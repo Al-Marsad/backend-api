@@ -67,7 +67,7 @@ namespace PL.Controllers
             });
         }
 
-        [Authorize(Roles = RolesSelector.FieldResearcher)]
+        [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember},{RolesSelector.Manager}")]
         [HttpGet("{Id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int Id)
         {
