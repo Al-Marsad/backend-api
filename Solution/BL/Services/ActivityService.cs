@@ -43,5 +43,19 @@ namespace BL.Services
                 TotalCount = totalItems
             };
         }
+
+        public async Task<ActivityStatsDTO> GetStatsAsync()
+        {
+            var stats = await _activityRepositoy.GetStatsAsync();
+
+            return new ActivityStatsDTO
+            {
+                IncidentCreatedCount = stats.IncidentCreatedCount,
+                IncidentUpdatedCount = stats.IncidentUpdatedCount,
+                IncidentDeletedCount = stats.IncidentDeletedCount,
+                RequestChangeCount = stats.RequestChangeCount,
+                OtherCount = stats.OtherCount
+            };
+        }
     }
 }

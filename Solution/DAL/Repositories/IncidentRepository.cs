@@ -281,6 +281,18 @@ namespace DAL.Repositories
             };
         }
 
+        public async Task<IncidentBrowseStatsModel> GetBrowseStatsAsync()
+        {
+            return new IncidentBrowseStatsModel
+            {
+                TotalCount = await _dbContext.Incidents.CountAsync(),
+                DocumentedCount = await _dbContext.Incidents
+                    .CountAsync(i => i.DocumentationConsent),
+                PublishedCount = await _dbContext.Incidents
+                    .CountAsync(i => i.PublicationConsent)
+            };
+        }
+
         public async Task<PublicStatsModel> GetPublicStatsAsync()
         {
             var now = DateTime.UtcNow;

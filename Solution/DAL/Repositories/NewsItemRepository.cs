@@ -1,5 +1,6 @@
 using DAL.DBContext;
 using DAL.Entities;
+using DAL.Models;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -76,6 +77,16 @@ namespace DAL.Repositories
         public void Update(NewsItem entity)
         {
             _dbContext.News.Update(entity);
+        }
+
+        public async Task<NewsItemStatsModel> GetStatsAsync()
+        {
+            return new NewsItemStatsModel
+            {
+                TotalCount = await _dbContext.News.CountAsync(),
+                PublishedCount = await _dbContext.News.CountAsync(n => n.IsPublished),
+                HiddenCount = await _dbContext.News.CountAsync(n => !n.IsPublished)
+            };
         }
 
         public async Task SaveAsync()

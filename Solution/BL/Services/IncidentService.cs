@@ -670,5 +670,17 @@ namespace BL.Services
             };
         }
 
+        public async Task<IncidentBrowseStatsDTO> GetBrowseStatsAsync()
+        {
+            var stats = await _incidentRepo.GetBrowseStatsAsync();
+
+            return new IncidentBrowseStatsDTO
+            {
+                TotalCount = stats.TotalCount,
+                DocumentedCount = stats.DocumentedCount,
+                PublishedCount = stats.PublishedCount
+            };
+        }
+
     }
 }

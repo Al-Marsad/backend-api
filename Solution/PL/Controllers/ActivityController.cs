@@ -18,6 +18,19 @@ namespace PL.Controllers
         }
 
         [Authorize(Roles = RolesSelector.Manager)]
+        [HttpGet("Stats")]
+        public async Task<IActionResult> GetStats()
+        {
+            var data = await _activityService.GetStatsAsync();
+
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
+
+        [Authorize(Roles = RolesSelector.Manager)]
         [HttpGet]
         public async Task<IActionResult> GetByPageAsync([FromQuery] PaginationDTO pageDTO, [FromQuery] string? SearchContent = null
             , [FromQuery] ActivityType? ActivityType = null)

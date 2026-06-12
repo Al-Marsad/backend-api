@@ -21,6 +21,7 @@ namespace DAL.Repositories.Interfaces
         public Task<Incident?> GetWithTestimoniesOnlyById(int id);
         public Task<IncidentStatsModel> GetStatsAsync();
         public Task<MyIncidentStatsModel> GetMyStatsAsync(string userId);
+        public Task<IncidentBrowseStatsModel> GetBrowseStatsAsync();
         public Task<PublicStatsModel> GetPublicStatsAsync();
         public Task<AnalyticsModel> GetAnalyticsAsync();
     }
