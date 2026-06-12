@@ -88,6 +88,19 @@ namespace PL.Controllers
         }
 
         [Authorize(Roles = $"{RolesSelector.Manager}")]
+        [HttpGet("Stats")]
+        public async Task<IActionResult> GetStats()
+        {
+            var data = await _newsItemService.GetStatsAsync();
+
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
+
+        [Authorize(Roles = $"{RolesSelector.Manager}")]
         [HttpPut("Management/{newsId:int}")]
         public async Task<IActionResult> UpdateNewsItem([FromRoute] int newsId, [FromBody] UpdateNewsItemDTO newsDTO)
         {

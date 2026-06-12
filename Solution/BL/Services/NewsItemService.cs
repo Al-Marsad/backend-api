@@ -176,6 +176,18 @@ namespace BL.Services
             return _mapper.Map<ReturnNewsItemDTO>(news);
         }
 
+        public async Task<NewsItemStatsDTO> GetStatsAsync()
+        {
+            var stats = await _newsItemRepository.GetStatsAsync();
+
+            return new NewsItemStatsDTO
+            {
+                TotalCount = stats.TotalCount,
+                PublishedCount = stats.PublishedCount,
+                HiddenCount = stats.HiddenCount
+            };
+        }
+
         private async Task<NewsItem> GetExistingNewsAsync(int newsId)
         {
             var news = await _newsItemRepository.GetByIdAsync(newsId);

@@ -47,6 +47,7 @@ namespace DAL.Repositories
 
             var query = _dbContext.InitialIncidentReports
                 .Include(i => i.City)
+                .Where(i => i.Status != InitialIncidentReportStatus.REJECTED)
                 .AsQueryable();
 
 

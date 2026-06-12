@@ -39,6 +39,7 @@ namespace BL.Services.Interfaces
         public Task<ReturnGiveConsentDTO> AllowModificationAsync(int IncidentId, string userId);
         public Task<IncidentStatsDTO> GetStatsAsync();
         public Task<MyIncidentStatsDTO> GetMyStatsAsync(string userId);
+        public Task<IncidentBrowseStatsDTO> GetBrowseStatsAsync();
 
     }
 }

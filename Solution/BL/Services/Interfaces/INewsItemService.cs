@@ -22,5 +22,6 @@ namespace BL.Services.Interfaces
         public Task<PagedResultDTO<List<ReturnNewsMapPointDTO>>> GetWebsiteMapNewsAsync(PaginationDTO pageDTO,
             string? searchTerm = null, int? cityId = null);
         public Task<ReturnNewsItemDTO> GetWebsiteByIdAsync(int newsId);
+        public Task<NewsItemStatsDTO> GetStatsAsync();
     }
 }

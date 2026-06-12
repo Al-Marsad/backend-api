@@ -156,13 +156,14 @@ namespace BL.Services
 
             }
 
+            var fieldResearcherId = report.FieldResearcherId;
             report.FieldResearcherId = null;
             report.Status = InitialIncidentReportStatus.UNASSIGNED;
 
             await _activityRepositoy.AddAsync(new Activity
             {
                 Description = $"Field Researcher with id '{report.FieldResearcherId}' unassign an initial report with id '{report.Id}' to them'",
-                MadeById = report.FieldResearcherId ?? "",
+                MadeById = fieldResearcherId ?? "",
                 Type = ActivityType.Update,
 
             });
@@ -197,5 +198,29 @@ namespace BL.Services
                 TotalCount = totalItems
             };
         }
+
+        public async Task RejectInitialReportAsync(int InitialIncidentId, string UserId, string Reason)
+        {
+            var report =  await this._initialReportRepo.GetByIdAsync(InitialIncidentId);
+
+            if (report == null)
+            {
+                throw new DataNotFoundException("There is no intial report with this id");
+            }
+
+            report.Status = InitialIncidentReportStatus.REJECTED;
+
+            await _activityRepositoy.AddAsync(new Activity
+            {
+                Description = $"Field Researcher with id = {UserId} rejected initial report with id = {report.Id} for the reason: '{Reason}'",
+                MadeById = UserId,
+                Type = ActivityType.Update,
+    
+            });
+
+            await _initialReportRepo.SaveAsync();
+
+        }
+
     }
 }

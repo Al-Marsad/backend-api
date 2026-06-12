@@ -67,6 +67,19 @@ namespace PL.Controllers
             });
         }
 
+        [Authorize(Roles = RolesSelector.LegalTeamMember)]
+        [HttpGet("BrowseStats")]
+        public async Task<IActionResult> GetBrowseStats()
+        {
+            var data = await _incidentService.GetBrowseStatsAsync();
+
+            return Ok(new
+            {
+                Success = true,
+                Data = data
+            });
+        }
+
         [Authorize(Roles = $"{RolesSelector.FieldResearcher},{RolesSelector.LegalTeamMember},{RolesSelector.Manager}")]
         [HttpGet("{Id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int Id)

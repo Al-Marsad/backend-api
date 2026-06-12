@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DAL.DBContext;
 using DAL.Entities;
 using DAL.Enums;
+using DAL.Models;
 using DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -55,6 +56,23 @@ namespace DAL.Repositories
                 .ToListAsync();
 
             return (activities, totalCount);
+        }
+
+        public async Task<ActivityStatsModel> GetStatsAsync()
+        {
+            return new ActivityStatsModel
+            {
+                IncidentCreatedCount = await _dbContext.Activities
+                    .CountAsync(a => a.Type == ActivityType.Add),
+                IncidentUpdatedCount = await _dbContext.Activities
+                    .CountAsync(a => a.Type == ActivityType.Update),
+                IncidentDeletedCount = await _dbContext.Activities
+                    .CountAsync(a => a.Type == ActivityType.Delete),
+                RequestChangeCount = await _dbContext.Activities
+                    .CountAsync(a => a.Type == ActivityType.RequestChange),
+                OtherCount = await _dbContext.Activities
+                    .CountAsync(a => a.Type == ActivityType.Other)
+            };
         }
 
 

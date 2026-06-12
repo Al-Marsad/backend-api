@@ -9,5 +9,6 @@ namespace BL.Services.Interfaces
     {
         public Task<PagedResultDTO<List<ReturnActivityDTO>>> GetByPageAsync(PaginationDTO pageDTO, 
             string? searchContent = null, ActivityType? activityType = null);
+        public Task<ActivityStatsDTO> GetStatsAsync();
     }
 }
